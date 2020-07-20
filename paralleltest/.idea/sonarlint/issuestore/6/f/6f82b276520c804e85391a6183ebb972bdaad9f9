@@ -1,0 +1,38 @@
+
+e
+java:S1192â"IDefine a constant instead of duplicating this literal "https://" 3 times.(ô†µûúÿÿÿÿ
+m
+java:S3776s"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(ÄŠÎŞùÿÿÿÿ
+j
+java:S2975"SRemove this "clone" implementation; use a copy constructor or copy factory instead.(ÂœÜ
+>
+java:S11488"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ
+>
+java:S1148<"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ
+?
+java:S1148Å"#Use a logger to log this exception.(µÎ¡øÿÿÿÿ
+n
+java:S3776ˆ"RRefactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed.(”Óş¡øÿÿÿÿ
+_
+java:S2147;"DCombine this catch with the one at line 55, which has the same body.(üû’äúÿÿÿÿ
+N
+java:S1135"2Complete the task associated to this TODO comment.(™—Ó´üÿÿÿÿ
+N	java:S1062"9Replace this use of System.out or System.err by a logger.(‹Ûê‹
+B
+java:S4423.",Change this code to use a stronger protocol.(È‚ÿ
+_
+java:S1192á"HDefine a constant instead of duplicating this literal "http://" 3 times.(îæçŠ
+I
+java:S1135–"2Complete the task associated to this TODO comment.(Ã¨ù•
+?
+java:S1148¼"#Use a logger to log this exception.(µÎ¡øÿÿÿÿ
+?
+java:S1148Î"#Use a logger to log this exception.(µÎ¡øÿÿÿÿ
+>
+java:S1148:"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ
+Z
+java:S21479"DCombine this catch with the one at line 55, which has the same body.(§ãä
+I
+java:S1135Ô"2Complete the task associated to this TODO comment.(¸¸Çá
+F
+java:S2093"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿ

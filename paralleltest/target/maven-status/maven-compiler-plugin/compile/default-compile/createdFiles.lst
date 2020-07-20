@@ -1,0 +1,4 @@
+cn\beinet\utils\HttpHelper$Config.class
+cn\beinet\App.class
+cn\beinet\utils\HttpHelper.class
+cn\beinet\utils\X509TrustManagerExt.class
