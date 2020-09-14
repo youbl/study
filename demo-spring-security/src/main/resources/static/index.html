@@ -9,6 +9,8 @@
 <body>
 <div id="divApp">
     服务器时间: {{serverTime}}
+
+    <a href="javascript:void(0)" @click="doLogout">退出登录</a>
 </div>
 <script type="text/javascript">
     var vueApp = new Vue({
@@ -27,6 +29,15 @@
                 let url = '/time';
                 return axios.get(url).then(response => {
                     this.serverTime = response.data;
+                }).catch(error => {
+                    this.ajaxError(error);
+                });
+            },
+            doLogout: function () {
+                let url = '/logout';
+                return axios.get(url).then(response => {
+                    alert(response.data.msg);
+                    location.reload();
                 }).catch(error => {
                     this.ajaxError(error);
                 });

@@ -35,14 +35,21 @@ public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().ignoringAntMatchers("/login")   // 对login的请求，忽略csrf，否则会导致无法登录，一直302
-                .and()                              // 把前面的返回结果，转换回HttpSecurity，以便后续的流式操作
+        // 先关闭csrf，影响登录和退出
+        http.csrf().disable();
+
+        http
                 .formLogin()                        // 开启form表单登录
                 .loginPage("/myLogin.html")         // 使用自定义的登录表单
                 .loginProcessingUrl("/login")       // 接收POST登录请求的处理地址
                 .successHandler(new BeinetHandleSuccess()) // 登录验证通过后的处理器
                 .failureHandler(new BeinetHandleFail())    // 登录验证失败后的处理器
                 .permitAll()                        // 允许上述请求匿名访问, 注：不加这句，会导致302死循环
+                .and()                              // 把前面的返回结果，转换回HttpSecurity，以便后续的流式操作
+                .logout()
+                //.logoutUrl("/logout")             // 指定退出登录的url，默认就是/logout
+                .logoutSuccessHandler(new BeinetHandleLogout()) // 退出成功后的处理器
+                .permitAll()                        // 退出的url要允许匿名访问
                 .and()
                 .authorizeRequests()                // 开始指定请求授权
                 .antMatchers("/res/**").permitAll()     // res根路径及子目录请求，不限制访问
