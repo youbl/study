@@ -2,21 +2,93 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Form登录页</title>
+    <title>登录页</title>
+    <script src="/res/unpkg/vue.min.js"></script>
+    <script src="/res/unpkg/axios.min.js"></script>
+    <script src="/res/qs.min.js"></script>
 </head>
 <body>
 <div id="divApp">
-    <form action="/login" method="post">
-        <div>
-            <input type="text" name="username" placeholder="用户名">
-        </div>
-        <div>
-            <input type="password" name="password" placeholder="密码">
-        </div>
-        <div>
-            <input type="submit">
-        </div>
-    </form>
+    <div>
+        <input type="text" v-model="username" placeholder="用户名">
+    </div>
+    <div>
+        <input type="password" v-model="password" placeholder="密码">
+    </div>
+    <div>
+        <button @click="doLogin">登录</button>
+    </div>
 </div>
+<script type="text/javascript">
+    var vueApp = new Vue({
+        el: '#divApp',
+        // components: {
+        //     Multiselect: window.VueMultiselect.default
+        // },
+        data: {
+            username: '',
+            password: '',
+        },
+        methods: {
+            doLogin: function () {
+                let url = '/login';
+                return axios.post(url, Qs.stringify(this.$data)).then(response => {
+                    // 能到这里，表示登录成功
+                    location.href = '/index.html';
+                }).catch(error => {
+                    this.ajaxError(error);
+                });
+            },
+            ajaxError: function (error) {
+                if (error.response && error.response.data) {
+                    console.log(JSON.stringify(error.response.data));
+                    let msg = error.response.data['msg'];
+                    alert(msg);
+                } else {
+                    console.log(JSON.stringify(error));
+                    alert('未知错误');
+                }
+            },
+        }
+    });
+
+    /**
+     * 获取url里的变量值
+     * @param {string} name 变量名
+     * @return {string}
+     */
+    function getQueryString(name) {
+        if (typeof (name) !== 'string') {
+            return '';
+        }
+        name = name.trim();
+        if (name.length === 0) {
+            return '';
+        }
+        let localSearch = location.search.toLocaleLowerCase();
+        name = name.toLowerCase() + '=';
+        let tmpName = '?' + name;
+        let idx = localSearch.indexOf(tmpName);
+        if (idx < 0) {
+            tmpName = '&' + name;
+            idx = localSearch.indexOf(tmpName);
+            if (idx < 0) {
+                return '';
+            }
+        }
+        name = tmpName;
+        let tmp = location.search.substr(idx + name.length);
+        idx = tmp.indexOf('&');
+        if (idx === 0)
+            return '';
+        let ret;
+        if (idx < 0) {
+            ret = tmp;
+        } else {
+            ret = tmp.substr(0, idx);
+        }
+        return decodeURIComponent(ret.trim());
+    }
+</script>
 </body>
 </html>
