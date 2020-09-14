@@ -2,6 +2,7 @@ package beinet.cn.demospringsecurity.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -10,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 /**
  * 登录相关的配置，如：哪些地址要登录，角色是啥，登录地址、登录成功/失败操作等等
  */
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
     /**
@@ -46,15 +48,20 @@ public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
                 .failureHandler(new BeinetHandleFail())    // 登录验证失败后的处理器
                 .permitAll()                        // 允许上述请求匿名访问, 注：不加这句，会导致302死循环
                 .and()                              // 把前面的返回结果，转换回HttpSecurity，以便后续的流式操作
-                .logout()
+                .logout()                           // 开启退出登录接口
                 //.logoutUrl("/logout")             // 指定退出登录的url，默认就是/logout
                 .logoutSuccessHandler(new BeinetHandleLogout()) // 退出成功后的处理器
                 .permitAll()                        // 退出的url要允许匿名访问
+                .and()
+                .exceptionHandling()                // 开始异常处理配置
+                .authenticationEntryPoint(new BeinetAuthenticationEntryPoint()) // 指定匿名访问需登录的url的异常处理器
+                .accessDeniedHandler(new BeinetHandleAccessDenied())            // 指定登录用户访问无权限url的异常处理器
                 .and()
                 .authorizeRequests()                // 开始指定请求授权
                 .antMatchers("/res/**").permitAll()     // res根路径及子目录请求，不限制访问
                 .antMatchers("/news/**").hasRole("ROOT")// news根路径及子目录请求，要求ROOT角色才能访问
                 .antMatchers("/time/**").hasRole("USER")// time根路径及子目录请求，要求USER角色才能访问
+                .antMatchers("/role/**").permitAll()    // 忽略配置里的权限，改用 EnableGlobalMethodSecurity 和 PreAuthorize 注解
                 .anyRequest().authenticated();      // 其它所有请求都要求登录后访问，但是不限制角色
     }
 

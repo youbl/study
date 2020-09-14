@@ -11,6 +11,11 @@
     服务器时间: {{serverTime}}
 
     <a href="javascript:void(0)" @click="doLogout">退出登录</a>
+
+    <hr>
+    测试PreAuthorize：
+    <a href="javascript:void(0)" @click="testPreAuth">需要ROOT角色</a>
+
 </div>
 <script type="text/javascript">
     var vueApp = new Vue({
@@ -42,14 +47,18 @@
                     this.ajaxError(error);
                 });
             },
+            testPreAuth: function () {
+                let url = '/roleRoot';
+                return axios.get(url).then(response => {
+                    alert(response.data.msg);
+                }).catch(error => {
+                    this.ajaxError(error);
+                });
+            },
             ajaxError: function (error) {
                 if (error.response && error.response.data) {
-                    let msg = error.response.data['Msg'];
-                    if (msg === 'Unauthorized') {
-                        location.href = '/login?r=%2Fadmin%23%2FserverStatus.html';
-                        return;
-                    }
                     console.log(JSON.stringify(error.response.data));
+                    let msg = error.response.data['msg'];
                     alert(msg);
                 } else {
                     console.log(JSON.stringify(error));

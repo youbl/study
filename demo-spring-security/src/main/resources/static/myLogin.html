@@ -18,6 +18,10 @@
     <div>
         <button @click="doLogin">登录</button>
     </div>
+
+    <hr>
+    测试PreAuthorize：
+    <a href="javascript:void(0)" @click="testPreAuth">需要已登录</a>
 </div>
 <script type="text/javascript">
     var vueApp = new Vue({
@@ -35,6 +39,14 @@
                 return axios.post(url, Qs.stringify(this.$data)).then(response => {
                     // 能到这里，表示登录成功
                     location.href = '/index.html';
+                }).catch(error => {
+                    this.ajaxError(error);
+                });
+            },
+            testPreAuth: function () {
+                let url = '/role';
+                return axios.get(url).then(response => {
+                    alert(response.data.msg);
                 }).catch(error => {
                     this.ajaxError(error);
                 });
