@@ -1,0 +1,5 @@
+server:
+  port: 8088
+#logging:
+#  level:
+#    root: TRACE

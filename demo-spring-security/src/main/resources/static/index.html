@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <script src="/res/unpkg/vue.min.js"></script>
+    <script src="/res/unpkg/axios.min.js"></script>
+</head>
+<body>
+<div id="divApp">
+    服务器时间: {{serverTime}}
+</div>
+<script type="text/javascript">
+    var vueApp = new Vue({
+        el: '#divApp',
+        // components: {
+        //     Multiselect: window.VueMultiselect.default
+        // },
+        data: {
+            serverTime: '',
+        },
+        created: function () {
+            this.getServerTime();
+        },
+        methods: {
+            getServerTime: function () {
+                let url = '/time';
+                return axios.get(url).then(response => {
+                    this.serverTime = response.data;
+                }).catch(error => {
+                    this.ajaxError(error);
+                });
+            },
+            ajaxError: function (error) {
+                if (error.response && error.response.data) {
+                    let msg = error.response.data['Msg'];
+                    if (msg === 'Unauthorized') {
+                        location.href = '/login?r=%2Fadmin%23%2FserverStatus.html';
+                        return;
+                    }
+                    console.log(JSON.stringify(error.response.data));
+                    alert(msg);
+                } else {
+                    console.log(JSON.stringify(error));
+                    alert('未知错误');
+                }
+            },
+        }
+    });
+
+    /**
+     * 获取url里的变量值
+     * @param {string} name 变量名
+     * @return {string}
+     */
+    function getQueryString(name) {
+        if (typeof (name) !== 'string') {
+            return '';
+        }
+        name = name.trim();
+        if (name.length === 0) {
+            return '';
+        }
+        let localSearch = location.search.toLocaleLowerCase();
+        name = name.toLowerCase() + '=';
+        let tmpName = '?' + name;
+        let idx = localSearch.indexOf(tmpName);
+        if (idx < 0) {
+            tmpName = '&' + name;
+            idx = localSearch.indexOf(tmpName);
+            if (idx < 0) {
+                return '';
+            }
+        }
+        name = tmpName;
+        let tmp = location.search.substr(idx + name.length);
+        idx = tmp.indexOf('&');
+        if (idx === 0)
+            return '';
+        let ret;
+        if (idx < 0) {
+            ret = tmp;
+        } else {
+            ret = tmp.substr(0, idx);
+        }
+        return decodeURIComponent(ret.trim());
+    }
+</script>
+</body>
+</html>
