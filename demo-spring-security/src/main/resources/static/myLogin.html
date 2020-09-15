@@ -42,7 +42,11 @@
                 let url = '/login';
                 return axios.post(url, Qs.stringify(this.$data)).then(response => {
                     // 能到这里，表示登录成功
-                    location.href = '/index.html';
+                    let goUrl = getQueryString('returnUrl');
+                    if (!goUrl)
+                        goUrl = '/index.html';
+
+                    location.href = goUrl;
                 }).catch(error => {
                     this.ajaxError(error);
                 });

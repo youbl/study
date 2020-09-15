@@ -51,6 +51,7 @@ public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
                 .accessDeniedHandler(new BeinetHandleAccessDenied())            // 指定登录用户访问无权限url的异常处理器
                 .and()
                 .authorizeRequests()                // 开始指定请求授权
+                .antMatchers("/myLogin.html/**").permitAll() // 上面的loginPage("/myLogin.html").permitAll() 居然不支持带参数: myLogin.html?xxx
                 .antMatchers("/res/**").permitAll()     // res根路径及子目录请求，不限制访问
                 .antMatchers("/news/**").hasRole("ROOT")// news根路径及子目录请求，要求ROOT角色才能访问
                 .antMatchers("/time/**").hasRole("USER")// time根路径及子目录请求，要求USER角色才能访问
