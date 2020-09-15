@@ -10,10 +10,13 @@
 <body>
 <div id="divApp">
     <div>
-        <input type="text" v-model="username" placeholder="用户名">
+        <input type="text" v-model="beinetUser" placeholder="用户名">
     </div>
     <div>
-        <input type="password" v-model="password" placeholder="密码">
+        <input type="password" v-model="beinetPwd" placeholder="密码">
+    </div>
+    <div>
+        <label><input type="checkbox" v-model="beinetRemember">记住我</label>
     </div>
     <div>
         <button @click="doLogin">登录</button>
@@ -30,8 +33,9 @@
         //     Multiselect: window.VueMultiselect.default
         // },
         data: {
-            username: '',
-            password: '',
+            beinetUser: '',
+            beinetPwd: '',
+            beinetRemember: true
         },
         methods: {
             doLogin: function () {

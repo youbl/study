@@ -1,12 +1,11 @@
 package beinet.cn.demospringsecurity.security;
 
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * 登录相关的配置，如：哪些地址要登录，角色是啥，登录地址、登录成功/失败操作等等
@@ -14,25 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
-    /**
-     * 根据用户名查找用户信息的Bean
-     *
-     * @return 用户服务类
-     */
-    @Bean
-    UserDetailsService userService(PasswordEncoder encoder) {
-        return new BeinetUserService(encoder);
-    }
+    private UserDetailsService service;
 
-    /**
-     * 不定义这个Bean，将会抛出异常：
-     * There is no PasswordEncoder mapped for the id "null"
-     *
-     * @return 密码编码器
-     */
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BeinetPasswordEncoder();
+    public BeinetAuthConfiguration(@Qualifier("beinetUserService") UserDetailsService service) {
+        this.service = service;
     }
 
     @Override
@@ -41,7 +25,16 @@ public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
 
         http
+                // Set-Cookie: remember-me=ck94QXZMWG9zQW1PdjdGazB5WG55USUzRCUzRDpzaUp3aWx2YVNPcHh3MEN5UzNFOW5nJTNEJTNE; Max-Age=3600; Expires=Tue, 15-Sep-2020 03:38:47 GMT; Path=/; HttpOnly
+                .rememberMe()   // 开启记住我功能 AbstractRememberMeServices.autoLogin 这里读取Cookie并自动登录
+                .rememberMeParameter("beinetRemember")  // 修改记住我的参数名
+                .tokenValiditySeconds(3600)             // 过期时间1小时，不配置时，默认为2星期
+                .tokenRepository(new BeinetPersistentTokenRepository()) // 读写token的持久层，用于保存数据和恢复数据
+                .userDetailsService(this.service)       // 必须单独为记住我配置userService
+                .and()
                 .formLogin()                        // 开启form表单登录
+                .usernameParameter("beinetUser")    // 修改登录用户名参数
+                .passwordParameter("beinetPwd")     // 修改登录密码参数
                 .loginPage("/myLogin.html")         // 使用自定义的登录表单
                 .loginProcessingUrl("/login")       // 接收POST登录请求的处理地址
                 .successHandler(new BeinetHandleSuccess()) // 登录验证通过后的处理器

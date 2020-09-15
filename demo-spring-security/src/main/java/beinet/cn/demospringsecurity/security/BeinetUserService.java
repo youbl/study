@@ -4,10 +4,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 /**
  * 用户查找服务类，在 BeinetAuthConfiguration 里使用，用于用户查找
  */
+@Service("beinetUserService")
 public class BeinetUserService implements UserDetailsService {
     private PasswordEncoder encoder;
 
