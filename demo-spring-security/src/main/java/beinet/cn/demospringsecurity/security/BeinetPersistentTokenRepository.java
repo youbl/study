@@ -28,6 +28,16 @@ public class BeinetPersistentTokenRepository implements PersistentTokenRepositor
         writeFile(token);
     }
 
+    /**
+     * 如果只有 remember-me 这个cookie时，并且getTokenForSeries成功返回数据，
+     * 则会调用此方法，并下发一个新的 remember-me，重新更新有效期。
+     * 但是如果一直持有 JSESSIONID，则不会调用此方法，
+     * 即使反复刷新页面，到 remember-me过期，都不会更新remember-me
+     *
+     * @param series     token序号, 随机数的base64结果，在PersistentTokenBasedRememberMeServices.generateSeriesData生成
+     * @param tokenValue token值, 随机数的base64结果，在PersistentTokenBasedRememberMeServices.generateTokenData生成
+     * @param lastUsed   最后使用时间
+     */
     @Override
     public void updateToken(String series, String tokenValue, Date lastUsed) {
         PersistentRememberMeToken token = readFile(series);
@@ -62,7 +72,7 @@ public class BeinetPersistentTokenRepository implements PersistentTokenRepositor
         // 这里暂不处理
     }
 
-    static void writeFile(PersistentRememberMeToken token) {
+    private static void writeFile(PersistentRememberMeToken token) {
         String username = token.getUsername();
         String tokenValue = token.getTokenValue();
         String series = token.getSeries();
@@ -78,7 +88,7 @@ public class BeinetPersistentTokenRepository implements PersistentTokenRepositor
         System.out.println(str);
     }
 
-    static PersistentRememberMeToken readFile(String series) {
+    private static PersistentRememberMeToken readFile(String series) {
         String fileName = "d:\\" + series + ".txt";
         File file = new File(fileName);
         if (!file.exists())
@@ -103,7 +113,6 @@ public class BeinetPersistentTokenRepository implements PersistentTokenRepositor
             return null;
         }
         // (String username, String series, String tokenValue, Date date)
-        PersistentRememberMeToken ret = new PersistentRememberMeToken(content[0], content[1], content[2], date);
-        return ret;
+        return new PersistentRememberMeToken(content[0], content[1], content[2], date);
     }
 }
