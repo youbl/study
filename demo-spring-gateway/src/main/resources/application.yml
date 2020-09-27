@@ -27,3 +27,8 @@ spring:
             - Path=/s
             - Method=GET
             - Query=ie
+        # 不符合上述条件的，全部转发到8080端口
+        - id: 8080
+          uri: http://localhost:8080/
+          predicates:
+            - Path=/
