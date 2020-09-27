@@ -21,9 +21,18 @@ public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        // super.configure(http); 即默认配置是下面这一句
+        //((HttpSecurity)((HttpSecurity)((AuthorizedUrl)http.authorizeRequests().anyRequest()).authenticated().and()).formLogin().and()).httpBasic();
+
         // 先关闭csrf，影响登录和退出
         http.csrf().disable();
 
+        // antMatchers 规则：
+        // ? 匹配1个字符
+        // * 匹配0或多个字符
+        // ** 匹配0或多个目录
+        // {varName:[a-z]+} 匹配正则，并把正则匹配到的内容赋值给变量
+        // 参考文档 https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/util/AntPathMatcher.html
         http
                 // Set-Cookie: remember-me=ck94QXZMWG9zQW1PdjdGazB5WG55USUzRCUzRDpzaUp3aWx2YVNPcHh3MEN5UzNFOW5nJTNEJTNE; Max-Age=3600; Expires=Tue, 15-Sep-2020 03:38:47 GMT; Path=/; HttpOnly
                 .rememberMe()   // 开启记住我功能 AbstractRememberMeServices.autoLogin 这里读取Cookie并自动登录
