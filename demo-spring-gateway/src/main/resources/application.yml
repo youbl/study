@@ -1,0 +1,29 @@
+server:
+  port: 9999
+spring:
+  application:
+    name: beinet-gateway
+  cloud:
+    gateway:
+      routes:
+        # 路径带 youbl 的，都转发到csdn，比如 http://localhost:9999/youbl 会转发到 https://blog.csdn.net/youbl
+        - id: csdn
+          uri: https://blog.csdn.net/
+          predicates:
+            - Path=/youbl/**
+        # query带有new的请求，都转发到163，比如 http://localhost:9999/?new 或 http://localhost:9999/?new=1，不含 http://localhost:9999/?a=new
+        - id: 163
+          uri: https://news.163.com/
+          predicates:
+            - Query=new
+        # GET请求/s，带ie查询的，全部转发到 https://www.baidu.com/s?ie=UTF-8 并自动增加wd=beinet.cn 查询
+        # 可以用浏览器访问：  http://localhost:9999/s?ie=UTF-8
+        # 注：不支持curl
+        - id: baidu
+          uri: https://www.baidu.com/
+          filters:
+            - AddRequestParameter=wd,beinet.cn
+          predicates:
+            - Path=/s
+            - Method=GET
+            - Query=ie
