@@ -31,4 +31,8 @@ spring:
         - id: 8080
           uri: http://localhost:8080/
           predicates:
-            - Path=/
+            - Path=/**
+          filters:
+            # yml里，必须要用 $\ 代替$， ${oldPath}表示前面的匹配内容
+            # 参考代码: org.springframework.cloud.gateway.filter.factory.RewritePathGatewayFilterFactory.apply
+            - RewritePath=^/(?<oldPath>.*), /?beinet=$\{oldPath}

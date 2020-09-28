@@ -28,10 +28,19 @@ public class BeinetFilter implements GlobalFilter {
     private void addTimeToRequestHeader(ServerWebExchange exchange, ServerHttpRequest.Builder builder) {
         ServerHttpRequest request = exchange.getRequest();
         HttpHeaders headers = request.getHeaders(); // 读取Header，不需要转发，网关会自动转发
+        if (headers.containsKey("AccEPT-lAnguaGe")) { // 确认Header是会忽略大小写的
+            builder.header("aCCept-LangUage", "xxx");
+        } else {
+            builder.header("aCCept-LangUage", "zzz");
+        }
 
         String url = String.valueOf(request.getURI()); // 带有完整查询串
         // MultiValueMap<String, String> query = request.getQueryParams();
-        builder.header("beinet.url", url);
+
+        // 如果原始请求里，已经存在 beinet.url，这句代码会覆盖它；即使原始请求有n个beinet.url，最终也只会给后端一个
+        // 测试语句： curl http://localhost:9999/ -H "beinet.url: abcded" -H "beinet.url: ddddd"
+        builder.header("beinet.url", url);  // 此语句无效，被下一句覆盖
+        builder.header("beinet.url", url + "xxx");
 
         builder.header("beinet.request.now", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
     }

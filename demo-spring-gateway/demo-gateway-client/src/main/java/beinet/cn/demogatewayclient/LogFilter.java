@@ -15,8 +15,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 public class LogFilter extends OncePerRequestFilter {
@@ -84,10 +86,13 @@ public class LogFilter extends OncePerRequestFilter {
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String header = headerNames.nextElement();
-            sb.append("\n")
-                    .append(header)
-                    .append(" : ")
-                    .append(" ").append(request.getHeader(header));
+            Enumeration<String> values = request.getHeaders(header);
+            while (values.hasMoreElements()) {
+                sb.append("\n")
+                        .append(header)
+                        .append(" : ")
+                        .append(values.nextElement()).append("; ");
+            }
         }
         String requestBody = readFromStream(request.getInputStream());
         if (!StringUtils.isEmpty(requestBody)) {
@@ -99,12 +104,14 @@ public class LogFilter extends OncePerRequestFilter {
     private static void getResponseMsg(HttpServletResponse response, StringBuilder sb) throws UnsupportedEncodingException {
         sb.append("\n--响应Header: ");
         for (String header : response.getHeaderNames()) {
-            sb.append("\n")
-                    .append(header)
-                    .append(" : ")
-                    .append(" ").append(response.getHeader(header));
+            Collection<String> values = response.getHeaders(header);//.stream().collect(Collectors.joining("; "));
+            for (String value : values) {
+                sb.append("\n")
+                        .append(header)
+                        .append(" : ")
+                        .append(value);
+            }
         }
-
         ContentCachingResponseWrapper wrapper = WebUtils.getNativeResponse(response, ContentCachingResponseWrapper.class);
         if (wrapper != null) {
             String responseBody = transferFromByte(wrapper.getContentAsByteArray(), wrapper.getCharacterEncoding());
