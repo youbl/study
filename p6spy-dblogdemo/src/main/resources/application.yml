@@ -1,0 +1,16 @@
+spring:
+    application:
+        name: dbdemo
+    datasource:
+        url: jdbc:p6spy:mysql://10.1.2.3:3306/db?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+        username: user
+        password: abc
+        driver-class-name: com.p6spy.engine.spy.P6SpyDriver # com.mysql.cj.jdbc.Driver
+
+    jpa:
+        show-sql: false  # 这个只会输出在控制台，不会记录到日志里
+        hibernate:
+            ddl-auto: validate
+            naming:
+                physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        open-in-view: false
