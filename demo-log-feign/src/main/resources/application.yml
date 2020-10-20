@@ -1,0 +1,6 @@
+spring:
+  application.name: log-baidu
+
+logging:
+  level:
+    beinet.cn.demologfeign.feign.MyClient: debug
