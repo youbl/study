@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: log-jpa
+
+  datasource:
+    url: jdbc:mysql://10.2.3.4:3306/configscenter?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: user
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    show-sql: false  # 这个只会输出在控制台，不会记录到日志里
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    open-in-view: false
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    beinet.cn.demologjpa.jpa.JpaAop: debug
