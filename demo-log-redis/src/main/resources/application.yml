@@ -1,0 +1,19 @@
+spring:
+  redis:
+  #        url: redis://123456@10.2.0.242:6378
+    host: 10.2.0.242
+    port: 6379
+    password: 123456
+    database: 255            # 数据库索引
+    ssl: false
+    timeout: 1000          # 连接超时时间（毫秒）
+    jedis:
+      pool:
+        max-active: 8  # 连接池最大连接数（使用负值表示没有限制）
+        max-wait: -1   # 连接池最大阻塞等待时间, 单位毫秒（使用负值表示没有限制）
+        max-idle: 8    # 连接池中的最大空闲连接
+        min-idle: 0    # 连接池中的最小空闲连接
+
+logging:
+  level:
+    beinet.cn.logdemoredis: debug
