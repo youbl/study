@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: demo-log-rabbitmq
+
+  rabbitmq:
+    host: 10.1.2.3
+    port: 5672
+    username: rmq_user
+    password: 123456
+    virtual-host: /
+    listener:
+      simple:
+        concurrency: 1
+        max-concurrency: 10
+        prefetch: 5
+
+logging:
+  level:
+    beinet.cn.demolograbbitmq.rabbit.RabbitAdvice: debug
