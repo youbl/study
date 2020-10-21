@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Demo</title>
-    <---
+    <!--
     https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js
     https://unpkg.com/axios/dist/axios.min.js
     https://unpkg.com/vue/dist/vue.min.js
-    ->
+    -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.js"></script>
 </head>
@@ -16,6 +16,8 @@
     <div><h1>{{title}}</h1></div>
     看看有没有log日志，服务器时间：
     {{time}}
+    <hr>
+    <button @click="postTest">POST请求</button>
 </div>
 <script>
     var vueApp = new Vue({
@@ -32,6 +34,17 @@
                 let url = '/time';
                 axios.get(url).then(response => {
                     this.time = response.data;
+                }).catch(error => {
+                    alert(error);
+                });
+            },
+            postTest: function () {
+                let url = '/add';
+                let para = {};
+                para.id = 123;
+                para.name = 'beinet';
+                axios.post(url, para).then(response => {
+                    alert(JSON.stringify(response.data));
                 }).catch(error => {
                     alert(error);
                 });
