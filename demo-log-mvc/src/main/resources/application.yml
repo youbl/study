@@ -1,0 +1,16 @@
+
+logging:
+  level:
+    org.zalando.logbook: trace
+
+logbook:
+  exclude: # 不记录日志的路径
+    - "**.html"
+    - "**.htm"
+    - "**.js"
+    - "**.css"
+    - "**.jpg"
+    - "**.ico"
+    - "/static/**"
+
+

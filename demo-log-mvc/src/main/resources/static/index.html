@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo</title>
+    <---
+    https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js
+    https://unpkg.com/axios/dist/axios.min.js
+    https://unpkg.com/vue/dist/vue.min.js
+    ->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.js"></script>
+</head>
+<body>
+<div id="divApp">
+    <div><h1>{{title}}</h1></div>
+    看看有没有log日志，服务器时间：
+    {{time}}
+</div>
+<script>
+    var vueApp = new Vue({
+        el: '#divApp',
+        data: {
+            title: '这是演示',
+            time: ''
+        },
+        created: function () {
+            this.getServerTime();
+        },
+        methods: {
+            getServerTime: function () {
+                let url = '/time';
+                axios.get(url).then(response => {
+                    this.time = response.data;
+                }).catch(error => {
+                    alert(error);
+                });
+            }
+        }
+    });
+</script>
+</body>
+</html>
