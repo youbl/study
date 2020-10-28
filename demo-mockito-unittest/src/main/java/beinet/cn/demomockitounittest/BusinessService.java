@@ -7,6 +7,48 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class BusinessService {
+    private String para;
+
+    public BusinessService() {
+        this(null);
+    }
+
+    public BusinessService(String para) {
+        this.para = para;
+    }
+
+    public static String getHello1(String name) {
+        return "Hello1, " + name;
+    }
+
+    public String getHello2(String name) {
+        return getHelloPrivate(name);
+    }
+
+    private String getHelloPrivate(String name) {
+        return "Hello2, " + name;
+    }
+
+    public final String getHelloFinal(String name) {
+        return "Hello, Final " + name;
+    }
+
+    public enum EnumDemo {
+        enum1("ENUM1"),
+        enum2("ENUM2"),
+        enum3("ENUM3");
+
+        private final String title;
+
+        EnumDemo(String title) {
+            this.title = title;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+    }
+
 
     /**
      * 请求并返回百度的html
