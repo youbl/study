@@ -1,0 +1,13 @@
+server:
+  port: 8801
+
+spring:
+  application:
+    name: rabbitmq-unittest
+  rabbitmq:
+    host: "10.1.2.3"
+    port: 5672
+    username: rmq_user
+    password: "123456"
+
+# RabbitMQ直接mock，会忽略配置，因此不需要设置 profiles
