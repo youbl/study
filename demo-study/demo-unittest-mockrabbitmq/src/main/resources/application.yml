@@ -1,0 +1,11 @@
+server:
+  port: 8801
+
+spring:
+  application:
+    name: rabbitmq-unittest
+  rabbitmq:
+    host: "10.2.3.250"
+    port: 5672
+    username: admin
+    password: "admin"
