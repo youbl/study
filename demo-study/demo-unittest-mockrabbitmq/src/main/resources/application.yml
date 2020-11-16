@@ -9,3 +9,5 @@ spring:
     port: 5672
     username: admin
     password: "admin"
+
+# RabbitMQ直接mock，会忽略配置，因此不需要设置 profiles
