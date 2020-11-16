@@ -19,6 +19,7 @@
     </properties>
 
     <dependencies>
+        <!-- mongodb操作库 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
@@ -36,6 +37,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- mongodb mock操作库，会下载一个mongodb在本地并启动 -->
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+            <version>2.2.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
