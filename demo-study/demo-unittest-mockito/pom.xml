@@ -35,6 +35,21 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!-- https://site.mockito.org/
+        mockito-all已经停止，推荐用mockito-core
+        -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.5.13</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
