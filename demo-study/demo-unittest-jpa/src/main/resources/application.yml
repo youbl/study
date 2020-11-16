@@ -18,6 +18,12 @@ spring:
 spring:
   profiles: unittest # 单元测试，通过注解 ActiveProfiles 使用
 
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update  # 实体与数据库不一致时，自动修改表结构
 ---
 spring:
   profiles: dev # 开发使用这一段
@@ -31,5 +37,5 @@ spring:
       initSQL: "SET NAMES utf8mb4"
   jpa:
     hibernate:
-      ddl-auto: update # 实体与数据库不一致时，报异常，不修改
+      ddl-auto: validate # 实体与数据库不一致时，报异常，不应当修改生产数据库，当然也不应该给权限
 ---
