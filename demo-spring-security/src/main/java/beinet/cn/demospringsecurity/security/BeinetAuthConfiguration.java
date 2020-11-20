@@ -1,11 +1,16 @@
 package beinet.cn.demospringsecurity.security;
 
+import beinet.cn.demospringsecurity.security.argument.AuthDetailArgumentResolver;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 /**
  * 登录相关的配置，如：哪些地址要登录，角色是啥，登录地址、登录成功/失败操作等等
@@ -68,4 +73,12 @@ public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated();      // 其它所有请求都要求登录后访问，但是不限制角色
     }
 
+
+    @Configuration
+    static class WebMvcConfig implements WebMvcConfigurer {
+        @Override
+        public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+            resolvers.add(new AuthDetailArgumentResolver());
+        }
+    }
 }
