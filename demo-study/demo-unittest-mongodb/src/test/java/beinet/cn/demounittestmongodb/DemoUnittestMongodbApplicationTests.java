@@ -36,6 +36,7 @@ class DemoUnittestMongodbApplicationTests {
     @BeforeAll
     static void startMongo() throws Exception {
         // 超过3.4的以上版本，会报错： Could not start process: <EOF>
+        // yml里的spring.data.mongodb.host配置也会引发这个问题
         mongodExecutable = starter.prepare(new MongodConfigBuilder()
                 .version(Version.Main.V3_4)
                 .net(new Net(12345, Network.localhostIsIPv6())).build());

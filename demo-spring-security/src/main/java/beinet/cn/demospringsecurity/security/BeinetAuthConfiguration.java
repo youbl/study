@@ -1,8 +1,10 @@
 package beinet.cn.demospringsecurity.security;
 
 import beinet.cn.demospringsecurity.security.argument.AuthDetailArgumentResolver;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -10,7 +12,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 登录相关的配置，如：哪些地址要登录，角色是啥，登录地址、登录成功/失败操作等等
@@ -18,6 +25,7 @@ import java.util.List;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
+    static final String LOGIN_PAGE = "/myLogin.html";
     private UserDetailsService service;
 
     public BeinetAuthConfiguration(@Qualifier("beinetUserService") UserDetailsService service) {
@@ -49,7 +57,7 @@ public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
                 .formLogin()                        // 开启form表单登录
                 .usernameParameter("beinetUser")    // 修改登录用户名参数
                 .passwordParameter("beinetPwd")     // 修改登录密码参数
-                .loginPage("/myLogin.html")         // 使用自定义的登录表单
+                .loginPage(LOGIN_PAGE)         // 使用自定义的登录表单
                 .loginProcessingUrl("/login")       // 接收POST登录请求的处理地址
                 .successHandler(new BeinetHandleSuccess()) // 登录验证通过后的处理器
                 .failureHandler(new BeinetHandleFail())    // 登录验证失败后的处理器
@@ -65,7 +73,7 @@ public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
                 .accessDeniedHandler(new BeinetHandleAccessDenied())            // 指定登录用户访问无权限url的异常处理器
                 .and()
                 .authorizeRequests()                // 开始指定请求授权
-                .antMatchers("/myLogin.html/**").permitAll() // 上面的loginPage("/myLogin.html").permitAll() 居然不支持带参数: myLogin.html?xxx
+                .antMatchers(LOGIN_PAGE + "/**").permitAll() // 上面的loginPage("/myLogin.html").permitAll() 居然不支持带参数: myLogin.html?xxx
                 .antMatchers("/res/**").permitAll()     // res根路径及子目录请求，不限制访问
                 .antMatchers("/news/**").hasRole("ROOT")// news根路径及子目录请求，要求ROOT角色才能访问
                 .antMatchers("/time/**").hasRole("USER")// time根路径及子目录请求，要求USER角色才能访问
@@ -80,5 +88,24 @@ public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
         public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
             resolvers.add(new AuthDetailArgumentResolver());
         }
+    }
+
+
+    /**
+     * 对于ajax请求，输出json响应
+     *
+     * @param response 响应上下文
+     * @param message  要输出的错误信息
+     * @throws IOException 可能的异常
+     */
+    static void outputDenyMsg(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+
+        response.setContentType("application/json; charset=utf-8");
+        response.setHeader("ts", String.valueOf(System.currentTimeMillis()));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("msg", message);
+        response.getOutputStream().write(new ObjectMapper().writeValueAsString(data).getBytes(StandardCharsets.UTF_8));
     }
 }

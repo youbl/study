@@ -1,7 +1,5 @@
 package beinet.cn.demospringsecurity.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
@@ -10,9 +8,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 匿名用户访问需要权限的url会转到此入口，
@@ -24,28 +19,10 @@ public class BeinetAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException {
         if (isAjax(request)) {
-            ajaxResponse(response, authException.getMessage());
+            BeinetAuthConfiguration.outputDenyMsg(response, authException.getMessage());
         } else {
-            response.sendRedirect("/myLogin.html" + getReturnUrl(request));
+            response.sendRedirect(BeinetAuthConfiguration.LOGIN_PAGE + getReturnUrl(request));
         }
-    }
-
-    /**
-     * 对于ajax请求，输出json响应
-     *
-     * @param response 响应上下文
-     * @param msg      要输出的错误信息
-     * @throws IOException 可能的异常
-     */
-    private static void ajaxResponse(HttpServletResponse response, String msg) throws IOException {
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-
-        response.setContentType("application/json; charset=utf-8");
-        response.setHeader("ts", String.valueOf(System.currentTimeMillis()));
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("msg", msg);
-        response.getOutputStream().write(new ObjectMapper().writeValueAsString(data).getBytes(StandardCharsets.UTF_8));
     }
 
     /**

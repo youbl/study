@@ -13,7 +13,6 @@ import java.util.List;
 @ActiveProfiles("unittest")
 class DemoUnittestJpaApplicationTests {
 
-
     @Autowired
     DbController controller;
 
