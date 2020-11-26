@@ -2,13 +2,16 @@ package beinet.cn.demospringsecurity.security;
 
 import beinet.cn.demospringsecurity.security.argument.AuthDetailArgumentResolver;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -21,15 +24,42 @@ import java.util.Map;
 
 /**
  * 登录相关的配置，如：哪些地址要登录，角色是啥，登录地址、登录成功/失败操作等等
+ * <p>
+ * org.springframework.security.web.access.intercept.FilterSecurityInterceptor
+ * InterceptorStatusToken token = super.beforeInvocation(fi); 进行用户校验和角色检查
+ * <p>
+ * 上面的代码调用 org.springframework.security.access.intercept.AbstractSecurityInterceptor.beforeInvocation,
+ * 先是：Authentication authenticated = authenticateIfRequired(); 进行用户名密码检查
+ * 再是：org.springframework.security.access.vote.AffirmativeBased.decide 进行投票表决是否有权限
  */
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
     static final String LOGIN_PAGE = "/myLogin.html";
-    private UserDetailsService service;
 
-    public BeinetAuthConfiguration(@Qualifier("beinetUserService") UserDetailsService service) {
-        this.service = service;
+    // Basic方式的登录名
+    @Value("${beinet.security.user:sdk}")
+    private String sdkUser;
+    // Basic方式的登录密码
+    @Value("${beinet.security.password:beinet.123}")
+    private String sdkPassword;
+
+    @Bean
+    public PasswordEncoder createPasswordEncoder() {
+        return new BeinetPasswordEncoder();
+    }
+
+    @Bean
+    public BeinetUserService createUserDetailService(PasswordEncoder encoder) {
+        return new BeinetUserService(encoder);
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        // 支持basic认证，由BeinetAuthenticationFilter支持，可在header里添加  Authorization: Basic base64(用户名:密码) 访问
+        auth.inMemoryAuthentication()
+                .passwordEncoder(createPasswordEncoder())
+                .withUser(sdkUser).password(sdkPassword).authorities("ROLE_ROOT", "ROLE_USER");// 用 authorities 必须显式添加ROLE_前缀
     }
 
     @Override
@@ -52,7 +82,7 @@ public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
                 .rememberMeParameter("beinetRemember")  // 修改记住我的参数名
                 .tokenValiditySeconds(3600)             // 过期时间1小时，不配置时，默认为2星期
                 .tokenRepository(new BeinetPersistentTokenRepository()) // 读写token的持久层，用于保存数据和恢复数据
-                .userDetailsService(this.service)       // 必须单独为记住我配置userService
+                .userDetailsService(createUserDetailService(createPasswordEncoder()))       // 必须单独为记住我配置userService
                 .and()
                 .formLogin()                        // 开启form表单登录
                 .usernameParameter("beinetUser")    // 修改登录用户名参数
@@ -75,10 +105,14 @@ public class BeinetAuthConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()                // 开始指定请求授权
                 .antMatchers(LOGIN_PAGE + "/**").permitAll() // 上面的loginPage("/myLogin.html").permitAll() 居然不支持带参数: myLogin.html?xxx
                 .antMatchers("/res/**").permitAll()     // res根路径及子目录请求，不限制访问
+                .antMatchers("/favicon.ico").permitAll()     // ico不限制访问
                 .antMatchers("/news/**").hasRole("ROOT")// news根路径及子目录请求，要求ROOT角色才能访问
                 .antMatchers("/time/**").hasRole("USER")// time根路径及子目录请求，要求USER角色才能访问
                 .antMatchers("/role/**").permitAll()    // 忽略配置里的权限，改用 EnableGlobalMethodSecurity 和 PreAuthorize 注解
                 .anyRequest().authenticated();      // 其它所有请求都要求登录后访问，但是不限制角色
+
+        // 支持basic方式登录
+        http.addFilterAfter(new BeinetAuthenticationFilter(), BasicAuthenticationFilter.class);
     }
 
 

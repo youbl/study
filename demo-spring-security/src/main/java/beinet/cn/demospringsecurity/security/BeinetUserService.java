@@ -4,12 +4,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 /**
  * 用户查找服务类，在 BeinetAuthConfiguration 里使用，用于用户查找
  */
-@Service("beinetUserService")
 public class BeinetUserService implements UserDetailsService {
     private PasswordEncoder encoder;
 
@@ -28,10 +26,9 @@ public class BeinetUserService implements UserDetailsService {
      *
      * @param username 用户名
      * @return 找到的用户信息
-     * @throws UsernameNotFoundException
      */
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         if (username == null || username.isEmpty())
             throw new IllegalArgumentException("username can't be empty.");
 

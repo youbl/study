@@ -41,7 +41,9 @@ public class BeinetUser implements UserDetails {
         if (roles != null) {
             for (String role : roles) {
                 // Spring比较是按 ROLE_USER 形式进行比较
-                authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+                if (role.indexOf("ROLE_") != 0)
+                    role = "ROLE_" + role;
+                authorities.add(new SimpleGrantedAuthority(role));
             }
         }
         return authorities;
