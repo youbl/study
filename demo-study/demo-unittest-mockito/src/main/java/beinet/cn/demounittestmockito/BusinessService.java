@@ -112,4 +112,24 @@ public class BusinessService {
         System.out.println(obj);
         throw new IllegalArgumentException("抛个异常3");
     }
+
+    /**
+     * 没有返回值的方法
+     *
+     * @param obj1
+     * @param obj2
+     */
+    public void noReturnMethod1(Object obj1, Long obj2) {
+        System.out.println("参数1:" + obj1 + " 参数2:" + obj2);
+    }
+
+    /**
+     * 没有返回值的方法
+     *
+     * @param obj1
+     * @param obj2
+     */
+    public void noReturnMethod2(Long obj1, Object obj2) {
+        System.out.println("参数1:" + obj1 + " 参数2:" + obj2);
+    }
 }

@@ -3,6 +3,7 @@ package beinet.cn.demounittestmockito;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -129,6 +130,36 @@ class UseMockBean {
                 .isThrownBy(() -> businessService.throwExpWithRet2(""))
                 .withMessage("抛运行时异常")
                 .withCause(iaExp); // 该异常是由 iaExp 引发的
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // 添加void方法的mock测试
+        // 下面这么写会抛异常：此处不允许使用'空'类型，即void
+        // Mockito.when(businessService.noReturnMethod(ArgumentMatchers.any(), ArgumentMatchers.any()));
+        ArgumentCaptor<Object> arg1 = ArgumentCaptor.forClass(Object.class);
+        ArgumentCaptor<Long> arg2 = ArgumentCaptor.forClass(Long.class);
+        // doNothing忽略方法调用，并把方法的2个参数进行捕获
+        Mockito.doNothing().when(businessService).noReturnMethod1(arg1.capture(), arg2.capture());
+        // 方法调用
+        String realArg1 = "我是参数1";
+        long realArg2 = 123567;
+        businessService.noReturnMethod1(realArg1, realArg2);
+        // 对捕获的参数进行断言
+        Assert.isTrue(realArg1.equals(arg1.getValue()), "");
+        Assert.isTrue(realArg2 == arg2.getValue(), "");
+
+        // void方法测试2，替换void方法
+        Mockito.doAnswer(invocation -> {
+            Object objArg = invocation.getArgument(1);
+            Long longArg = invocation.getArgument(0);
+            System.out.println(objArg + "===" + longArg);
+
+            // 对捕获的参数进行断言
+            Assert.isTrue(realArg1.equals(objArg), "");
+            Assert.isTrue(realArg2 == longArg, "");
+
+            return invocation.callRealMethod();// 需要时，这里可以回调原始方法
+        }).when(businessService).noReturnMethod2(ArgumentMatchers.anyLong(), ArgumentMatchers.any());
+        businessService.noReturnMethod2(realArg2, realArg1);
     }
 
 
