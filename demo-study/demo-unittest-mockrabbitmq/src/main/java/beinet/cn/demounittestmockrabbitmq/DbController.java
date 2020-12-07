@@ -1,6 +1,7 @@
 package beinet.cn.demounittestmockrabbitmq;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
@@ -17,12 +18,12 @@ public class DbController {
 
     /**
      * http://localhost:8801/publish 发布消息，监听的消费者定义，在RabbitOperator里
+     *
      * @return
      */
     @GetMapping("publish")
-    public String publish() {
-        String msg = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) + " " + this.getClass().getName();
-        operator.publish(msg);
+    public String publish(@RequestParam String msg) {
+        operator.publish("PUBLISH:" + msg);
         return "OK: " + msg;
     }
 

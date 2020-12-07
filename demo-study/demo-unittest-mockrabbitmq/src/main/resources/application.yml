@@ -4,10 +4,28 @@ server:
 spring:
   application:
     name: rabbitmq-unittest
+
+  profiles:
+    active: dev
+
+
+---  # 2个三横杠之间表示一个环境配置
+spring:
+  profiles: unittest # 单元测试，通过注解 ActiveProfiles 使用
+
+  # RabbitMQ直接mock，会忽略配置，因此可以不设置 profiles
+  # 但是：：为避免误操作，单元测试这边建议设置成无效的ip
+  rabbitmq:
+    host: "1.1.1.1"
+    port: 5672
+    username: admin
+    password: "admin"
+---
+spring:
+  profiles: dev # 开发使用这一段
+
   rabbitmq:
     host: "10.2.3.250"
     port: 5672
     username: admin
     password: "admin"
-
-# RabbitMQ直接mock，会忽略配置，因此不需要设置 profiles

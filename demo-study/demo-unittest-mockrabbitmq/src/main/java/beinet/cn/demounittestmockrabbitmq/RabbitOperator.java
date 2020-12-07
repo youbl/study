@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RabbitOperator {
     private static final String EXCHANGE = "test.beinet.exg";
-    private static final String QUEUE = "test.beinet.queue";
+    static final String QUEUE = "test.beinet.queue";
     private static final String ROUTEKEY = "test.beinet.route";
 
     private final RabbitTemplate template;
@@ -64,8 +64,8 @@ public class RabbitOperator {
         template.convertAndSend(EXCHANGE, ROUTEKEY, obj);
     }
 
-    @RabbitListener(queues = QUEUE)
-    public void handleMsg(Message msg) {
-        System.out.println("收到消息： " + new String(msg.getBody()));
-    }
+//    @RabbitListener(queues = QUEUE)
+//    public void handleMsg(Message msg) {
+//        System.out.println("收到消息： " + new String(msg.getBody()));
+//    }
 }
