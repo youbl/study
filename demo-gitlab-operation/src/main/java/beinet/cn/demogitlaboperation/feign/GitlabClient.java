@@ -66,6 +66,19 @@ public interface GitlabClient {
                                            @Param(value = "b2") String targetBranch,
                                            @Param(value = "title") String title);
 
+
+    // PUT /projects/:id/merge_requests/:merge_request_iid/merge
+    @RequestLine(value = "PUT api/v4/projects/{projectName}/merge_requests/{mrid}/merge",
+            decodeSlash = false)
+    @Headers({"Private-Token: {token}"})
+    Map<String, Object> acceptMergeRequest(@Param("token") String token,
+                                           @Param(value = "projectName") String projectName,
+                                           @Param(value = "mrid") int mergeRequestId);
+
+
+    /**
+     * 改变FeignClient，不使用默认的ReqestMapping，而是改用RequestLine注解
+     */
     class FeignClientConfig {
         @Bean
         public Contract feignContract() {
