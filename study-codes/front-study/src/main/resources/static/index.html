@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>引用演示</title>
+    <script type="text/javascript" src="/res/unpkg/vue.min.js"></script>
+    <script type="text/javascript" src="/res/unpkg/axios.min.js"></script>
+    <script src="/res/unpkg/elemeIndex.js"></script>
+    <script src="/res/qs.min.js"></script>
+    <link rel="stylesheet" href="/res/unpkg/elemeIndex.css">
+</head>
+
+<body>
+<object type="text/x-scriptlet" data="_head.html" width="100%"></object>
+<hr>
+<div id="divApp">
+    {{title}}
+    <div>
+        <button @click="openAlert">警告一下</button>
+    </div>
+</div>
+<hr>
+<object type="text/x-scriptlet" data="_foot.html" width="100%"></object>
+<script>
+    var vueApp = new Vue({
+        el: '#divApp',
+        data: function () {
+            return {
+                title: '我是VUE输出的BODY',
+            }
+        },
+        created: function () {
+        },
+        computed: {},
+        methods: {
+            openAlert: function () {
+                this.$alert('我是警告内容', '警告标题', {
+                    confirmButtonText: '确定',
+                    callback: action => {
+                        this.$message({
+                            type: 'info',
+                            message: `action: ${action}`
+                        });
+                    }
+                });
+            },
+            ajaxError: function (error) {
+                if (error.response && error.response.data) {
+                    console.log(JSON.stringify(error.response.data));
+                    let msg = error.response.data['msg'];
+                    if (!msg)
+                        msg = '出错了';
+                    alert(msg);
+                } else {
+                    console.log(JSON.stringify(error));
+                    alert('未知错误');
+                }
+            },
+        },
+    });
+
+
+    /**
+     * 滚动到窗口底部
+     */
+    function toWindowBottom() {
+        window.scrollTo(0, getWindowHeight());
+    }
+
+    /**
+     * 获取窗口高度
+     * @return {number} 窗口高度值
+     */
+    function getWindowHeight() {
+        // body是chrome，documentElement是IE和Firefox
+        return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    }
+
+    /**
+     * 获取url里的变量值
+     * @param {string} name 变量名
+     * @return {string} 变量值
+     */
+    function getQueryString(name) {
+        if (typeof (name) !== 'string') {
+            return '';
+        }
+        name = name.trim();
+        if (name.length === 0) {
+            return '';
+        }
+        let localSearch = location.search.toLocaleLowerCase();
+        name = name.toLowerCase() + '=';
+        let tmpName = '?' + name;
+        let idx = localSearch.indexOf(tmpName);
+        if (idx < 0) {
+            tmpName = '&' + name;
+            idx = localSearch.indexOf(tmpName);
+            if (idx < 0) {
+                return '';
+            }
+        }
+        name = tmpName;
+        let tmp = location.search.substr(idx + name.length);
+        idx = tmp.indexOf('&');
+        if (idx === 0)
+            return '';
+        let ret;
+        if (idx < 0) {
+            ret = tmp;
+        } else {
+            ret = tmp.substr(0, idx);
+        }
+        return decodeURIComponent(ret.trim());
+    }
+</script>
+</body>
+
+</html>
