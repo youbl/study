@@ -26,6 +26,7 @@ public class Aaa {
     private long dishId;
     private int num;
     //    @Column(updatable = false)
+    // 在主方法上添加  @EnableJpaAuditing 这个CreateDate就会自动赋值
     @CreatedDate
     private LocalDateTime creationTime;
 }
