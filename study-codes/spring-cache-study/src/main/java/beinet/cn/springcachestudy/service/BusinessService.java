@@ -21,7 +21,7 @@ public class BusinessService {
     static final String CACHE_NAME = "cache111";
 
     // 对返回结果进行缓存, 缓存名为 cache111， 记得要先添加注解 @EnableCaching
-    @Cacheable(value = CACHE_NAME)
+    @Cacheable(value = {CACHE_NAME, "xxxx"}) // 会生成2份缓存，一份在cache111，一份在xxxx
     public String getById1(int id) {
         return LocalDateTime.now() + " getById1 " + id;
     }
@@ -73,5 +73,10 @@ public class BusinessService {
             }
             return sb.toString();
         }
+    }
+
+    @Cacheable(value = "TenSecondCache")
+    public String getAndCache10s(int id) {
+        return LocalDateTime.now() + " getAndCache10s " + id;
     }
 }
