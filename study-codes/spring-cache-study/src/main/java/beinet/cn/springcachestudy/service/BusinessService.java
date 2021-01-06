@@ -32,6 +32,11 @@ public class BusinessService {
         return LocalDateTime.now() + " getById2 " + id;
     }
 
+    // 只读取缓存，不写入缓存, 缓存名为 cache111
+    @Cacheable(value = CACHE_NAME, unless = "true ")
+    public String getByIdNoWrite(int id) {
+        return LocalDateTime.now() + " getByIdNoWrite " + id;
+    }
 
     // 对返回结果进行缓存, 缓存名为 cache111，但是显式指定缓存key, key可以使用属性/方法等
     @Cacheable(value = CACHE_NAME, key = "'get3-' + #id.toString()")

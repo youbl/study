@@ -11,18 +11,22 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.Assert;
 import redis.embedded.RedisServer;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 @SpringBootTest
 @ActiveProfiles("unittest")
 class SpringCacheStudyApplicationTests {
     @Autowired
     BusinessService businessService;
-    private static RedisServer redisServer;
+
+    private RedisServer redisServer;
 
     /**
      * 启动Redis，并在6379端口监听
      */
-    @BeforeAll
-    static void startRedis() {
+    @PostConstruct
+    void startRedis() {
         // https://github.com/kstyrc/embedded-redis/issues/51
         redisServer = RedisServer.builder()
                 .port(6379)
@@ -34,8 +38,8 @@ class SpringCacheStudyApplicationTests {
     /**
      * 析构方法之后执行，停止Redis.
      */
-    @AfterAll
-    static void stopRedis() {
+    @PreDestroy
+    void stopRedis() {
         redisServer.stop();
     }
 
@@ -66,6 +70,20 @@ class SpringCacheStudyApplicationTests {
         Assert.isTrue(businessService.getById1(id1).equals(str1), "--");
         Assert.isTrue(businessService.getById2(id1).equals(str2), "--");
         Assert.isTrue(businessService.getById3(id1).equals(str3), "--");
+    }
+
+    @Test
+    public void no_cache_test() {
+        int id1 = 12345;
+
+        String str2 = businessService.getByIdNoWrite(id1);
+        String str1 = businessService.getById1(id1);
+        Assertions.assertNotEquals(str1, str2);
+        Assertions.assertTrue(str1.contains("getById1"));
+        Assertions.assertTrue(str2.contains("getByIdNoWrite"));
+
+        str2 = businessService.getByIdNoWrite(id1);
+        Assertions.assertEquals(str1, str2);
     }
 
     @Test

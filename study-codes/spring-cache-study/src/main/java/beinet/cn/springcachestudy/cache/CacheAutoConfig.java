@@ -29,6 +29,13 @@ import java.util.Map;
  */
 @Configuration
 public class CacheAutoConfig {
+    public final static String MONTH = "MonthCache";
+    public final static String DAY = "DayCache";
+    public final static String HOUR = "HourCache";
+    public final static String HALF_HOUT = "ThirtyMinuteCache";
+    public final static String MINUTE = "MinuteCache";
+    public final static String TEN_SECOND = "TenSecondCache";
+
     @Bean
     ObjectMapper createObjectMapper() {
         JavaTimeModule module = new JavaTimeModule();
@@ -44,8 +51,9 @@ public class CacheAutoConfig {
     /**
      * 定义当前项目使用Redis作为缓存
      * 注：缓存在Redis里的key，是[CacheName::实际key]
+     *
      * @param redisConnectionFactory redis工厂
-     * @param mapper 序列化器
+     * @param mapper                 序列化器
      * @return 缓存管理器
      */
     @Bean
@@ -54,15 +62,17 @@ public class CacheAutoConfig {
 
         Map<String, RedisCacheConfiguration> redisCacheConfigurationMap = new HashMap<>();
         // key为Cacheable的value
-        redisCacheConfigurationMap.put("DayCache", createCacheConfiguration(24 * 60 * 60, mapper));
-        redisCacheConfigurationMap.put("HourCache", createCacheConfiguration(60 * 60, mapper));
-        redisCacheConfigurationMap.put("MinuteCache", createCacheConfiguration(60, mapper));
-        redisCacheConfigurationMap.put("TenSecondCache", createCacheConfiguration(10, mapper));
+        redisCacheConfigurationMap.put(MONTH, createCacheConfiguration(30 * 24 * 60 * 60, mapper));
+        redisCacheConfigurationMap.put(DAY, createCacheConfiguration(24 * 60 * 60, mapper));
+        redisCacheConfigurationMap.put(HOUR, createCacheConfiguration(60 * 60, mapper));
+        redisCacheConfigurationMap.put(HALF_HOUT, createCacheConfiguration(30 * 60, mapper));
+        redisCacheConfigurationMap.put(MINUTE, createCacheConfiguration(60, mapper));
+        redisCacheConfigurationMap.put(TEN_SECOND, createCacheConfiguration(10, mapper));
 
         // redisCacheConfigurationMap中不存在的key，会采用这个配置
-        RedisCacheConfiguration redisCacheConfiguration = createCacheConfiguration(1800, mapper);
+        RedisCacheConfiguration defaultConfig = redisCacheConfigurationMap.get(HALF_HOUT);
 
-        return new RedisCacheManager(redisCacheWriter, redisCacheConfiguration, redisCacheConfigurationMap);
+        return new RedisCacheManager(redisCacheWriter, defaultConfig, redisCacheConfigurationMap);
     }
 
     private RedisCacheConfiguration createCacheConfiguration(int seconds, ObjectMapper mapper) {
