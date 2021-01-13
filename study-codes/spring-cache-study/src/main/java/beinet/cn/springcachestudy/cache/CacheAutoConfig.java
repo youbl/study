@@ -9,7 +9,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -48,6 +49,16 @@ public class CacheAutoConfig {
     // public CacheAutoConfig(DefaultListableBeanFactory factory) {
     //    factory.getBeanDefinition(BeinetCacheEnv.BEAN_NAME).setAutowireCandidate(false);
     // }
+
+    @Bean(value = BeinetCacheEnv.RESOLVER_NAME)
+    BeinetCacheResolver createBeinetCacheResolver(Environment env) {
+        return new BeinetCacheResolver(createRedisCacheManager(env));
+    }
+
+    @Bean("ConcurrentMapCacheManager")
+    CacheManager createMemoryCacheManager() {
+        return new ConcurrentMapCacheManager();
+    }
 
     /**
      * 定义当前项目使用Redis作为缓存

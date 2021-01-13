@@ -9,4 +9,6 @@ package beinet.cn.springcachestudy.cache;
  */
 public class BeinetCacheEnv {
     public static final String BEAN_NAME = "Beinet.cacheManager";
+
+    public static final String RESOLVER_NAME = "Beinet.cacheResolver";
 }
