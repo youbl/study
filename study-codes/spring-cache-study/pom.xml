@@ -40,6 +40,12 @@
             <artifactId>embedded-redis</artifactId>
             <version>0.6</version>
             <scope>test</scope>
+        </dependency><!-- 自定义构建RedisConnectionFactory，要依赖下面这个库，否则报错：
+         nested exception is java.lang.NoClassDefFoundError: org/apache/commons/pool2/impl/GenericObjectPoolConfig
+         -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
         </dependency>
 
         <dependency>
@@ -52,6 +58,11 @@
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

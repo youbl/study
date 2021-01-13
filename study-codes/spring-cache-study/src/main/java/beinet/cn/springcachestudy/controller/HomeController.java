@@ -30,8 +30,8 @@ public class HomeController {
 
     @GetMapping("cache")
     public String getCache(@RequestParam int id) {
-        String result = businessService.getById1(id);
-        result += " <br>" + businessService.getById2(id);
+        String result = businessService.getById1(id, "");
+        result += " <br>" + businessService.getById2(id, "");
         return result;
     }
 

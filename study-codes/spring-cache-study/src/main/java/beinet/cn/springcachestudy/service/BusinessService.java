@@ -22,38 +22,38 @@ public class BusinessService {
 
     // 对返回结果进行缓存, 缓存名为 cache111， 记得要先添加注解 @EnableCaching
     @Cacheable(value = {CACHE_NAME, "xxxx"}) // 会生成2份缓存，一份在cache111，一份在xxxx
-    public String getById1(int id) {
+    public String getById1(int id, String name) {
         return LocalDateTime.now() + " getById1 " + id;
     }
 
     // 对返回结果进行缓存, 缓存名为 cache111
     @Cacheable(value = CACHE_NAME)
-    public String getById2(int id) {
+    public String getById2(int id, String name) {
         return LocalDateTime.now() + " getById2 " + id;
     }
 
     // 只读取缓存，不写入缓存, 缓存名为 cache111
     @Cacheable(value = CACHE_NAME, unless = "true ")
-    public String getByIdNoWrite(int id) {
+    public String getByIdNoWrite(int id, String name) {
         return LocalDateTime.now() + " getByIdNoWrite " + id;
     }
 
     // 对返回结果进行缓存, 缓存名为 cache111，但是显式指定缓存key, key可以使用属性/方法等
-    @Cacheable(value = CACHE_NAME, key = "'get3-' + #id.toString()")
-    public String getById3(int id) {
+    @Cacheable(value = CACHE_NAME, key = "'get3-' + #id.toString() + '-' + #name")
+    public String getById3(int id, String name) {
         return LocalDateTime.now() + " getById3 " + id;
     }
 
 
     // 使用 keyGenerator指定key，注：keyGenerator的值，是bean的名字
     @Cacheable(value = CACHE_NAME, keyGenerator = "createCacheKeyGener")
-    public String getByIdWithKeyGenerator(int id) {
+    public String getByIdWithKeyGenerator(int id, String name) {
         return LocalDateTime.now() + " getByIdWithKeyGenerator " + id;
     }
 
     // 使用 keyGenerator 清除缓存，要清除的缓存key，由keyGenerator指定
     @CacheEvict(value = CACHE_NAME, keyGenerator = "createCacheKeyGener")
-    public void clearCache(int id) {
+    public void clearCache(int id, String name) {
         // 空方法就可以了
     }
 
@@ -81,7 +81,7 @@ public class BusinessService {
     }
 
     @Cacheable(value = "TenSecondCache")
-    public String getAndCache10s(int id) {
+    public String getAndCache10s(int id, String name) {
         return LocalDateTime.now() + " getAndCache10s " + id;
     }
 }
