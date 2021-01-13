@@ -1,0 +1,17 @@
+server:
+  port: 8801
+spring:
+  application:
+    name: spring-feign-study
+  profiles:
+    active: dev
+
+---  # 2个三横杠之间表示一个环境配置
+spring:
+  profiles: unittest # 单元测试，通过注解 ActiveProfiles 使用这一段
+
+---
+spring:
+  profiles: dev # 开发使用这一段
+
+---
