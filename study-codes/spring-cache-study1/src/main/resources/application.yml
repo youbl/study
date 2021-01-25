@@ -1,0 +1,9 @@
+server:
+  port: 8801
+spring:
+  application:
+    name: spring-cache-study1
+
+  redis:
+    host: 10.2.3.250
+    password: 123456
