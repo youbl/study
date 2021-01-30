@@ -2,10 +2,12 @@ package beinet.cn.springjpastudy;
 
 import beinet.cn.springjpastudy.repository.Aaa;
 import beinet.cn.springjpastudy.repository.AaaRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,6 +48,19 @@ public class HomeController {
         repostory.save(item);
         // save时，会自动给item赋值，因此不需要 item = repostory.save(item); 也可以拿到item.id
         return item;
+    }
+
+    @GetMapping("del")
+    @Transactional
+    public int del() {
+        Aaa item = new Aaa();
+        item.setNum(123);
+        item.setDishhour(444);
+        repostory.save(item);
+
+        List<Long> ids = new ArrayList<>();
+        ids.add(item.getId());
+        return repostory.deleteByIdIn(ids);
     }
 
 }
