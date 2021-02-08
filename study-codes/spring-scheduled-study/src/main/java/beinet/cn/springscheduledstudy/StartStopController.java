@@ -57,6 +57,8 @@ public class StartStopController {
             return LocalDateTime.now() + " already stoped, didn't need stop.";
         }
         postProcessor.postProcessBeforeDestruction(scheduledTask, null);
-        return LocalDateTime.now() + " STOP OK";
+        String str = LocalDateTime.now() + " STOP OK";
+        System.out.println(str);
+        return str;
     }
 }
