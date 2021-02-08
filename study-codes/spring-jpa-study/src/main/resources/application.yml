@@ -8,7 +8,7 @@ spring:
     active: dev
 
   jpa:
-    show-sql: false  # 这个只会输出在控制台，不会记录到日志里
+    show-sql: true  # 这个只会输出在控制台，不会记录到日志里
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl

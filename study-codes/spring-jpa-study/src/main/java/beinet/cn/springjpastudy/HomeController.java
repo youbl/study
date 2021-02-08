@@ -32,6 +32,33 @@ public class HomeController {
     }
 
 
+    @GetMapping("dbin")
+    public List<Aaa> getByIds() {
+        // 空数组查询，看看会不会出慢查询
+        List<Long> arr = new ArrayList<>();
+        int idx = 0;
+        while (true) {
+            repostory.findAllByIdIn(arr);
+            idx++;
+            if (idx > 10000) break;
+        }
+        return repostory.findAllByIdIn(arr);
+    }
+
+
+    @GetMapping("dbin2")
+    public List<Aaa> getByIds2() {
+        // 空数组查询，看看会不会出慢查询
+        List<Long> arr = new ArrayList<>();
+        int idx = 0;
+        while (true) {
+            repostory.findAllByIdIn2(arr);
+            idx++;
+            if (idx > 10000) break;
+        }
+        return repostory.findAllByIdIn2(arr);
+    }
+
     @GetMapping("db")
     public Aaa getAll(@RequestParam long id) {
         return repostory.findById(id).orElse(null);

@@ -1,6 +1,7 @@
 package beinet.cn.springjpastudy.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -14,4 +15,10 @@ import java.util.List;
  */
 public interface AaaRepository extends JpaRepository<Aaa, Long> {
     int deleteByIdIn(List<Long> ids);
+
+    List<Aaa> findAllByIdIn(List<Long> ids);
+
+    @Query(value = "select * from aaa where id in (?1)", nativeQuery = true)
+    List<Aaa> findAllByIdIn2(List<Long> ids);
+
 }
