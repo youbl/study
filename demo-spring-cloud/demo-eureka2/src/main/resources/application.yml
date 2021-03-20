@@ -1,0 +1,15 @@
+server:
+  port: 9002
+
+spring:
+  application:
+    name: demo-eureka-server # 集群的name要相同
+
+eureka:
+  instance:
+    appname: eureka2        # 实例的名称，必须不同
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${spring.application.name}:${server.port}
+  client:
+    service-url:
+      defaultZone: http://localhost:9001/eureka
