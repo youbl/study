@@ -9,11 +9,18 @@ spring:
     gateway:
       routes:
         - id: mall-service            # 路由ID，必须唯一
-          uri: http://localhost:9003/ # proxy_pass转发到的目标地址
+          uri: lb://demo-mall         # proxy_pass转发到的目标地址
           predicates:
             - Path=/mall/**           # 匹配规则
 
         - id: product-service         # 路由ID，必须唯一
-          uri: http://localhost:9004/ # proxy_pass转发到的目标地址
+          uri: lb://demo-product      # proxy_pass转发到的目标地址
           predicates:
             - Path=/product/**           # 匹配规则
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:9001/eureka, http://localhost:9002/eureka
