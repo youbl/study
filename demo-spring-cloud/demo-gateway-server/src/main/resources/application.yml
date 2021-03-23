@@ -7,17 +7,20 @@ spring:
 
   cloud:
     gateway:
-      routes:
-        - id: mall-service            # 路由ID，必须唯一
-          uri: lb://demo-mall         # proxy_pass转发到的目标地址
-          predicates:
-            - Path=/mall/**           # 匹配规则
-
-        - id: product-service         # 路由ID，必须唯一
-          uri: lb://demo-product      # proxy_pass转发到的目标地址
-          predicates:
-            - Path=/product/**           # 匹配规则
-
+#      routes:
+#        - id: mall-service            # 路由ID，必须唯一
+#          uri: lb://demo-mall         # proxy_pass转发到的目标地址
+#          predicates:
+#            - Path=/mall/**           # 匹配规则
+#
+#        - id: product-service         # 路由ID，必须唯一
+#          uri: lb://demo-product      # proxy_pass转发到的目标地址
+#          predicates:
+#            - Path=/product/**           # 匹配规则
+      discovery:
+        locator:
+          enabled: true               # 使用注册中心的服务发现来访问，此时，url里要添加服务名，如： http://localhost:9000/demo-mall/mall/456
+          lower-case-service-id: true # 默认服务名是大写，要用这个改成小写
 eureka:
   instance:
     prefer-ip-address: true
