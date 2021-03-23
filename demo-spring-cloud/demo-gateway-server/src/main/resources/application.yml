@@ -1,0 +1,19 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: gateway-server
+
+  cloud:
+    gateway:
+      routes:
+        - id: mall-service            # 路由ID，必须唯一
+          uri: http://localhost:9003/ # proxy_pass转发到的目标地址
+          predicates:
+            - Path=/mall/**           # 匹配规则
+
+        - id: product-service         # 路由ID，必须唯一
+          uri: http://localhost:9004/ # proxy_pass转发到的目标地址
+          predicates:
+            - Path=/product/**           # 匹配规则
