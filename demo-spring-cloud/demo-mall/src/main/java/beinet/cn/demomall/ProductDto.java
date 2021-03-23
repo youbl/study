@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -13,4 +15,8 @@ public class ProductDto {
     private int id;
     private String name;
     private int num;
+    private LocalDateTime creationTime;
+
+    private String mallName;
+    private LocalDateTime mallTime;
 }
