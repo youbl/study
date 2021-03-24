@@ -16,9 +16,13 @@ public class MyRateLimiter extends AbstractRateLimiter<MyRateLimiter.Config> {
     private final Config defaultConfig;
 
     private final Map<String, Bucket> ipBucketMap = new ConcurrentHashMap<>();
+    private final String limitedUrl;
 
-    public MyRateLimiter(ConfigurationService service) {
+    public MyRateLimiter(ConfigurationService service,
+                         String limitedUrl) {
         super(Config.class, CONFIGURATION_PROPERTY_NAME, service);
+        this.limitedUrl = limitedUrl;
+
         defaultConfig = new Config();
         defaultConfig.setReplenishRate(10);
         defaultConfig.setBurstCapacity(100);
@@ -57,7 +61,8 @@ public class MyRateLimiter extends AbstractRateLimiter<MyRateLimiter.Config> {
             // 拿到令牌，允许进入
             return Mono.just(new Response(true, headers));
         } else {
-            // 没令牌了，返回429，不允许进入
+            // 没令牌了，默认返回429，不允许进入
+            headers.put("Location", limitedUrl);
             return Mono.just(new Response(false, headers));
         }
     }

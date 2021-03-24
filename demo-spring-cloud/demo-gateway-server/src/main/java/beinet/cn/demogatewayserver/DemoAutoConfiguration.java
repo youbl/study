@@ -1,6 +1,7 @@
 package beinet.cn.demogatewayserver;
 
 import beinet.cn.demogatewayserver.rateLimiter.MyRateLimiter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.cloud.gateway.filter.ratelimit.RateLimiter;
 import org.springframework.cloud.gateway.support.ConfigurationService;
@@ -18,7 +19,8 @@ public class DemoAutoConfiguration {
     }
 
     @Bean
-    public RateLimiter myRateLimiter(ConfigurationService service) {
-        return new MyRateLimiter(service);
+    public RateLimiter myRateLimiter(ConfigurationService service,
+                                     @Value("${beinet.url}") String limitedUrl) {
+        return new MyRateLimiter(service, limitedUrl);
     }
 }

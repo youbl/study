@@ -1,6 +1,7 @@
 server:
   port: 9000
 
+beinet.url: "https://www.baidu.com/"
 spring:
   application:
     name: gateway-server
@@ -14,8 +15,9 @@ spring:
             - Path=/mall/**           # 匹配规则
           filters:
             - name: RequestRateLimiter
-              args:
+              args: # 对应 RequestRateLimiterGatewayFilterFactory$Config类的属性
                 key-resolver: "#{@myKeyResolver}"
+                status-code: FOUND # 默认HttpStatus.TOO_MANY_REQUESTS 429,改成302，并在代码超限那里添加 Location 头
                 #rate-limiter: "#{@myRateLimiter}"
                 in-memory-rate-limiter:
                   replenish-rate: 1   # 对应 MyRateLimiter.Config的属性，不能用 replenishRate
