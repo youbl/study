@@ -1,12 +1,11 @@
 package beinet.cn.demogatewayserver.rateLimiter;
 
 import io.github.bucket4j.*;
+import lombok.Data;
 import org.springframework.cloud.gateway.filter.ratelimit.AbstractRateLimiter;
 import org.springframework.cloud.gateway.support.ConfigurationService;
-import org.springframework.validation.annotation.Validated;
 import reactor.core.publisher.Mono;
 
-import javax.validation.constraints.Min;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,12 +13,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MyRateLimiter extends AbstractRateLimiter<MyRateLimiter.Config> {
     public static final String CONFIGURATION_PROPERTY_NAME = "in-memory-rate-limiter";
-    private Config defaultConfig;
+    private final Config defaultConfig;
 
     private final Map<String, Bucket> ipBucketMap = new ConcurrentHashMap<>();
 
     public MyRateLimiter(ConfigurationService service) {
         super(Config.class, CONFIGURATION_PROPERTY_NAME, service);
+        defaultConfig = new Config();
+        defaultConfig.setReplenishRate(10);
+        defaultConfig.setBurstCapacity(100);
     }
 
     @Override
@@ -33,13 +35,13 @@ public class MyRateLimiter extends AbstractRateLimiter<MyRateLimiter.Config> {
             routeConfig = defaultConfig;
         }
 
-        // How many requests per second do you want a user to be allowed to do?
+        // 每秒生成多少个令牌，就是当令牌桶为空时，每秒最多允许多少个用户进入，比如10
         int replenishRate = routeConfig.getReplenishRate();
 
-        // How much bursting do you want to allow?
+        // 令牌桶的最大容量，就是突发涌入大量请求时，最多允许多少用户进入，比如100
         int burstCapacity = routeConfig.getBurstCapacity();
 
-        // init
+        // 初始化当前id的桶
         Bucket bucket = ipBucketMap.computeIfAbsent(id, k -> {
             Refill refill = Refill.of(replenishRate, Duration.ofSeconds(1));
             Bandwidth limit = Bandwidth.classic(burstCapacity, refill);
@@ -47,52 +49,23 @@ public class MyRateLimiter extends AbstractRateLimiter<MyRateLimiter.Config> {
         });
 
         Map<String, String> headers = new HashMap<>();
-        // tryConsume returns false immediately if no tokens available with the bucket
+        // 尝试获取，同时得到剩余令牌数
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
+        // 把剩余令牌数写入Header
         headers.put("remaining", String.valueOf(probe.getRemainingTokens()));
         if (probe.isConsumed()) {
-            // the limit is not exceeded
-            // probe.getRemainingTokens()
+            // 拿到令牌，允许进入
             return Mono.just(new Response(true, headers));
         } else {
-            // limit is exceeded
+            // 没令牌了，返回429，不允许进入
             return Mono.just(new Response(false, headers));
         }
     }
 
-    @Validated
+    @Data
     public static class Config {
-        @Min(1)
         private int replenishRate;
-
-        @Min(0)
-        private int burstCapacity = 0;
-
-        public int getReplenishRate() {
-            return replenishRate;
-        }
-
-        public Config setReplenishRate(int replenishRate) {
-            this.replenishRate = replenishRate;
-            return this;
-        }
-
-        public int getBurstCapacity() {
-            return burstCapacity;
-        }
-
-        public Config setBurstCapacity(int burstCapacity) {
-            this.burstCapacity = burstCapacity;
-            return this;
-        }
-
-        @Override
-        public String toString() {
-            return "Config{" +
-                    "replenishRate=" + replenishRate +
-                    ", burstCapacity=" + burstCapacity +
-                    '}';
-        }
+        private int burstCapacity;
     }
 
 }
