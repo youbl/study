@@ -12,6 +12,14 @@ spring:
           uri: lb://demo-mall         # proxy_pass转发到的目标地址
           predicates:
             - Path=/mall/**           # 匹配规则
+          filters:
+            - name: RequestRateLimiter
+              args:
+                key-resolver: "#{@myKeyResolver}"
+                #rate-limiter: "#{@myRateLimiter}"
+                in-memory-rate-limiter:
+                  replenish-rate: 1   # 对应 MyRateLimiter.Config的属性，不能用 replenishRate
+                  burst-capacity: 2   # 对应 MyRateLimiter.Config的属性，不能用 burstCapacity
 #
 #        - id: product-service         # 路由ID，必须唯一
 #          uri: lb://demo-product      # proxy_pass转发到的目标地址
