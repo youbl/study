@@ -1,5 +1,6 @@
 package beinet.cn.reflectionstudy;
 
+import beinet.cn.reflectionstudy.getMethod.TestClass;
 import beinet.cn.reflectionstudy.returnTypeDemo.MethodReturnType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -18,7 +19,8 @@ public class ReflectionStudyApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        methodReturnType.runTest();
+        //methodReturnType.runTest();
+        new TestClass().test();
     }
 
 }
