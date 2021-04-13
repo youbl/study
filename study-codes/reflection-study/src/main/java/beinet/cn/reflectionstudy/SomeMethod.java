@@ -75,4 +75,16 @@ public class SomeMethod {
         ret[1].setName("bbb");
         return ret;
     }
+
+    public DtoGeneric<Dto> DtoGenericType() {
+        DtoGeneric<Dto> ret = new DtoGeneric<>();
+        ret.setId(6666);
+        ret.setName("adde");
+
+        Dto dto = new Dto();
+        ret.setObj(dto);
+        dto.setId(7777);
+        dto.setName("subXX");
+        return ret;
+    }
 }

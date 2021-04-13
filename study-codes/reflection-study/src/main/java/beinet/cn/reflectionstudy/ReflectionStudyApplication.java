@@ -19,8 +19,8 @@ public class ReflectionStudyApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        //methodReturnType.runTest();
-        new TestClass().test();
+        methodReturnType.runTest();
+        //new TestClass().test();
     }
 
 }

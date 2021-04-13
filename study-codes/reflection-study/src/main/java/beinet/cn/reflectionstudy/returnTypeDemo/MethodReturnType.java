@@ -1,6 +1,7 @@
 package beinet.cn.reflectionstudy.returnTypeDemo;
 
 import beinet.cn.reflectionstudy.SomeMethod;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,10 +17,14 @@ import java.util.stream.Collectors;
 @Data
 @Service
 public class MethodReturnType {
-    private final ObjectMapper mapper;
+    private final ObjectMapper mapperForOutputWithType;
+    private final ObjectMapper mapperForWorkWithoutType;
 
-    public MethodReturnType(ObjectMapper mapper) {
-        this.mapper = mapper;
+    public MethodReturnType() {
+        this.mapperForOutputWithType = new ObjectMapper();
+        this.mapperForOutputWithType.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+
+        this.mapperForWorkWithoutType = new ObjectMapper();
     }
 
     public void runTest() throws Exception {
@@ -32,6 +37,7 @@ public class MethodReturnType {
         testConvert("LongMethodList");
         testConvert("LongMethodMap1");
         testConvert("LongMethodMap2");
+        testConvert("DtoGenericType");
     }
 
     void showAllMethodInfo() {
@@ -77,6 +83,13 @@ public class MethodReturnType {
         Object obj1 = method.invoke(someMethod);
         Object obj2 = convert(obj1, getReturnType(method));
         System.out.println(returnType + " : " + obj1.getClass() + " : " + obj2.getClass());
+
+        String str1 = mapperForOutputWithType.writeValueAsString(obj1);
+        String str2 = mapperForOutputWithType.writeValueAsString(obj2);
+        if (!str1.equals(str2)) {
+            System.out.println("  ===" + mapperForOutputWithType.writeValueAsString(obj1));
+            System.out.println("  ===" + mapperForOutputWithType.writeValueAsString(obj2));
+        }
     }
 
     /**
@@ -101,7 +114,7 @@ public class MethodReturnType {
         if (type != null) {
             return type;
         }
-        return methodReturnType;
+        return getGenericType(method);
     }
 
     /**
@@ -121,7 +134,7 @@ public class MethodReturnType {
             if (arrType == null || arrType.length < 1) {
                 return null;
             }
-            return mapper.getTypeFactory().constructCollectionType(methodReturnType, (Class) arrType[0]);
+            return mapperForWorkWithoutType.getTypeFactory().constructCollectionType(methodReturnType, (Class) arrType[0]);
         }
         return null;
     }
@@ -143,9 +156,17 @@ public class MethodReturnType {
             if (arrType == null || arrType.length < 2) {
                 return null;
             }
-            return mapper.getTypeFactory().constructMapType(methodReturnType, (Class) arrType[0], (Class) arrType[1]);
+            return mapperForWorkWithoutType.getTypeFactory().constructMapType(methodReturnType, (Class) arrType[0], (Class) arrType[1]);
         }
         return null;
+    }
+
+    private Type getGenericType(Method method) {
+        Type type = method.getGenericReturnType();
+        if (type == null) {
+            type = method.getReturnType();
+        }
+        return type;
     }
 
     /**
@@ -161,9 +182,11 @@ public class MethodReturnType {
             return null;
         }
         if (returnType instanceof Class) {
-            return mapper.readValue(mapper.writeValueAsString(obj), (Class) returnType);
+            String serStr = mapperForWorkWithoutType.writeValueAsString(obj);
+            return mapperForWorkWithoutType.readValue(serStr, (Class) returnType);
         } else if (returnType instanceof JavaType) {
-            return mapper.readValue(mapper.writeValueAsString(obj), (JavaType) returnType);
+            String serStr = mapperForWorkWithoutType.writeValueAsString(obj);
+            return mapperForWorkWithoutType.readValue(serStr, (JavaType) returnType);
         }
         return obj;
     }
