@@ -16,6 +16,17 @@ public class SomeMethod {
         return LongMethodMap2();
     }
 
+    public Map<String, List<String>> LongMethodMap3() {
+        Map<String, List<String>> ret = new HashMap<>();
+        List<String> arr = new ArrayList<>();
+        ret.put("abc", arr);
+        arr.add("aaa");
+        arr.add("bbb");
+
+        ret.put("ddd", arr);
+        return ret;
+    }
+
     public HashMap<Long, Dto> LongMethodMap2() {
         HashMap<Long, Dto> ret = new HashMap<>();
         Dto dto = new Dto();

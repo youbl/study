@@ -37,6 +37,7 @@ public class MethodReturnType {
         testConvert("LongMethodList");
         testConvert("LongMethodMap1");
         testConvert("LongMethodMap2");
+        testConvert("LongMethodMap3");
         testConvert("DtoGenericType");
     }
 
@@ -156,9 +157,16 @@ public class MethodReturnType {
             if (arrType == null || arrType.length < 2) {
                 return null;
             }
-            return mapperForWorkWithoutType.getTypeFactory().constructMapType(methodReturnType, (Class) arrType[0], (Class) arrType[1]);
+
+            return mapperForWorkWithoutType.getTypeFactory().constructMapType(methodReturnType, toClass(arrType[0]), toClass(arrType[1]));
         }
         return null;
+    }
+
+    private JavaType toClass(Type type) {
+//        if (type instanceof ParameterizedType) {
+//        }
+        return mapperForWorkWithoutType.getTypeFactory().constructType(type);
     }
 
     private Type getGenericType(Method method) {
