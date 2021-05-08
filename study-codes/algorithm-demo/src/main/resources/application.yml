@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: algorithm-demo
+server:
+  port: 8801
