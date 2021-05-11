@@ -6,9 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @RestController
 public class HomeController {
@@ -18,17 +16,25 @@ public class HomeController {
         this.sortMethodList = sortMethodList;
     }
 
+    /**
+     * 对数据排序后返回。
+     * 第一行为源数组及长度
+     * 后续行为排序后数据，及循环次数
+     *
+     * @param ids
+     * @return
+     */
     @GetMapping("/")
-    public List<SortItem[]> index(@RequestParam(required = false) String ids) {
+    public Map<List<SortItem>, Integer> index(@RequestParam(required = false) String ids) {
         SortItem[] arr = toArr(ids);
 
-        List<SortItem[]> results = new ArrayList<>(sortMethodList.size() + 1);
-        results.add(arr);
+        Map<List<SortItem>, Integer> results = new HashMap<>(sortMethodList.size() + 1);
+        results.put(new ArrayList<>(Arrays.asList(arr)), arr.length);
 
         for (Sort sort : sortMethodList) {
             SortItem[] arrClone = arr.clone();
             sort.sort(arrClone);
-            results.add(arrClone);
+            results.put(new ArrayList<>(Arrays.asList(arrClone)), sort.getLoopCount());
         }
         return results;
     }
@@ -63,4 +69,5 @@ public class HomeController {
         //return arr.stream().mapToInt(Integer::valueOf).toArray(); 转成int数组
         // return arr.toArray(new Integer[0]);
     }
+
 }

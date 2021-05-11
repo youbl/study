@@ -10,18 +10,26 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DirectInsert implements Sort {
+    private int loopCount;
+
     /**
      * 直接在源数组上排序
      *
      * @param source 排序前的数组
      */
     public void sort(SortItem[] source) {
+        loopCount = 0;
+
         // 从第2个元素开始遍历，在左边找它的插入位置
         for (int i = 1, j = source.length; i < j; i++) {
             SortItem item = source[i];
             int position = findPosition(item, source, i - 1);
             insertNum(item, source, position, i);
         }
+    }
+
+    public int getLoopCount() {
+        return loopCount;
     }
 
     /**
@@ -35,6 +43,7 @@ public class DirectInsert implements Sort {
     private int findPosition(SortItem item, SortItem[] source, int maxPosition) {
         // 在该元素的左边，从右往左遍历
         for (int m = maxPosition; m >= 0; m--) {
+            loopCount++;
             if (source[m].getNum() <= item.getNum())
                 return m + 1;
         }

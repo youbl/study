@@ -4,4 +4,6 @@ import beinet.cn.algorithmdemo.controller.SortItem;
 
 public interface Sort {
     void sort(SortItem[] source);
+
+    int getLoopCount();
 }
