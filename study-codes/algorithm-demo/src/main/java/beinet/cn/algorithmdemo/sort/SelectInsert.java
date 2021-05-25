@@ -24,22 +24,16 @@ public class SelectInsert implements Sort {
         loopCount = 0;
 
         for (int i = 0, j = source.length; i < j; i++) {
-            SortItem item1 = source[i];
-            int changeIdx = i;
+            int minIdx = i;
 
             for (int m = i + 1; m < j; m++) {
-                loopCount++;
-                SortItem item2 = source[m];
-
-                if (item1.compareTo(item2) > 0) {
-                    item1 = item2;
-                    changeIdx = m;
+                loopCount++; // 循环次数加1
+                if (source[minIdx].compareTo(source[m]) > 0) {
+                    minIdx = m;
                 }
             }
-            if (changeIdx != i) {
-                SortItem tmp = source[i];
-                source[i] = source[changeIdx];
-                source[changeIdx] = tmp;
+            if (minIdx != i) {
+                swap(source, i, minIdx);
             }
         }
     }

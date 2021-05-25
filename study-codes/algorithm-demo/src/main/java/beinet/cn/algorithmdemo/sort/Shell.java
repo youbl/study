@@ -29,9 +29,7 @@ public class Shell implements Sort {
             for (int i = gap; i < source.length; i++) {
                 for (int j = i - gap; j >= 0 && source[j + gap].compareTo(source[j]) < 0; j -= gap) {
                     loopCount++;
-                    SortItem tmp = source[j + gap];
-                    source[j + gap] = source[j];
-                    source[j] = tmp;
+                    swap(source, j, j + gap);
                 }
             }
         }
