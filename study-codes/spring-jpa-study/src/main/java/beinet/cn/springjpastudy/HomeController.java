@@ -1,5 +1,7 @@
 package beinet.cn.springjpastudy;
 
+import beinet.cn.springjpastudy.dto.AaaDto;
+import beinet.cn.springjpastudy.mapper.AaaConverter;
 import beinet.cn.springjpastudy.repository.Aaa;
 import beinet.cn.springjpastudy.repository.AaaRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +33,11 @@ public class HomeController {
         return repostory.findAll();
     }
 
+    @GetMapping("dbDto")
+    public List<AaaDto> getAllDto() {
+        List<Aaa> arr = getAll();
+        return AaaConverter.INSTANCE.entity2dto(arr);
+    }
 
     @GetMapping("dbin")
     public List<Aaa> getByIds() {
@@ -72,6 +79,15 @@ public class HomeController {
         }
         item.setNum(num);
         item.setDishhour(item.getDishhour() + 1);
+
+        // 先执行: org.springframework.data.jpa.repository.support.SimpleJpaRepository.save 方法
+        // 然后是: org.hibernate.internal.firePersist 方法
+        // 然后是: org.hibernate.event.internal.AbstractSaveEventListener.performSaveOrReplicate 方法
+        /*
+        AbstractEntityInsertAction insert = addInsertAction(
+				values, id, entity, persister, useIdentityColumn, source, shouldDelayIdentityInserts
+		);
+        * */
         repostory.save(item);
         // save时，会自动给item赋值，因此不需要 item = repostory.save(item); 也可以拿到item.id
         return item;
