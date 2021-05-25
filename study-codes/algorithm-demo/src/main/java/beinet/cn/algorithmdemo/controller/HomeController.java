@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 public class HomeController {
@@ -25,16 +26,16 @@ public class HomeController {
      * @return
      */
     @GetMapping("/")
-    public Map<List<SortItem>, Integer> index(@RequestParam(required = false) String ids) {
+    public Map<List<String>, String> index(@RequestParam(required = false) String ids) {
         SortItem[] arr = toArr(ids);
 
-        Map<List<SortItem>, Integer> results = new HashMap<>(sortMethodList.size() + 1);
-        results.put(new ArrayList<>(Arrays.asList(arr)), arr.length);
+        Map<List<String>, String> results = new HashMap<>(sortMethodList.size() + 1);
+        results.put(toResult(arr), String.valueOf(arr.length));
 
         for (Sort sort : sortMethodList) {
             SortItem[] arrClone = arr.clone();
             sort.sort(arrClone);
-            results.put(new ArrayList<>(Arrays.asList(arrClone)), sort.getLoopCount());
+            results.put(toResult(arrClone), sort.getLoopCount() + ":" + sort.getClass().getSimpleName());
         }
         return results;
     }
@@ -70,4 +71,7 @@ public class HomeController {
         // return arr.toArray(new Integer[0]);
     }
 
+    private List<String> toResult(SortItem[] arr) {
+        return Arrays.stream(arr).map(item -> item.getNum() + ":" + item.getOriginIdx()).collect(Collectors.toList());
+    }
 }

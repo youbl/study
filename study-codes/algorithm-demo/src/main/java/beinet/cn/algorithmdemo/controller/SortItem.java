@@ -8,7 +8,7 @@ import lombok.Data;
  */
 @Data
 @Builder
-public class SortItem {
+public class SortItem implements Comparable<SortItem> {
     /**
      * 排序用字段
      */
@@ -17,4 +17,14 @@ public class SortItem {
      * 原始序号
      */
     private int originIdx;
+
+    /**
+     * 用于排序的对比接口方法
+     * @param o
+     * @return
+     */
+    @Override
+    public int compareTo(SortItem o) {
+        return this.getNum() - o.getNum();
+    }
 }

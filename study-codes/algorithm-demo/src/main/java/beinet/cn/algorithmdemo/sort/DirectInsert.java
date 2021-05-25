@@ -43,8 +43,8 @@ public class DirectInsert implements Sort {
     private int findPosition(SortItem item, SortItem[] source, int maxPosition) {
         // 在该元素的左边，从右往左遍历
         for (int m = maxPosition; m >= 0; m--) {
-            loopCount++;
-            if (source[m].getNum() <= item.getNum())
+            loopCount++; // 查找时要加1
+            if (source[m].compareTo(item) <= 0)
                 return m + 1;
         }
         return 0;
@@ -63,6 +63,7 @@ public class DirectInsert implements Sort {
             return;
         // 逐个右移
         for (int i = currentPosition - 1; i >= position; i--) {
+            loopCount++; // 数据移动时，也要加1
             source[i + 1] = source[i];
         }
         // 插入
