@@ -1,11 +1,15 @@
 package beinet.cn.algorithmdemo.controller;
 
+import beinet.cn.algorithmdemo.sort.DirectInsert;
 import beinet.cn.algorithmdemo.sort.Sort;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.ResultSet;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,17 +30,25 @@ public class HomeController {
      * @return
      */
     @GetMapping("/")
-    public Map<List<String>, String> index(@RequestParam(required = false) String ids) {
+    public List<Result> index(@RequestParam(required = false) String ids) {
         SortItem[] arr = toArr(ids);
 
-        Map<List<String>, String> results = new HashMap<>(sortMethodList.size() + 1);
-        results.put(toResult(arr), String.valueOf(arr.length));
+        List<Result> results = new ArrayList<>(sortMethodList.size() + 1);
+        results.add(toResult(arr, String.valueOf(arr.length)));
+        results.get(0).setSorted(false);
 
+        List<String> use2Compare = null; // 用于校验排序结果
         for (Sort sort : sortMethodList) {
             SortItem[] arrClone = arr.clone();
             sort.sort(arrClone);
-            results.put(toResult(arrClone), sort.getLoopCount() + ":" + sort.getClass().getSimpleName());
+            results.add(toResult(arrClone, sort.getLoopCount() + ":" + sort.getClass().getSimpleName()));
+
+            if (sort instanceof DirectInsert) {
+                use2Compare = results.get(results.size() - 1).getArr();
+            }
         }
+
+        validSortResult(results, use2Compare);
         return results;
     }
 
@@ -65,6 +77,15 @@ public class HomeController {
                         .build();
                 arr.add(sortItem);
             }
+            // 增加2个相同的数据，用于验证稳定性
+            arr.add(SortItem.builder()
+                    .num(11)
+                    .originIdx(11)
+                    .build());
+            arr.add(SortItem.builder()
+                    .num(11)
+                    .originIdx(12)
+                    .build());
         }
         return arr.toArray(new SortItem[0]);
         //return arr.stream().mapToInt(Integer::valueOf).toArray(); 转成int数组
@@ -73,5 +94,37 @@ public class HomeController {
 
     private List<String> toResult(SortItem[] arr) {
         return Arrays.stream(arr).map(item -> item.getNum() + ":" + item.getOriginIdx()).collect(Collectors.toList());
+    }
+
+    private Result toResult(SortItem[] arr, String str) {
+        Result ret = new Result();
+        ret.setArr(toResult(arr));
+        ret.setLoop(str);
+        return ret;
+    }
+
+    private void validSortResult(List<Result> results, List<String> use2Compare) {
+        for (Result result : results) {
+            if (!result.sorted || result == use2Compare)
+                continue;
+
+            for (int i = 0, j = use2Compare.size(); i < j; i++) {
+                String com1 = use2Compare.get(i);
+                String com2 = result.getArr().get(i);
+                com1 = com1.split(":")[0];
+                com2 = com2.split(":")[0];
+                if (!com1.equals(com2))
+                    throw new RuntimeException("排序结果有误:" + result.loop);
+            }
+        }
+    }
+
+    @Data
+    public static class Result {
+        private List<String> arr;
+        private String loop;
+
+        @JsonIgnore
+        private boolean sorted = true;
     }
 }
