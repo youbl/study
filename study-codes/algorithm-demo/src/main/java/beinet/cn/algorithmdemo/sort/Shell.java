@@ -11,6 +11,10 @@ import org.springframework.stereotype.Component;
 public class Shell implements Sort {
     private int loopCount;
 
+    public String getName() {
+        return "希尔排序";
+    }
+
     /**
      * 直接在源数组上排序
      *

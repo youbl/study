@@ -41,7 +41,7 @@ public class HomeController {
         for (Sort sort : sortMethodList) {
             SortItem[] arrClone = arr.clone();
             sort.sort(arrClone);
-            results.add(toResult(arrClone, sort.getLoopCount() + ":" + sort.getClass().getSimpleName()));
+            results.add(toResult(arrClone, sort.getLoopCount() + ":" + sort.getName()));
 
             if (sort instanceof DirectInsert) {
                 use2Compare = results.get(results.size() - 1).getArr();

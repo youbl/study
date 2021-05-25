@@ -6,4 +6,6 @@ public interface Sort {
     void sort(SortItem[] source);
 
     int getLoopCount();
+
+    String getName();
 }

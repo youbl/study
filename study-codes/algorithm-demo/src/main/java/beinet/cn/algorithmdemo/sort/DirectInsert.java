@@ -12,6 +12,10 @@ import org.springframework.stereotype.Component;
 public class DirectInsert implements Sort {
     private int loopCount;
 
+    public String getName() {
+        return "直接插入排序";
+    }
+
     /**
      * 直接在源数组上排序
      *
