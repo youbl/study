@@ -34,7 +34,7 @@ public class Heap implements Sort {
         for (int i = source.length / 2 - 1; i >= 0; i--) {
             adjustHeap(source, i, source.length);
         }
-        log(source);// 打个日志，看看完成的大顶堆
+        //log(source);// 打个日志，看看完成的大顶堆
 
         // 构建完成，开始排序过程：
         // 1、把堆顶与堆尾交换，使最大元素在末尾

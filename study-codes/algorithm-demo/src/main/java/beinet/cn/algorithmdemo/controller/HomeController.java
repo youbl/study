@@ -70,21 +70,21 @@ public class HomeController {
             }
         } else {
             Random random = new Random();
-            for (int i = 0; i < 10; i++) {
-                SortItem sortItem = SortItem.builder()
-                        .num(random.nextInt() % 100)
-                        .originIdx(i)
-                        .build();
-                arr.add(sortItem);
-            }
             // 增加2个相同的数据，用于验证稳定性
             arr.add(SortItem.builder()
                     .num(11)
-                    .originIdx(11)
+                    .originIdx(0)
                     .build());
+            for (int i = 0; i < 10; i++) {
+                SortItem sortItem = SortItem.builder()
+                        .num(random.nextInt() % 100)
+                        .originIdx(i + 1)
+                        .build();
+                arr.add(sortItem);
+            }
             arr.add(SortItem.builder()
                     .num(11)
-                    .originIdx(12)
+                    .originIdx(11)
                     .build());
         }
         return arr.toArray(new SortItem[0]);
@@ -113,8 +113,11 @@ public class HomeController {
                 String com2 = result.getArr().get(i);
                 com1 = com1.split(":")[0];
                 com2 = com2.split(":")[0];
-                if (!com1.equals(com2))
+                if (!com1.equals(com2)) {
+                    result.loop += "===排序结果有误";
                     throw new RuntimeException("排序结果有误:" + result.loop);
+                    // break;
+                }
             }
         }
     }
