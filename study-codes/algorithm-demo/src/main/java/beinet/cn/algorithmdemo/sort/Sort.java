@@ -22,4 +22,11 @@ public interface Sort {
         source[i] = source[j];
         source[j] = tmp;
     }
+
+    default void log(SortItem[] source) {
+        for (int i = 0, j = source.length; i < j; i++) {
+            System.out.print(source[i].getNum() + ",");
+        }
+        System.out.println();
+    }
 }

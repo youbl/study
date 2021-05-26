@@ -80,10 +80,4 @@ public class Heap implements Sort {
         return loopCount;
     }
 
-    private void log(SortItem[] source) {
-        for (int i = 0, j = source.length; i < j; i++) {
-            System.out.print(source[i].getNum() + ",");
-        }
-        System.out.println();
-    }
 }
