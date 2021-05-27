@@ -35,6 +35,15 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     tomcat:
       initSQL: "SET NAMES utf8mb4"
+    #      validation-query: "SELECT 1"
+    #      validation-query-timeout: 10
+    hikari:
+      # 把maxLifetime设置为比数据库 wait-timeout较小的值，以避免问题：com.zaxxer.hikari.pool.PoolBase: HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@1a751254 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+      max-lifetime: 40000  #单位毫秒，连接池里每个连接的最长生命周期，默认30分钟
+      #      maximum-pool-size: 10  # 连接池最大连接数，默认10
+      #      minimum-idle: 4        # 空闲超过idle-timeout的连接会被关闭，只保留4个不关闭；不推荐设置，让Hikari当成固定大小的连接池用
+      #      idle-timeout: 40000    # 单位毫秒，空闲连接最大存活时间，默认10分钟，只有minimum-idle<maximum-pool-size时才生效
+      #参考： https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby
   jpa:
     hibernate:
       ddl-auto: validate # 实体与数据库不一致时，报异常，不应当修改生产数据库，当然也不应该给权限
