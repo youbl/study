@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @RestController
 public class MallController {
@@ -12,6 +13,11 @@ public class MallController {
 
     public MallController(FeignProduct feignProduct) {
         this.feignProduct = feignProduct;
+    }
+
+    @GetMapping("/")
+    public String index() {
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")) + " 我是Mall商城首页";
     }
 
     @GetMapping("/mall/{id}")

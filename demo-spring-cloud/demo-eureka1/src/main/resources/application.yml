@@ -13,3 +13,6 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:9002/eureka
+
+#nohup java -Dserver.port=9001 -Deureka.instance.appname=eureka1 -Xms1024m -Xmx1024m -Xmn384m -XX:+UseConcMarkSweepGC -Deureka.client.service-url.defaultZone=http://localhost:9001/eureka,http://localhost:9002/eureka -jar /data/apps/eureka/demo-eureka1-0.0.1-SNAPSHOT.jar 2>&1 &
+#nohup java -Dserver.port=9002 -Deureka.instance.appname=eureka2 -Xms1024m -Xmx1024m -Xmn384m -XX:+UseConcMarkSweepGC -Deureka.client.service-url.defaultZone=http://localhost:9001/eureka,http://localhost:9002/eureka -jar /data/apps/eureka/demo-eureka1-0.0.1-SNAPSHOT.jar 2>&1 &

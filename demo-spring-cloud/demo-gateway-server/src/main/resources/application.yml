@@ -8,6 +8,8 @@ spring:
 
   cloud:
     gateway:
+      # 没有定义路由的，可以直接通过Eureka上的应用名进行访问，例如：
+      # http://localhost:9000/demo-product/  http://localhost:9000/demo-mall/
       routes:
         - id: mall-service            # 路由ID，必须唯一
           uri: lb://demo-mall         # proxy_pass转发到的目标地址
@@ -36,7 +38,7 @@ eureka:
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://localhost:9001/eureka, http://localhost:9002/eureka
+      defaultZone: http://10.2.3.209:9001/eureka, http://10.2.3.209:9002/eureka
 
 management:
   endpoints:
