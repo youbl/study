@@ -5,6 +5,7 @@ import beinet.cn.springbeanstudy.interfaceMulti.UsingAll;
 import beinet.cn.springbeanstudy.multiBean.ServiceConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -52,5 +53,22 @@ public class HomeController {
         return this.getClass().getName();
     }
 
+    @GetMapping("exp1")
+    public int exp1(@RequestParam(required = false) Integer num) {
+        return 100 / num;// num为空或0会抛异常
+    }
 
+    @GetMapping("exp2")
+    public int exp2(@RequestParam(required = false) Integer num) throws ClassNotFoundException {
+        if (num == null) {
+            throw new RuntimeException("num不能为空");
+        }
+        if (num.intValue() == 0) {
+            throw new IllegalArgumentException("num不能为0");
+        }
+        if (num < 0) {
+            throw new ClassNotFoundException("要触发Exception方法");
+        }
+        return 100 / num;// num为空或0会抛异常
+    }
 }
