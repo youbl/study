@@ -4,6 +4,7 @@ import beinet.cn.springjpastudy.dto.AaaDto;
 import beinet.cn.springjpastudy.mapper.AaaConverter;
 import beinet.cn.springjpastudy.repository.Aaa;
 import beinet.cn.springjpastudy.repository.AaaRepository;
+import beinet.cn.springjpastudy.services.AaaServices;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,15 +23,15 @@ import java.util.List;
 @RestController
 public class HomeController {
 
-    private final AaaRepository repostory;
+    private final AaaServices aaaServices;
 
-    public HomeController(AaaRepository repostory) {
-        this.repostory = repostory;
+    public HomeController(AaaServices aaaServices) {
+        this.aaaServices = aaaServices;
     }
 
     @GetMapping("dbAll")
     public List<Aaa> getAll() {
-        return repostory.findAll();
+        return aaaServices.findAll();
     }
 
     @GetMapping("dbDto")
@@ -45,11 +46,11 @@ public class HomeController {
         List<Long> arr = new ArrayList<>();
         int idx = 0;
         while (true) {
-            repostory.findAllByIdIn(arr);
+            aaaServices.findAllByIdIn(arr);
             idx++;
             if (idx > 10000) break;
         }
-        return repostory.findAllByIdIn(arr);
+        return aaaServices.findAllByIdIn(arr);
     }
 
 
@@ -59,21 +60,21 @@ public class HomeController {
         List<Long> arr = new ArrayList<>();
         int idx = 0;
         while (true) {
-            repostory.findAllByIdIn2(arr);
+            aaaServices.findAllByIdIn2(arr);
             idx++;
             if (idx > 10000) break;
         }
-        return repostory.findAllByIdIn2(arr);
+        return aaaServices.findAllByIdIn2(arr);
     }
 
     @GetMapping("db")
     public Aaa getAll(@RequestParam long id) {
-        return repostory.findById(id).orElse(null);
+        return aaaServices.findById(id).orElse(null);
     }
 
     @GetMapping("dbupdate")
     public Aaa update(@RequestParam long id, @RequestParam(required = false) int num) {
-        Aaa item = repostory.findById(id).orElse(null);
+        Aaa item = aaaServices.findById(id).orElse(null);
         if (item == null) {
             item = new Aaa();
         }
@@ -88,7 +89,7 @@ public class HomeController {
 				values, id, entity, persister, useIdentityColumn, source, shouldDelayIdentityInserts
 		);
         * */
-        repostory.save(item);
+        aaaServices.save(item);
         // save时，会自动给item赋值，因此不需要 item = repostory.save(item); 也可以拿到item.id
         return item;
     }
@@ -99,11 +100,11 @@ public class HomeController {
         Aaa item = new Aaa();
         item.setNum(123);
         item.setDishhour(444);
-        repostory.save(item);
+        aaaServices.save(item);
 
         List<Long> ids = new ArrayList<>();
         ids.add(item.getId());
-        return repostory.deleteByIdIn(ids);
+        return aaaServices.deleteByIdIn(ids);
     }
 
 }
