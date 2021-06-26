@@ -3,8 +3,8 @@ package beinet.cn.springjpastudy;
 import beinet.cn.springjpastudy.dto.AaaDto;
 import beinet.cn.springjpastudy.mapper.AaaConverter;
 import beinet.cn.springjpastudy.repository.Aaa;
-import beinet.cn.springjpastudy.repository.AaaRepository;
 import beinet.cn.springjpastudy.services.AaaServices;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,10 +34,12 @@ public class HomeController {
     // DateTimeFormat.ISO.DATE_TIME 要求格式例如： 2021-06-26T12:34:56
     // 访问举例： http://localhost:8801/cond?begin=2020-11-14T01:01:01&end=2021-02-01T11:11:11&dishhour=2
     @GetMapping("cond")
-    public List<Aaa> getByCond(@RequestParam(required = false) Integer dishhour,
+    public Page<Aaa> getByCond(@RequestParam(required = false) Integer dishhour,
                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime begin,
-                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
-        return aaaServices.findByCond(dishhour, begin, end);
+                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+                               @RequestParam(required = false) Integer pageNum,
+                               @RequestParam(required = false) Integer pageSize) {
+        return aaaServices.findByCond(dishhour, begin, end, pageNum, pageSize);
     }
 
     @GetMapping("dbAll")

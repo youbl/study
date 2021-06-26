@@ -2,6 +2,10 @@ package beinet.cn.springjpastudy.services;
 
 import beinet.cn.springjpastudy.repository.Aaa;
 import beinet.cn.springjpastudy.repository.AaaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +37,7 @@ public class AaaServices {
     public List<Aaa> findAllByIdIn2(List<Long> ids) {
         return aaaRepository.findAllByIdIn2(ids);
     }
+
     public Optional<Aaa> findById(Long id) {
         return aaaRepository.findById(id);
     }
@@ -45,9 +50,11 @@ public class AaaServices {
         aaaRepository.save(aaa);
     }
 
-    public List<Aaa> findByCond(Integer dishhour,
+    public Page<Aaa> findByCond(Integer dishhour,
                                 LocalDateTime begin,
-                                LocalDateTime end) {
+                                LocalDateTime end,
+                                Integer pageNum,
+                                Integer pageSize) {
         Specification<Aaa> cond = new Specification<Aaa>() {
             @Override
             public Predicate toPredicate(Root<Aaa> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -74,6 +81,13 @@ public class AaaServices {
                 return criteriaBuilder.and(predicates.toArray(pre));
             }
         };
-        return aaaRepository.findAll(cond);
+        if (pageNum == null || pageNum < 0)
+            pageNum = 0;
+        if (pageSize == null || pageSize <= 0)
+            pageSize = 5;
+
+        // order by creationTime desc, id desc
+        Pageable pageable = PageRequest.of(pageNum, pageSize, Sort.Direction.DESC, "creationTime", "id");
+        return aaaRepository.findAll(cond, pageable);
     }
 }
