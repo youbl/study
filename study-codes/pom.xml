@@ -8,6 +8,7 @@
         <version>2.3.6.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
+    <packaging>pom</packaging>
     <groupId>beinet.cn</groupId>
     <artifactId>study-codes</artifactId>
     <version>0.0.1-SNAPSHOT</version>
