@@ -5,11 +5,13 @@ import beinet.cn.springjpastudy.mapper.AaaConverter;
 import beinet.cn.springjpastudy.repository.Aaa;
 import beinet.cn.springjpastudy.repository.AaaRepository;
 import beinet.cn.springjpastudy.services.AaaServices;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +29,15 @@ public class HomeController {
 
     public HomeController(AaaServices aaaServices) {
         this.aaaServices = aaaServices;
+    }
+
+    // DateTimeFormat.ISO.DATE_TIME 要求格式例如： 2021-06-26T12:34:56
+    // 访问举例： http://localhost:8801/cond?begin=2020-11-14T01:01:01&end=2021-02-01T11:11:11&dishhour=2
+    @GetMapping("cond")
+    public List<Aaa> getByCond(@RequestParam(required = false) Integer dishhour,
+                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime begin,
+                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        return aaaServices.findByCond(dishhour, begin, end);
     }
 
     @GetMapping("dbAll")
