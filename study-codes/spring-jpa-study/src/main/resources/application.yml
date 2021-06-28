@@ -44,6 +44,25 @@ spring:
       #      minimum-idle: 4        # 空闲超过idle-timeout的连接会被关闭，只保留4个不关闭；不推荐设置，让Hikari当成固定大小的连接池用
       #      idle-timeout: 40000    # 单位毫秒，空闲连接最大存活时间，默认10分钟，只有minimum-idle<maximum-pool-size时才生效
       #参考： https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby
+    druid:
+#      test-while-idle: true
+#      test-on-borrow: false
+#      keep-alive: true
+#      validation-query: "select 1"
+      # 初始化时建立物理连接的个数。初始化发生在显示调用init方法，或者第一次getConnection时
+      initial-size: 10
+      # 最小连接池数量
+      min-idle: 10
+      # 最大连接池数量
+      max-active: 100
+      # 执行查询的超时时间（秒），未配置时使用query-timeout
+      query-timeout: 5
+      # 执行事务的超时时间（秒），未配置时使用query-timeout
+      transaction-query-timeout: 5
+      # 泄露的连接可以被删除的超时时间（秒）, 必须remove-abandoned为true才生效
+      remove-abandoned-timeout: 1800
+      remove-abandoned: false
+
   jpa:
     hibernate:
       ddl-auto: validate # 实体与数据库不一致时，报异常，不应当修改生产数据库，当然也不应该给权限
