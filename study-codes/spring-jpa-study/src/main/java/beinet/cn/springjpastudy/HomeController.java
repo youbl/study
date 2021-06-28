@@ -37,9 +37,10 @@ public class HomeController {
     public Page<Aaa> getByCond(@RequestParam(required = false) Integer dishhour,
                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime begin,
                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+                               @RequestParam(required = false) List<Integer> dishIdList,
                                @RequestParam(required = false) Integer pageNum,
                                @RequestParam(required = false) Integer pageSize) {
-        return aaaServices.findByCond(dishhour, begin, end, pageNum, pageSize);
+        return aaaServices.findByCond(dishhour, begin, end, dishIdList, pageNum, pageSize);
     }
 
     @GetMapping("dbAll")

@@ -50,6 +50,7 @@ public class AaaServices {
     public Page<Aaa> findByCond(Integer dishhour,
                                 LocalDateTime begin,
                                 LocalDateTime end,
+                                List<Integer> dishIdList,
                                 Integer pageNum,
                                 Integer pageSize) {
         Specification<Aaa> cond = new Specification<Aaa>() {
@@ -77,6 +78,14 @@ public class AaaServices {
                     predicates.add(pre);
                 }
 
+                if (dishIdList != null) {
+                    CriteriaBuilder.In<Integer> pre = criteriaBuilder.in(root.get("dishId"));
+                    for (Integer item : dishIdList) {
+                        pre.value(item);
+                    }
+                    predicates.add(pre);
+                }
+
                 Predicate[] pre = predicates.toArray(new Predicate[0]);
                 return criteriaBuilder.and(predicates.toArray(pre));
             }
@@ -90,6 +99,10 @@ public class AaaServices {
         Pageable pageable = PageRequest.of(pageNum, pageSize, Sort.Direction.DESC, "creationTime", "id");
         return aaaRepository.findAll(cond, pageable);
         // 最终生成的语句：
-        // from Aaa where creationTime>? and (dishhour>=11 or dishId>=11) order by creationTime desc, id desc limit ?
+        // from Aaa
+        // where creationTime>?
+        // and (dishhour>=11 or dishId>=11)
+        // and (dishId in (13 , 12))
+        // order by creationTime desc, id desc limit ?
     }
 }
