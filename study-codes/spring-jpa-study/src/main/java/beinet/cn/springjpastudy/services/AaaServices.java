@@ -9,10 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +70,10 @@ public class AaaServices {
                     predicates.add(pre);
                 }
                 if (dishhour != null) {
-                    Predicate pre = criteriaBuilder.ge(root.get("dishhour"), dishhour);
+                    // 子条件的or
+                    Predicate pre1 = criteriaBuilder.ge(root.get("dishhour"), dishhour);
+                    Predicate pre2 = criteriaBuilder.ge(root.get("dishId"), dishhour);
+                    Predicate pre = criteriaBuilder.or(pre1, pre2);
                     predicates.add(pre);
                 }
 
@@ -89,5 +89,7 @@ public class AaaServices {
         // order by creationTime desc, id desc
         Pageable pageable = PageRequest.of(pageNum, pageSize, Sort.Direction.DESC, "creationTime", "id");
         return aaaRepository.findAll(cond, pageable);
+        // 最终生成的语句：
+        // from Aaa where creationTime>? and (dishhour>=11 or dishId>=11) order by creationTime desc, id desc limit ?
     }
 }
