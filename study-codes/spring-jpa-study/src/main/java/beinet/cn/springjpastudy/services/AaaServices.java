@@ -86,6 +86,21 @@ public class AaaServices {
                     predicates.add(pre);
                 }
 
+                // 注意Aaa必须添加JoinColumn注解
+                /* 生成的SQL如下：
+select aaa0_.id as id1_0_, aaa0_.creationTime as creation2_0_, aaa0_.dishId as dishid3_0_, aaa0_.dishhour as dishhour4_0_, aaa0_.num as num5_0_, aaa0_.restId as restid6_0_
+from Aaa aaa0_
+left outer join AaaChild bbb1_ on aaa0_.id=bbb1_.aaaId
+where aaa0_.creationTime>? and (aaa0_.dishhour>=11 or aaa0_.dishId>=11)
+  and (bbb1_.childName like ?)
+order by aaa0_.creationTime desc, aaa0_.id desc limit ?
+
+注意：由于添加了 JoinColumn注解，得到的List数组，每条记录会再查询一次：
+select * from AaaChild bbb0_ where bbb0_.aaaId=?
+                * */
+                Predicate tmp = criteriaBuilder.like(root.join("bbb", JoinType.LEFT).get("childName"), "%abc%");
+                predicates.add(tmp);
+
                 Predicate[] pre = predicates.toArray(new Predicate[0]);
                 return criteriaBuilder.and(predicates.toArray(pre));
             }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Aaa
@@ -29,4 +30,10 @@ public class Aaa {
     // 在主方法上添加  @EnableJpaAuditing 这个CreateDate就会自动赋值
     @CreatedDate
     private LocalDateTime creationTime;
+
+    // fetch 默认为LAZY，会报错：failed to lazily initialize a collection of role: beinet.cn.springjpastudy.repository.Aaa.bbb
+    @OneToMany(fetch = FetchType.EAGER)
+    // name是AaaChild表的字段，referencedColumnName是当前表的字段
+    @JoinColumn(name = "aaaId", referencedColumnName = "id", insertable = false, updatable = false)
+    private List<AaaChild> bbb; // OneToMany 必须是数组
 }
