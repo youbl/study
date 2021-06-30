@@ -20,6 +20,16 @@ public class InterfaceTestAutoConfiguration {
     }
 
     @Bean
+    public Implment12 createImplment12() {
+        return new Implment12();
+    }
+
+    @Bean
+    public Implment13 createImplment13() {
+        return new Implment13();
+    }
+
+    @Bean
     public Implment2 createImplment2() {
         return new Implment2();
     }
