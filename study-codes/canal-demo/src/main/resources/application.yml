@@ -1,0 +1,12 @@
+server:
+  port: 8801
+spring:
+  application:
+    name: canal-study
+
+canal.client.instances.example:
+  host: 10.2.30.31
+  port: 11111
+  batchSize: 1000
+#canal.client.instances.example.zookeeperAddress=192.168.0.59:8080,192.168.0.59:8081
+#canal.client.instances.example.clusterEnabled=true
