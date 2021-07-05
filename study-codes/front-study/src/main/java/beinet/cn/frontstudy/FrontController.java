@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,8 @@ public class FrontController {
         datas.add(new User(11, "张三"));
         datas.add(new User(121, "李四"));
         model.addAttribute("dataList", datas);
+
+        model.addAttribute("nowTime", LocalDateTime.now());
         return "firstTh";
     }
 

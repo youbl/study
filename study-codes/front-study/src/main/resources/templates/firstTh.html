@@ -6,18 +6,26 @@
 </head>
 <body>
 <div th:utext="${body}"></div>
-<div>nothing</div>
+<div th:text="${nowTime}">nothing</div>
 <div>
     <table border="1">
         <tr>
             <th>序号</th>
             <th>id</th>
             <th>name</th>
+            <th>判断true</th>
+            <th>判断false</th>
         </tr>
         <tr th:each="item,stat:${dataList}"> <!-- 循环 -->
             <td th:text="${stat.index}"></td> <!-- 当前第几行，从0开始 -->
             <td th:text="${item.id}"></td>
             <td th:text="${item.name}"></td>
+            <td>
+                <span th:if="${item.name=='张三'}">是张三啊</span> <!-- 为true时输出 -->
+            </td>
+            <td>
+                <span th:unless="${item.name=='张三'}">不是张三啊</span> <!-- 为false时输出 -->
+            </td>
         </tr>
     </table>
 </div>
