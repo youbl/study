@@ -7,5 +7,19 @@
 <body>
 <div th:utext="${body}"></div>
 <div>nothing</div>
+<div>
+    <table border="1">
+        <tr>
+            <th>序号</th>
+            <th>id</th>
+            <th>name</th>
+        </tr>
+        <tr th:each="item,stat:${dataList}"> <!-- 循环 -->
+            <td th:text="${stat.index}"></td> <!-- 当前第几行，从0开始 -->
+            <td th:text="${item.id}"></td>
+            <td th:text="${item.name}"></td>
+        </tr>
+    </table>
+</div>
 </body>
 </html>
