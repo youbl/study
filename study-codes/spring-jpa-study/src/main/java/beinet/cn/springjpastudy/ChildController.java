@@ -1,27 +1,28 @@
 package beinet.cn.springjpastudy;
 
-import beinet.cn.springjpastudy.repository.Child1;
-import beinet.cn.springjpastudy.repository.Child1Repository;
-import beinet.cn.springjpastudy.repository.Child2;
-import beinet.cn.springjpastudy.repository.Child2Repository;
+import beinet.cn.springjpastudy.repository.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class ChildController {
-    private final Child1Repository child1Repository;
-    private final Child2Repository child2Repository;
+    private final Map<String, BaseRepository> baseRepositoryList;
 
-    public ChildController(Child1Repository child1Repository, Child2Repository child2Repository) {
-        this.child1Repository = child1Repository;
-        this.child2Repository = child2Repository;
+    public ChildController(List<BaseRepository> baseRepositoryList) {
+        this.baseRepositoryList = new HashMap<>();
+        for (BaseRepository item : baseRepositoryList) {
+            this.baseRepositoryList.put(item.getName(), item);
+        }
     }
 
     @GetMapping("child1")
-    public List<Child1> getAll1() {
-        Child1 child1 = new Child1();
+    public List<Child1> getAll1() throws InstantiationException, IllegalAccessException {
+        BaseRepository child1Repository = this.baseRepositoryList.get("child1");
+        Base child1 = (Base) child1Repository.getEntityType().newInstance();
         child1.setDishhour(11);
         child1.setNum(22);
 
@@ -31,8 +32,9 @@ public class ChildController {
 
 
     @GetMapping("child2")
-    public List<Child2> getAll2() {
-        Child2 child2 = new Child2();
+    public List<Child2> getAll2() throws InstantiationException, IllegalAccessException {
+        BaseRepository child2Repository = this.baseRepositoryList.get("child2");
+        Base child2 = (Base) child2Repository.getEntityType().newInstance();
         child2.setDishhour(221);
         child2.setNum(2222);
 

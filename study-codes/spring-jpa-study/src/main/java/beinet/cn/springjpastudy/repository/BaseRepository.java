@@ -23,4 +23,7 @@ public interface BaseRepository<T> extends JpaRepository<T, Long>, JpaSpecificat
     @Query(value = "select * from #{#entityName} where id in (?1)", nativeQuery = true)
     List<Child1> findAllByIdIn2(List<Long> ids);
 
+    Class getEntityType();
+
+    String getName();
 }

@@ -17,7 +17,7 @@ import java.util.List;
  */
 @MappedSuperclass
 @Data
-public class Base {
+public abstract class Base {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -27,7 +27,7 @@ public class Base {
     private int num;
     @Column(insertable = false, updatable = false)
     private LocalDateTime creationTime;
-    
+
     @Column(insertable = false, updatable = false)
     private String name;
 }
