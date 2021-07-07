@@ -27,4 +27,7 @@ public class Base {
     private int num;
     @Column(insertable = false, updatable = false)
     private LocalDateTime creationTime;
+    
+    @Column(insertable = false, updatable = false)
+    private String name;
 }
