@@ -3,6 +3,7 @@ package beinet.cn.springrabbitstudy;
 import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.MessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.RabbitListenerEndpointRegistry;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,25 +36,48 @@ public class DbController {
 
     @GetMapping("start")
     public String start() {
+        String beforeStatus = getQueues();
         rabbitListenerEndpointRegistry.start();
-        return "Started: " + getQueues();
+        return beforeStatus + "<br>\nStarted: <br>\n" + getQueues();
     }
 
     @GetMapping("stop")
     public String stop() {
+        String beforeStatus = getQueues();
         rabbitListenerEndpointRegistry.stop();
-        return "Stoped: " + getQueues();
+        return beforeStatus + "<br>\nStoped: <br>\n" + getQueues();
     }
 
     private String getQueues() {
         StringBuilder sb = new StringBuilder();
         for (MessageListenerContainer container : rabbitListenerEndpointRegistry.getListenerContainers()) {
-            if (container instanceof AbstractMessageListenerContainer) {
-                for (String item : ((AbstractMessageListenerContainer) container).getQueueNames()) {
-                    sb.append(item).append(',');
+            if (container instanceof SimpleMessageListenerContainer) { // AbstractMessageListenerContainer
+                SimpleMessageListenerContainer asbContainer = (SimpleMessageListenerContainer) container;
+                for (String item : asbContainer.getQueueNames()) {
+                    sb.append(item).append('、');
                 }
+
+                sb.append("[consumerCount:")
+                        .append(asbContainer.getActiveConsumerCount())
+                        .append(",running:")
+                        .append(asbContainer.isRunning())
+                        .append(",autoStartup:")
+                        .append(asbContainer.isAutoStartup())
+                        .append(",consumerBatchEnabled:")
+                        .append(asbContainer.isConsumerBatchEnabled())
+                        .append(",active:")
+                        .append(asbContainer.isActive())
+                        .append("],<br>\n");
+
             } else {
-                sb.append(container.getClass().getName()).append(',');
+                sb.append(container.getClass().getName())
+                        .append("[running:")
+                        .append(container.isRunning())
+                        .append(",autoStartup:")
+                        .append(container.isAutoStartup())
+                        .append(",consumerBatchEnabled:")
+                        .append(container.isConsumerBatchEnabled())
+                        .append("],<br>\n");
             }
             sb.append('\n');
         }
