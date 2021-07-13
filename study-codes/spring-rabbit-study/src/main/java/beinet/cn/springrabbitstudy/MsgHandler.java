@@ -25,7 +25,7 @@ public class MsgHandler {
         System.out.println(Thread.currentThread().getId() + "收到消息aaa:" + message);
     }
 
-    @RabbitListener(queues = RabbitOperator.QUEUE)
+  //  @RabbitListener(queues = RabbitOperator.QUEUE)
     void xx2(Message message) {
         System.out.println(Thread.currentThread().getId() + "收到消息xxx:" + message);
     }
