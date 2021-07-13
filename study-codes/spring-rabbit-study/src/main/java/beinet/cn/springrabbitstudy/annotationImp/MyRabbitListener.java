@@ -11,9 +11,11 @@ import java.lang.annotation.Annotation;
  */
 public class MyRabbitListener implements RabbitListener {
     private RabbitListener rabbitListener;
+    private Queue[] grayQueues;
 
     public MyRabbitListener(RabbitListener rabbitListener) {
         this.rabbitListener = rabbitListener;
+        setGrayQueues();
     }
 
     @Override
@@ -33,6 +35,9 @@ public class MyRabbitListener implements RabbitListener {
 
     @Override
     public Queue[] queuesToDeclare() {
+        if (grayQueues != null) {
+            return grayQueues;
+        }
         return rabbitListener.queuesToDeclare();
     }
 
@@ -53,19 +58,7 @@ public class MyRabbitListener implements RabbitListener {
 
     @Override
     public QueueBinding[] bindings() {
-        QueueBinding[] ret = rabbitListener.bindings();
-        if (ret != null && ret.length > 0) {
-            QueueBinding[] newResult = new QueueBinding[ret.length];
-            int idx = 0;
-            for (QueueBinding binding : ret) {
-                MyQueueBinding newBind = new MyQueueBinding(binding);
-                newResult[idx] = newBind;
-                idx++;
-            }
-
-            ret = newResult;
-        }
-        return ret;
+        return new QueueBinding[0];
     }
 
     @Override
@@ -111,5 +104,19 @@ public class MyRabbitListener implements RabbitListener {
     @Override
     public Class<? extends Annotation> annotationType() {
         return rabbitListener.annotationType();
+    }
+
+    private void setGrayQueues() {
+        QueueBinding[] ret = rabbitListener.bindings();
+        if (ret == null || ret.length <= 0) {
+            return;
+        }
+        Queue[] queues = new Queue[ret.length];
+        int idx = 0;
+        for (QueueBinding binding : ret) {
+            queues[idx] = new MyQueue(binding.value());
+            idx++;
+        }
+        this.grayQueues = queues;
     }
 }

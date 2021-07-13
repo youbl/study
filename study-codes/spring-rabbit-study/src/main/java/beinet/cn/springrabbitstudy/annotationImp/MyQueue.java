@@ -14,7 +14,7 @@ public class MyQueue implements Queue {
 
     public MyQueue(Queue queue) {
         this.queue = queue;
-        this.grayName = this.queue.name() + "_IamGray";
+        this.grayName = this.queue.name() + "_IamGrayaa";
     }
 
     @Override
