@@ -1,6 +1,7 @@
 package beinet.cn.springrabbitstudy;
 
 import beinet.cn.springrabbitstudy.annotationImp.MyRabbitListener;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.annotation.RabbitListenerAnnotationBeanPostProcessor;
 import org.springframework.aop.support.AopUtils;
@@ -22,8 +23,14 @@ public class MyRabbitListenerAnnotationBeanPostProcessor extends RabbitListenerA
 
     @Override
     protected void processAmqpListener(RabbitListener rabbitListener, Method method, Object bean, String beanName) {
+        Method newMethod;
+        try {
+            newMethod = MsgHandler.class.getDeclaredMethod("xx2", Message.class);
+        } catch (Exception exp) {
+            throw new RuntimeException(exp);
+        }
         RabbitListener newListener = new MyRabbitListener(rabbitListener);
-        super.processAmqpListener(newListener, method, bean, beanName);
+        super.processAmqpListener(newListener, newMethod, bean, beanName);
     }
 
     //@Override

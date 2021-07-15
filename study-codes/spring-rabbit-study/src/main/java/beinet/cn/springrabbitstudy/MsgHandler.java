@@ -22,11 +22,11 @@ public class MsgHandler {
                     declare = "true")
     })
     void xx1(Message message) {
-        System.out.println(Thread.currentThread().getId() + "收到消息aaa:" + message);
+        System.out.println(Thread.currentThread().getId() + " xx1方法 收到消息:" + message);
     }
 
   //  @RabbitListener(queues = RabbitOperator.QUEUE)
     void xx2(Message message) {
-        System.out.println(Thread.currentThread().getId() + "收到消息xxx:" + message);
+        System.out.println(Thread.currentThread().getId() + " xx2方法 收到消息:" + message);
     }
 }
