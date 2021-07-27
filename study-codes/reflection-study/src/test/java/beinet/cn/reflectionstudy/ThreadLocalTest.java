@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.NamedThreadLocal;
 import org.springframework.util.Assert;
 
 import java.lang.ref.WeakReference;
@@ -13,7 +12,7 @@ import java.lang.reflect.Field;
 
 public class ThreadLocalTest {
     @Test
-    public void xx() {
+    public void addThreadLocalAndGC() {
         outputMaps();
         int oldLen = getThreadLocalMapEntryLen();
 
@@ -25,6 +24,20 @@ public class ThreadLocalTest {
         System.gc();
 
         //  Assert.isTrue(oldLen == getThreadLocalMapEntryLen(), "为啥没有被GC？？");
+        outputMaps();
+        // 最后一个outputMaps输出的结果，一定有一项如下：
+        // key是 null    value是 ThreadLocalTest.Dto(id=123, name=abc)
+        // 因为key被gc回收了，value还在ThreadLocalMap的数组里，如果Thread一直没有结束，可能导致内存泄露
+
+        new ThreadLocal<Dto>().set(new Dto(456, "abc"));
+        outputMaps();
+        System.gc();
+        outputMaps();
+
+        // 在继续调用ThreadLocalMap的set()、get() 或 remove()方法时，会清理这些key为null的数据
+        // 需要注意的是 set 后调用的是 cleanSomeSlots方法，清理部分数据
+        new ThreadLocal<Dto>().set(new Dto(789, "abc"));
+        System.gc();
         outputMaps();
     }
 
@@ -77,10 +90,19 @@ public class ThreadLocalTest {
             Object item = Array.get(arr, i);
             if (item == null)
                 continue;
-            System.out.println(item);
+            outputThreadLocalEntry(item);
             realLen++;
         }
         System.out.println("    共" + realLen + "项");
+    }
+
+    void outputThreadLocalEntry(Object entry) {
+        Object key = null;
+        // entry.get() 是 WeakRefrence定义的方法
+        if (entry instanceof WeakReference) {
+            key = ((WeakReference) entry).get();
+        }
+        System.out.println("key是 " + key + "    value是 " + getField(entry, "value"));
     }
 
     @Test
