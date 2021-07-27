@@ -4,11 +4,85 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.NamedThreadLocal;
 import org.springframework.util.Assert;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 
 public class ThreadLocalTest {
+    @Test
+    public void xx() {
+        outputMaps();
+        int oldLen = getThreadLocalMapEntryLen();
+
+        new ThreadLocal<Dto>().set(new Dto(123, "abc"));
+        int newLen = getThreadLocalMapEntryLen();
+        Assert.isTrue(oldLen + 1 == newLen, "应该多了一项啊");
+        outputMaps();
+
+        System.gc();
+
+        //  Assert.isTrue(oldLen == getThreadLocalMapEntryLen(), "为啥没有被GC？？");
+        outputMaps();
+    }
+
+    void outputMaps() {
+        Object map = getThreadLocalMap();
+        Object arr = getThreadLocalMapEntryArray(map);
+        outputArr(arr);
+    }
+
+    // 获取当前线程的ThreadLocal清单
+    Object getThreadLocalMap() {
+        Thread thread = Thread.currentThread();
+        return getField(thread, "threadLocals");
+    }
+
+    Object getThreadLocalMapEntryArray(Object map) {
+        return getField(map, "table");
+    }
+
+    Object getField(Object obj, String name) {
+        try {
+            Field field = obj.getClass().getDeclaredField(name);
+            field.setAccessible(true);
+            return field.get(obj);
+        } catch (Exception exp) {
+            System.out.printf("出错了:" + exp.getMessage());
+            return null;
+        }
+    }
+
+    int getThreadLocalMapEntryLen() {
+        Object map = getThreadLocalMap();
+        Object entryArr = getThreadLocalMapEntryArray(map);
+
+        int ret = 0;
+        int len = Array.getLength(entryArr);
+        for (int i = 0, j = len; i < j; i++) {
+            Object item = Array.get(entryArr, i);
+            if (item == null)
+                continue;
+            ret++;
+        }
+        return ret;
+    }
+
+    void outputArr(Object arr) {
+        int realLen = 0;
+        int len = Array.getLength(arr);
+        for (int i = 0, j = len; i < j; i++) {
+            Object item = Array.get(arr, i);
+            if (item == null)
+                continue;
+            System.out.println(item);
+            realLen++;
+        }
+        System.out.println("    共" + realLen + "项");
+    }
+
     @Test
     public void gcTest() {
         //Dto dto = new Dto(123, "abc"); // 不能用局部变量定义，会有强引用
