@@ -29,14 +29,24 @@ spring:
   profiles: dev # 开发使用这一段
 
   datasource:
-    url: jdbc:mysql://10.2.5.2:3306/firstdemodb?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+    url: jdbc:mysql://10.2.0.163:3306/firstdemo?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
     username: beinet
-    password: beinet.cn
+    password: beinet.cnbeinet.cn
     driver-class-name: com.mysql.cj.jdbc.Driver
     tomcat:
       initSQL: "SET NAMES utf8mb4"
     #      validation-query: "SELECT 1"
     #      validation-query-timeout: 10
+
+    master:
+      jdbc-url: jdbc:mysql://10.2.0.163:3306/demomaster?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+      username: beinet
+      password: beinet.cnbeinet.cn
+    slave:
+      url: jdbc:mysql://10.2.0.163:3306/demoslave?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+      username: beinet
+      password: beinet.cnbeinet.cn
+
     hikari:
       # 把maxLifetime设置为比数据库 wait-timeout较小的值，以避免问题：com.zaxxer.hikari.pool.PoolBase: HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@1a751254 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
       max-lifetime: 40000  #单位毫秒，连接池里每个连接的最长生命周期，默认30分钟
