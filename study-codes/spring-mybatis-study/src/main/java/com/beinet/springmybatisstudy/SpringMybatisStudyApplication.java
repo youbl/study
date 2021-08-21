@@ -25,6 +25,7 @@ public class SpringMybatisStudyApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         System.out.println("我是Mybatis演示");
+        batchInsert();
 
         List<User> userList = userMapper.findByAgeGt(20);
         System.out.println("大于20的人数:" + userList.size());
@@ -54,6 +55,18 @@ public class SpringMybatisStudyApplication implements CommandLineRunner {
         System.out.println("删除影响行数:" + num);
         userList = userMapper.findByAgeGt(20);
         System.out.println("大于20的人数:" + userList.size());
+        userList.forEach(System.out::println);
+    }
+
+    private void batchInsert() {
+        List<User> userList = userMapper.findByAgeGt(20);
+        int num = userMapper.batchInsert(userList);
+        System.out.println("批量插入影响行数:" + num);
+        userList.forEach(System.out::println);
+
+        userList.forEach(user -> user.setName(user.getName() + "-新的"));
+        num = userMapper.batchUpdate(userList);
+        System.out.println("批量更新影响行数:" + num);
         userList.forEach(System.out::println);
     }
 }
