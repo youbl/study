@@ -33,5 +33,26 @@ public class SpringMybatisStudyApplication implements CommandLineRunner {
         userList = userMapper.findByAgeLet(20);
         System.out.println("小于等于20的人数:" + userList.size());
         userList.forEach(System.out::println);
+
+        User newUser = new User();
+        newUser.setAge(56);
+        newUser.setEmail("zhangsan@163.com");
+        newUser.setName("张三");
+        int num = userMapper.add(newUser);
+        System.out.println("插入影响行数:" + num);
+        System.out.println(newUser);
+
+        newUser.setName("张三改名");
+        num = userMapper.update(newUser);
+        System.out.println("更新影响行数:" + num);
+        userList = userMapper.findByAgeGt(20);
+        System.out.println("大于20的人数:" + userList.size());
+        userList.forEach(System.out::println);
+
+        num = userMapper.deleteById(newUser.getId());
+        System.out.println("删除影响行数:" + num);
+        userList = userMapper.findByAgeGt(20);
+        System.out.println("大于20的人数:" + userList.size());
+        userList.forEach(System.out::println);
     }
 }
