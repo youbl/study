@@ -27,6 +27,8 @@ public class SpringMybatisStudyApplication implements CommandLineRunner {
         System.out.println("我是Mybatis演示");
         batchInsert();
 
+        dynamicQuery();
+
         List<User> userList = userMapper.findByAgeGt(20);
         System.out.println("大于20的人数:" + userList.size());
         userList.forEach(System.out::println);
@@ -67,6 +69,19 @@ public class SpringMybatisStudyApplication implements CommandLineRunner {
         userList.forEach(user -> user.setName(user.getName() + "-新的"));
         num = userMapper.batchUpdate(userList);
         System.out.println("批量更新影响行数:" + num);
+        userList.forEach(System.out::println);
+    }
+
+    private void dynamicQuery() {
+        User cond = new User();
+        cond.setName("a");
+        List<User> userList = userMapper.findByCond(cond);
+        System.out.println("找到行数:" + userList.size());
+        userList.forEach(System.out::println);
+
+        cond.setId(4L);
+        userList = userMapper.findByCond(cond);
+        System.out.println("找到行数:" + userList.size());
         userList.forEach(System.out::println);
     }
 }

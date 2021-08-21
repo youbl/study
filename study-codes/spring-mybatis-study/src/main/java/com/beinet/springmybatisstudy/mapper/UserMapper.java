@@ -40,4 +40,8 @@ public interface UserMapper {
             "update " + TABLE_NAME + " set name=#{item.name},age=#{item.age}, email=#{item.email} where id=#{item.id} " +
             "</foreach> </script>"})
     int batchUpdate(List<User> list);
+
+    // 动态SQL查询
+    @SelectProvider(type = UserMapperProvider.class, method = "getDynamicSql")
+    List<User> findByCond(User user);
 }
