@@ -13,9 +13,11 @@ spring:
 ---
 spring:
   profiles: dev # 开发使用这一段
-  rabbitmq:
-    host: "10.2.3.250"
-    port: 5672
-    username: admin
-    password: "admin"
+  datasource:
+    driver-class-name: org.h2.Driver
+    schema: classpath:db/schema-h2.sql
+    data: classpath:db/data-h2.sql
+    url: jdbc:h2:mem:test
+    username: root
+    password: test
 ---
