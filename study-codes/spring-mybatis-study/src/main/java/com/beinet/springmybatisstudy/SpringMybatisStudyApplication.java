@@ -38,6 +38,7 @@ public class SpringMybatisStudyApplication implements CommandLineRunner {
         newUser.setAge(56);
         newUser.setEmail("zhangsan@163.com");
         newUser.setName("张三");
+        newUser.setExtension("不存数据库");
         int num = userMapper.add(newUser);
         System.out.println("插入影响行数:" + num);
         System.out.println(newUser);
