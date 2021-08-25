@@ -2,16 +2,19 @@
 chrome.tabs.getSelected(null, function (tab) {
     // Send a request to the content script.
     chrome.tabs.sendRequest(tab.id, { action: 'img' }, function (response) {
-        document.getElementById('divTxt').innerHTML = JSON.stringify(response);
+        document.getElementById('txtUrl').value = JSON.stringify(response);
 
-        if (response.code !== 0 || response.data.length === 0) {
+        let nodeCnt = document.getElementById('spnNum');
+        if (!response || response.code !== 0 || response.data.length === 0) {
+            nodeCnt.innerHTML = '0';
             return;
         }
+        nodeCnt.innerHTML = response.data.length.toString();
 
         let root = document.getElementById('divImg');
         for (let i = 0, j = response.data.length; i < j; i++) {
-            let src = response.data[i];
-            appendImgNode(root, src);
+            let item = response.data[i];
+            appendImgNode(root, item);
         }
     });
 });
@@ -19,11 +22,17 @@ chrome.tabs.getSelected(null, function (tab) {
 /**
  * 在指定节点下添加图片子节点
  * @param {*} node  父节点
- * @param {*} src 图片的src
+ * @param {*} item 图片的url、高、宽
  */
-function appendImgNode(node, src) {
+function appendImgNode(node, item) {
     let element = document.createElement('IMG');
-    element.src = src;
+    element.src = item.url;
+    element.border = 1;
+    element.onclick = function () {
+        window.open(item.url);
+    };
+    if (item.width > 400)
+        element.style.width = '400px';
     node.appendChild(element);
 }
 

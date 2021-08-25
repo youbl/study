@@ -17,7 +17,7 @@
 /**
  * 遍历当前DOM，收到所有图片的src返回
  * 
- * @returns 当前页面的所有img.src
+ * @returns 当前页面的所有img.src 和图片真实高宽
  */
 function findImgAction() {
     let arrImgs = [];
@@ -35,8 +35,13 @@ function findImg(node, arrImgs) {
             continue;
 
         if (subnode.tagName === 'IMG') {
-            if (subnode.src) {
-                arrImgs.push(subnode.src);
+            if (subnode.src && subnode.src.indexOf('http') === 0) {
+                let item = {
+                    url: subnode.src,
+                    width: subnode.naturalWidth,
+                    height: subnode.naturalHeight
+                };
+                arrImgs.push(item);
             }
             continue;
         }
