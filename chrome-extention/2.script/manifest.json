@@ -1,0 +1,24 @@
+{
+    "manifest_version": 2,
+    "name": "beinetExt",
+    "description": "First chrome extension by beinet.",
+    "version": "0.1",
+    "permissions": [
+        "http://*/*", // 插件允许访问的url，匹配所有http网站
+        "https://*/*" // 匹配所有https网站
+    ],
+    "browser_action": {
+        "default_icon": "clock.png", // 浏览器上工具栏的图标，没有就是默认图标
+        "default_title": "beinet工具", // 鼠标悬停时的弹出文字，没有时显示name
+        "default_popup": "popup.html"
+    },
+    "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+F",  // 按这个快捷键，触发扩展
+                "mac": "MacCtrl+Shift+F"
+            },
+            "description": "打开弹窗"
+        }
+    }
+}
