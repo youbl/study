@@ -27,5 +27,5 @@
         - Chrome的网页加载前 执行脚本，网页加载结束时 执行脚本，并在网页最前面添加按钮，触发逻辑
     - 4.communicationWithPopup
         - Popup弹窗与Chrome的当前网页进行交互，传递信息
-
-
+    - 5.findImg
+        - 在Popup弹窗显示当前页面的所有图片
