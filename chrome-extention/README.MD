@@ -2,6 +2,14 @@
 - 目录下必须存在 manifest.json，所以只要根目录下看到这个文件，就说明这个目录是一个Chrome扩展
     - manifest_version: 必需属性，且只能写2，不要问我为啥，这是规定
     - name: 必需属性，扩展的名称
+- content_scripts 执行时机说明：
+    - 官网参考: https://developer.chrome.com/docs/extensions/mv3/content_scripts/
+    - 中文参考: https://open.chrome.360.cn/html/dev_content_scripts.html
+    - document_start: 在CSS加载完，创建DOM前和运行脚本前注入。
+    - document_end: 创建完DOM后，加载图片或frame等子资源前立刻注入。
+    - document_idle: 默认值，在document_end和发出window.onload事件之间的某个时机注入。具体的时机取决于文档加载的复杂度和加载时长。
+    - 注意: 在document_idle的情况下，content_scripts不一定会接收到window.onload事件，因为它有可能在事件发出之后才加载。浏览器会确保在DOM创建完成后才执行它。也可以通过document.readyState属性来检查onload事件是否已经发出。
+
 - 加载自己开发的扩展：
     - 在Chrome地址栏输入 chrome://extensions/
     - 打开窗口里的“开发者模式”
@@ -13,7 +21,11 @@
 - 项目介绍：
     - 1.HelloWorld
         - 第一个扩展，点击出现一个小弹窗，显示一段文字
-    - 2.script
-        - 支持快捷键Ctrl+Shift+F，点击出现一个小弹窗，执行一段脚本，实时显示当前时间
-    - 3.communication
-        - 与网页交互：网页加载前执行脚本，网页加载结束时执行脚本，并在网页最前面添加按钮，触发逻辑
+    - 2.scriptInPopup
+        - 支持快捷键Ctrl+Shift+F，点击出现一个小弹窗，弹窗里执行一段脚本，实时显示当前时间
+    - 3.scriptInTabPage
+        - Chrome的网页加载前 执行脚本，网页加载结束时 执行脚本，并在网页最前面添加按钮，触发逻辑
+    - 4.communicationWithPopup
+        - Popup弹窗与Chrome的当前网页进行交互，传递信息
+
+
