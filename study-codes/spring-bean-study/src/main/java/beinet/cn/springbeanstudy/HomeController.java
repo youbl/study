@@ -17,14 +17,27 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class HomeController {
-    @Autowired
+
     BeanDemo1 demo1;
 
-    @Autowired
     ServiceConfig.ServiceCls AServiceCls;
 
-    @Autowired
     ServiceConfig.ServiceCls BServiceCls;
+
+    @Autowired
+    public void setDemo1(BeanDemo1 demo1) {
+        this.demo1 = demo1;
+    }
+
+    @Autowired
+    public void setAServiceCls(ServiceConfig.ServiceCls AServiceCls) {
+        this.AServiceCls = AServiceCls;
+    }
+
+    @Autowired
+    public void setBServiceCls(ServiceConfig.ServiceCls BServiceCls) {
+        this.BServiceCls = BServiceCls;
+    }
 
     // 上面2个不会报错，自动根据变量名查找匹配的Bean
     // 这个会报错： Field bServiceCls in beinet.cn.springbeanstudy.HomeController required a single bean, but 2 were found:
