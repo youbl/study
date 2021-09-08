@@ -2,6 +2,7 @@ package beinet.cn.springjpastudy.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,4 +23,8 @@ public interface AaaRepository extends JpaRepository<Aaa, Long>, JpaSpecificatio
     @Query(value = "select * from aaa where id in (?1)", nativeQuery = true)
     List<Aaa> findAllByIdIn2(List<Long> ids);
 
+    @Modifying
+    @Transactional
+    @Query(value = "delete from aaa limit 1;delete from aaa limit 2", nativeQuery = true)
+    int deleteAndFind();
 }

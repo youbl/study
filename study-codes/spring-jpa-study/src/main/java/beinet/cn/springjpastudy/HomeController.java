@@ -121,4 +121,15 @@ public class HomeController {
         return aaaServices.deleteByIdIn(ids);
     }
 
+    @GetMapping("multi")
+    public int multiSqlTest() {
+        // 在jdbc连接串里添加 allowMultiQueries=true&，就可以执行分号分隔的多条语句，没有时为false，执行分号分隔的多行语句会报错
+        // You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax
+        Aaa item = new Aaa();
+        item.setNum(123);
+        item.setDishhour(444);
+        aaaServices.save(item);
+        return aaaServices.deleteAndFind();
+    }
+
 }

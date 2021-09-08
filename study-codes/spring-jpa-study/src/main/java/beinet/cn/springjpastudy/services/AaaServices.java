@@ -120,4 +120,8 @@ select * from AaaChild bbb0_ where bbb0_.aaaId=?
         // and (dishId in (13 , 12))
         // order by creationTime desc, id desc limit ?
     }
+
+    public int deleteAndFind() {
+        return aaaRepository.deleteAndFind();
+    }
 }
