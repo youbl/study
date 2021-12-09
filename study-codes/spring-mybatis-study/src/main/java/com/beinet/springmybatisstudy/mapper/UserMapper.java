@@ -9,6 +9,12 @@ import java.util.List;
 public interface UserMapper {
     String TABLE_NAME = "user";
 
+    @Select({"<script>select * from " + TABLE_NAME + " where name in (" +
+            "<foreach collection='names' open='' item='item' separator=','> " +
+            "#{item}" +
+            "</foreach> ) </script>"})
+    List<User> findByNameArr(List<String> names);
+
     @Select("select * from " + TABLE_NAME + " where age>#{agePara}")
     List<User> findByAgeGt(int agePara);
 

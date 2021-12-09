@@ -1,4 +1,4 @@
-CREATE TABLE user
+CREATE TABLE user123
 (
     id    BIGINT(20) NOT NULL auto_increment COMMENT '主键ID',
     name  VARCHAR(30) NULL DEFAULT NULL COMMENT '姓名',

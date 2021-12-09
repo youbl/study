@@ -6,6 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootApplication
@@ -25,16 +26,23 @@ public class SpringMybatisStudyApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         System.out.println("我是Mybatis演示");
-        batchInsert();
+//        batchInsert();
+//
+//        dynamicQuery();
 
-        dynamicQuery();
+        List<User> userList;// = userMapper.findByAgeGt(20);
+//        System.out.println("大于20的人数:" + userList.size());
+//        userList.forEach(System.out::println);
+//
+//        userList = userMapper.findByAgeLet(20);
+//        System.out.println("小于等于20的人数:" + userList.size());
+//        userList.forEach(System.out::println);
 
-        List<User> userList = userMapper.findByAgeGt(20);
-        System.out.println("大于20的人数:" + userList.size());
-        userList.forEach(System.out::println);
-
-        userList = userMapper.findByAgeLet(20);
-        System.out.println("小于等于20的人数:" + userList.size());
+        List<String> names = new ArrayList<>();
+        names.add("Jack");
+        names.add("Tom");
+        userList = userMapper.findByNameArr(names);
+        System.out.println("name in人数:" + userList.size());
         userList.forEach(System.out::println);
 
         User newUser = new User();
