@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: spring-kafka-consumer-study
+  profiles:
+    active: dev
+
+
+  kafka:
+    consumer:
+      bootstrap-servers: 10.51.28.182:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer #org.apache.kafka.common.serialization.StringSerializer
+      max-poll-records: 10
+      group-id: beinet_study
+      enable-auto-commit: false   # true为自动提交偏移量，下次从新的偏移量开始消费；一般建议为false，在程序中处理完成再提交偏移量
+      auto-offset-reset: earliest
+    template:
+      default-topic: aabbcc
