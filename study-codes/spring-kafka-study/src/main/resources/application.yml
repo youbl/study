@@ -1,0 +1,18 @@
+server:
+  port: 8881
+
+spring:
+  application:
+    name: spring-kafka-study
+  profiles:
+    active: dev
+
+
+  kafka:
+    producer:
+      bootstrap-servers: 10.51.28.182:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer #org.apache.kafka.common.serialization.StringSerializer
+      retries: 2  # 失败重发次数
+    template:
+      default-topic: aabbcc
