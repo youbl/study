@@ -14,6 +14,10 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     open-in-view: false
 
+jasypt:
+  encryptor:
+    password: 123456  # 指定配置文件里的加密内容，解密用的密钥，通常建议加在java启动命令行里
+
 ---  # 2个三横杠之间表示一个环境配置
 spring:
   profiles: unittest # 单元测试，通过注解 ActiveProfiles 使用
@@ -29,9 +33,9 @@ spring:
   profiles: dev # 开发使用这一段
 
   datasource:
-    url: jdbc:mysql://10.2.0.163:3306/firstdemo?characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
-    username: beinet
-    password: beinet.cnbeinet.cn
+    url: jdbc:mysql://10.2.0.163:3306/firstdemo?characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: "ENV(gR+XBU1C20qTlXB3v/Kq4g==)"  # beinet 跟 123456 加密后的结果
+    password: ENC(IWUQjbPx+xE0OMHxxtA3P4Ll3/pLS3zbfKk0kJU34/c=) # beinet.cnbeinet.cn 跟 123456 加密后的结果
     driver-class-name: com.mysql.cj.jdbc.Driver
     tomcat:
       initSQL: "SET NAMES utf8mb4"
