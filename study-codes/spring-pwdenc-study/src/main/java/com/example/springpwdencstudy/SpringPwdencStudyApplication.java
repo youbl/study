@@ -16,13 +16,13 @@ public class SpringPwdencStudyApplication implements CommandLineRunner {
         SimpleStringPBEConfig config = new SimpleStringPBEConfig();
         config.setPassword("123456");
         // 默认值
-//        config.setAlgorithm("PBEWITHHMACSHA512ANDAES_256");
-//        config.setKeyObtentionIterations("1000");
+        config.setAlgorithm("PBEWITHHMACSHA512ANDAES_256");
+        config.setKeyObtentionIterations("1000");
         config.setPoolSize("1");
-//        config.setProviderName("SunJCE");
-//        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
-//        config.setIvGeneratorClassName("org.jasypt.iv.RandomIvGenerator");
-//        config.setStringOutputType("base64");
+        config.setProviderName("SunJCE");
+        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
+        config.setIvGeneratorClassName("org.jasypt.iv.RandomIvGenerator");
+        config.setStringOutputType("base64");
         encryptor.setConfig(config);
 
         //要加密的数据（数据库的用户名或密码等）
@@ -42,5 +42,7 @@ public class SpringPwdencStudyApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         System.out.println(ak + ":" + sk);
+
+        System.out.println(System.getenv());
     }
 }
