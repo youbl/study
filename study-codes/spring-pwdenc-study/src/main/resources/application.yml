@@ -1,0 +1,10 @@
+server:
+  port: 8080
+
+pwdTest:
+  ak: ENC(UiOqg1MlsZ3Tx8EQGHAYCJRDSBI6HFWhaTVRYPx7d0DF8OJ9yc3k0iTD5VZqbhee)
+  sk: "ENC(vT+Du5CYcELU9PKMPwaul9DPXwnoY+mx481ePW+VZUZXSvU5eCaWo9Un2FVMm87mTYwS8CQCtkgNIRc9WcaXSA==)"
+
+jasypt:
+  encryptor:
+    password: 123456  # 指定配置文件里的加密内容，解密用的密钥，通常建议加在java启动命令行里
