@@ -16,3 +16,9 @@ spring:
       retries: 2  # 失败重发次数
     template:
       default-topic: aabbcc
+    properties:
+      delivery.timeout.ms: 2000 # 发送消息上报成功或失败的最大时间，默认120000，两分钟
+      linger.ms: 0              # 生产者把数据组合到一个批处理进行请求的最大延迟时间，默认0
+      # 参考 https://cwiki.apache.org/confluence/display/KAFKA/KIP-19+-+Add+a+request+timeout+to+NetworkClient
+      request.timeout.ms: 1000  # 批处理就绪后到响应的等待时长，含网络+服务器复制时间
+      batch.size: 1000
