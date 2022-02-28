@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>引用演示</title>
+    <script type="text/javascript" src="/res/unpkg/vue.min.js"></script>
+    <script src="/res/unpkg/elemeIndex.js"></script>
+
+    <link rel="stylesheet" href="/res/unpkg/elemeIndex.css">
+</head>
+
+<body>
+<div id="divApp">
+    <div>{{title}}</div>
+    <hr>
+    <top-menu></top-menu>
+    <hr>
+    <div>我是下面的body</div>
+</div>
+<hr>
+<script type="text/javascript" src="./menus.js"></script>
+
+<script type="module">
+    var vueApp = new Vue({
+        el: '#divApp',
+        data: function () {
+            return {
+                title: '我是VUE的组件展示，引用其它js文件形式，暂时未发现在template里引用其它文件的方案',
+            }
+        },
+        created: function () {
+        },
+        computed: {},
+        methods: {},
+    });
+</script>
+
+</body>
+
+</html>

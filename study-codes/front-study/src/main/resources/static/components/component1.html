@@ -16,6 +16,8 @@
 </div>
 <script>
     // 注意，字符串不能大写，比如用 testXxx 页面控件就展示不出来
+    // 根据文档要求，必须首字母大写，如果首字母小写，则后续字母也都只能小写
+    // https://cn.vuejs.org/v2/guide/components-registration.html
     var componentArr = Vue.component('testxxx', {
         data: function () {
             return {
