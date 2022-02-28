@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>第一个组件</title>
+    <script type="text/javascript" src="/res/unpkg/vue.min.js"></script>
+</head>
+
+<body>
+<div id="divApp">
+    <h1>{{title}}</h1>
+    <testxxx></testxxx>
+    <testxxx></testxxx>
+    <hr>
+</div>
+<script>
+    // 注意，字符串不能大写，比如用 testXxx 页面控件就展示不出来
+    var componentArr = Vue.component('testxxx', {
+        data: function () {
+            return {
+                title: '我是Xxx组件的Title',
+                count: 0,
+            }
+        },
+        template: '<button @click="count++">已点击{{count}}次</button>',
+    });
+
+    var vueApp = new Vue({
+        el: '#divApp',
+        // components: {
+        //     componentArr
+        // },
+        data: function () {
+            return {
+                title: '我是vue根的Title',
+            }
+        },
+        created: function () {
+        },
+        computed: {},
+        methods: {},
+    });
+</script>
+</body>
+
+</html>
