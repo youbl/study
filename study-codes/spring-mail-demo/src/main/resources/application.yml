@@ -3,3 +3,11 @@ server:
 spring:
   application:
     name: spring-mail-demo
+
+beinet:
+  163:
+    host: imap.163.com
+    protocal: imap
+  QQ:
+    host: imap.qq.com
+    protocal: imap
