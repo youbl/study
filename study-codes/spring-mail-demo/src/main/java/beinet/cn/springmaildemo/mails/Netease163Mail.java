@@ -13,7 +13,7 @@ import javax.mail.Folder;
  * @create: 2022/3/10 17:58
  */
 @Component
-public class Netease163Mail implements MailOperator {
+public class Netease163Mail extends MailOperator {
     @Value("${beinet.163.host:}")
     private String host;
     @Value("${beinet.163.protocal:imap}")

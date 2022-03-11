@@ -6,8 +6,8 @@ spring:
 
 beinet:
   163:
-    host: imap.163.com
-    protocal: imap
+    host: pop3.163.com
+    protocal: pop3
   QQ:
-    host: imap.qq.com
-    protocal: imap
+    host: pop.qq.com
+    protocal: pop3

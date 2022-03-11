@@ -12,7 +12,7 @@ import javax.mail.Folder;
  * @create: 2022/3/10 17:58
  */
 @Component
-public class QQMail implements MailOperator {
+public class QQMail extends MailOperator {
     @Value("${beinet.QQ.host:}")
     private String host;
     @Value("${beinet.QQ.protocal:imap}")

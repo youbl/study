@@ -3,8 +3,6 @@ package beinet.cn.springmaildemo.mails;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * Description:
  *
@@ -18,6 +16,8 @@ public class MailDto {
     private String messageId;
     // 发送时间
     private String sendDate;
+    // 接收时间
+    private String reveivedDate;
     // 发件人
     private String from;
     // 收件人

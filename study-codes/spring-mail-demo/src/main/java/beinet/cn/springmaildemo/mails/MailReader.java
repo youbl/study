@@ -28,6 +28,7 @@ public class MailReader {
             return MailDto.builder()
                     .messageId(mimeMessage.getMessageID())
                     .sendDate(getSentDate())
+                    .reveivedDate(getReceivedDate())
                     .from(getFrom())
                     .to(getMailAddress("TO"))
                     .cc(getMailAddress("CC"))
@@ -43,7 +44,7 @@ public class MailReader {
     // 获得发件人的地址和姓名
     private String getFrom() throws MessagingException, UnsupportedEncodingException {
         InternetAddress[] address = (InternetAddress[]) mimeMessage.getFrom();
-        if (address.length < 1)
+        if (ObjectUtils.isEmpty(address))
             return "";
         return getMailAddr(address[0]);
     }
@@ -95,18 +96,29 @@ public class MailReader {
 
     // 获得邮件主题
     private String getSubject() throws MessagingException, UnsupportedEncodingException {
-        String subject = MimeUtility.decodeText(mimeMessage.getSubject());
-        if (subject == null) {
-            subject = "";
-        }
-        return subject;
+        String subject = mimeMessage.getSubject();
+        if (subject == null)
+            return "";
+
+        return MimeUtility.decodeText(subject);
     }
 
     // 获得邮件发送日期
     private String getSentDate() throws MessagingException {
         Date sentDate = mimeMessage.getSentDate();
+        if (sentDate == null)
+            return "";
         SimpleDateFormat format = new SimpleDateFormat(DATETIME_PATTERN);
         return format.format(sentDate);
+    }
+
+    // 获得邮件接收日期
+    private String getReceivedDate() throws MessagingException {
+        Date date = mimeMessage.getReceivedDate();
+        if (date == null)
+            return "";
+        SimpleDateFormat format = new SimpleDateFormat(DATETIME_PATTERN);
+        return format.format(date);
     }
 
     // 解析邮件，把得到的邮件内容保存到一个StringBuffer对象中，解析邮件
@@ -114,6 +126,8 @@ public class MailReader {
     public String getMailContent(Part part) throws MessagingException, IOException {
         StringBuilder bodyText = new StringBuilder();
         String contentType = part.getContentType();
+        if (contentType == null)
+            contentType = "";
         int nameIndex = contentType.indexOf("name");
         boolean conName = nameIndex != -1;
 
