@@ -30,7 +30,7 @@ public class Netease163Mail extends MailOperator {
     }
 
     /*
-    163邮箱，不执行这段代码会抛异常：
+    163邮箱使用POP3协议无影响，使用IMAP协议时，不执行这段代码会抛异常：
     javax.mail.MessagingException: A3 NO SELECT Unsafe Login. Please contact kefu@188.com for help;
   nested exception is:
 	com.sun.mail.iap.CommandFailedException: A3 NO SELECT Unsafe Login. Please contact kefu@188.com for help

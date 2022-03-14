@@ -57,6 +57,11 @@ public abstract class MailOperator {
     public List<MailDto> getMailByDate(String username, String password, Date beginDate, Date endDate) {
         return readMailFromFolder(username, password, folder -> {
             try {
+                // SearchTerm term = new FromStringTerm("智联招聘") 发件人搜索
+                // SearchTerm term = new SubjectTerm("网络工程"); // 主题搜索
+                // SearchTerm term = new BodyTerm("Java") 内容搜索
+                // SearchTerm term = new SizeTerm(IntegerComparisonTerm.GE, 1024 * 1024); 大于1MB的邮件
+                // SearchTerm term = new NotTerm(new FromStringTerm("xxx")); 发件人不包含xxx的搜索
                 // 注 网易邮箱使用 ReceivedDateTerm搜索无效
                 SearchTerm beginTerm = new SentDateTerm(ComparisonTerm.GE, beginDate);
                 SearchTerm endTerm = new SentDateTerm(ComparisonTerm.LE, endDate);

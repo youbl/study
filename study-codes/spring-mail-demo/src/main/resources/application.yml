@@ -11,3 +11,9 @@ beinet:
   QQ:
     host: pop.qq.com
     protocal: pop3
+
+  # outlook配置地址参考：
+  # https://support.microsoft.com/zh-hk/office/outlook-com-%E7%9A%84-pop-imap-%E5%92%8C-smtp-%E8%A8%AD%E5%AE%9A-d088b986-291d-42b8-9564-9c414e2aa040
+  outlook:
+    host: outlook.office365.com
+    protocal: imaps  # 使用pop3会超时，使用pop3s会报账号密码错误 unknown user name or bad password.
