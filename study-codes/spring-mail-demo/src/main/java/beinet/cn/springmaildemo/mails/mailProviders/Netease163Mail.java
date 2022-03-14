@@ -1,8 +1,10 @@
-package beinet.cn.springmaildemo.mails;
+package beinet.cn.springmaildemo.mails.mailProviders;
 
+import beinet.cn.springmaildemo.mails.MailProvider;
 import com.sun.mail.imap.IMAPFolder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.mail.Folder;
 
@@ -13,12 +15,17 @@ import javax.mail.Folder;
  * @create: 2022/3/10 17:58
  */
 @Component
-public class Netease163Mail extends MailOperator {
+public class Netease163Mail extends MailProvider {
     @Value("${beinet.163.host:}")
     private String host;
     @Value("${beinet.163.protocal:imap}")
     private String protocol;
 
+    @Override
+    public boolean match(String mailAddress) {
+        return (StringUtils.hasLength(mailAddress)) && mailAddress.toLowerCase().endsWith("@163.com");
+    }
+    
     @Override
     public String getHost() {
         return host;

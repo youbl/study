@@ -1,9 +1,8 @@
 package beinet.cn.springmaildemo;
 
 import beinet.cn.springmaildemo.mails.MailDto;
-import beinet.cn.springmaildemo.mails.Netease163Mail;
-import beinet.cn.springmaildemo.mails.OutlookMail;
-import beinet.cn.springmaildemo.mails.QQMail;
+import beinet.cn.springmaildemo.mails.MailProvider;
+import beinet.cn.springmaildemo.mails.MailProviderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -29,68 +28,29 @@ public class SpringMailDemoApplication implements CommandLineRunner {
     }
 
     @Autowired
-    Netease163Mail netease163;
-
-    @Autowired
-    QQMail qqMail;
-
-    @Autowired
-    OutlookMail outlookMail;
+    MailProviderFactory mailProviderFactory;
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     public void run(String... args) throws Exception {
-//        List<MailDto> mail163 = read163Mail();
-//        checkMail(mail163);
-
-//        List<MailDto> mailQQ = readQQMail();
-//        checkMail(mailQQ);
-
-        List<MailDto> mailOutlook = readOutlookMail();
-        checkMail(mailOutlook);
-    }
-
-    private List<MailDto> read163Mail() {
         String username = "abc@163.com";
-        // 授权码，而不是登录密码
-        String password = "12345";
-
-        try {
-            // 读取邮件
-            List<MailDto> mailList = netease163.getMailByDate(username, password, sdf.parse("2022-03-01"));
-
-            // 成功，输出
-            // System.out.println(mailList);
-            return mailList;
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private List<MailDto> readQQMail() {
-        String username = "12345@qq.com";
-        // 授权码，而不是登录密码
-        String password = "abcde";
-
-        try { // 读取邮件
-            List<MailDto> mailList = qqMail.getMailByDate(username, password, sdf.parse("2021-03-01"));
-            // 成功，输出
-            // System.out.println(mailList);
-            return mailList;
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    private List<MailDto> readOutlookMail() {
-        String username = "abc@outlook.com";
-        // 登录密码
+        // 163和QQ，都要用授权码，而不是登录密码；outlook使用登录密码
         String password = "123456";
 
-        try { // 读取邮件
-            List<MailDto> mailList = outlookMail.getMailByDate(username, password, sdf.parse("2022-01-01"));
+        MailProvider provider = mailProviderFactory.getProvider(username);
+        if (provider == null) {
+            throw new RuntimeException("未找到邮箱提供者");
+        }
+        List<MailDto> mails = readMail(provider, username, password);
+        checkAllMail(mails);
+    }
+
+    private List<MailDto> readMail(MailProvider provider, String username, String password) {
+        try {
+            // 读取邮件
+            List<MailDto> mailList = provider.getMailByDate(username, password, sdf.parse("2022-03-01"));
+
             // 成功，输出
             // System.out.println(mailList);
             return mailList;
@@ -99,9 +59,14 @@ public class SpringMailDemoApplication implements CommandLineRunner {
         }
     }
 
-    private void checkMail(List<MailDto> mailList) {
-        // 最后一封邮件的内容分析
-        String content = mailList.get(mailList.size() - 1).getContent();
+    private void checkAllMail(List<MailDto> mailList) {
+        for (MailDto dto : mailList) {
+            checkMail(dto);
+        }
+    }
+
+    private void checkMail(MailDto mail) {
+        String content = mail.getContent();
 
         // 清除样式 和 html标签、空白
         String noHtmlContent = content.replaceAll("<style[^>]*>[\\s\\S]*</style>", "")

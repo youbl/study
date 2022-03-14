@@ -14,7 +14,7 @@ import java.util.Properties;
  * @author : youbl
  * @create: 2022/3/10 17:50
  */
-public abstract class MailOperator {
+public abstract class MailProvider {
 
     /**
      * 读取所有邮件
@@ -146,6 +146,8 @@ public abstract class MailOperator {
         }
         return ret;
     }
+
+    public abstract boolean match(String mailAddress);
 
     public abstract String getHost();
 
