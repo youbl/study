@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 @RestController
 public class DataBindController {
     @PostMapping("bind")
-    public String doBind(@RequestBody User para) {
-        return para.toString();
+    public User doBind(@RequestBody User para) {
+        return para;
     }
 
     @Data
