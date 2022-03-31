@@ -1,8 +1,9 @@
 package beinet.cn.springbeanstudy;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,9 +33,23 @@ public class LocalDateTimeConfiguration {
         return new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(pattern));
     }
 
+//    @Bean
+//    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
+//        return builder -> builder.deserializerByType(LocalDateTime.class, localDateTimeDeserializer())
+//                .serializerByType(LocalDateTime.class, localDateTimeSerializer());
+//    }
+
+    // 方案二
     @Bean
-    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
-        return builder -> builder.deserializerByType(LocalDateTime.class, localDateTimeDeserializer())
-                .serializerByType(LocalDateTime.class, localDateTimeSerializer());
+    public ObjectMapper serializingObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+        javaTimeModule.addSerializer(LocalDateTime.class, localDateTimeSerializer());
+        javaTimeModule.addDeserializer(LocalDateTime.class, localDateTimeDeserializer());
+        // 不能添加2次同一个类型的反序列化器
+        // javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        objectMapper.registerModule(javaTimeModule);
+
+        return objectMapper;
     }
 }
