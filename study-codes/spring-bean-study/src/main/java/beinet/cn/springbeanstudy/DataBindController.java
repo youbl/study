@@ -25,5 +25,7 @@ public class DataBindController {
         private int id;
         private String name;
         private LocalDateTime birthday;
+        private long n1;
+        private Long n2;
     }
 }

@@ -1,6 +1,7 @@
 package beinet.cn.springbeanstudy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
@@ -83,6 +84,10 @@ public class LocalDateTimeConfiguration {
         javaTimeModule.addDeserializer(LocalDateTime.class, localDateTimeDeserializer());
         // 不能添加2次同一个类型的反序列化器
         // javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+
+        javaTimeModule.addSerializer(Long.class, ToStringSerializer.instance);  // 针对Long类型
+        javaTimeModule.addSerializer(Long.TYPE, ToStringSerializer.instance);   // 针对long简单类型
+
         objectMapper.registerModule(javaTimeModule);
 
         return objectMapper;
