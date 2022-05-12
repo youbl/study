@@ -18,7 +18,13 @@
     {{title}}
     <div class="el-button--primary el-button" @click="$refs.fileInput.click()">
         <input type="file" ref="fileInput" accept="*" @change="getFile" style="display: none">
-        <img src="https://rpa.ziniao.com/images/src/assets/images/logo-white.svg"/>添加
+        <img src="https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png" style="height:15px;"/>添加
+    </div>
+    <hr>
+    用js读取本地文件：
+    <div class="el-button--primary el-button" @click="$refs.fileInput.click()">
+        <input type="file" ref="fileInput" accept="*" @change="readFile" style="display: none">
+        <img src="https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png" style="height:15px;"/>选要读取的文件
     </div>
 </div>
 <hr>
@@ -47,6 +53,14 @@
                 return axios.post(url, formFile).then(response => {
                     alert(response.data);
                 }).catch(error => this.ajaxError(error));
+            },
+            readFile: function (event) {
+                let reader = new FileReader();
+                reader.onload = ev => {
+                    console.log(ev);
+                    alert(ev.target.result);
+                }
+                reader.readAsText(event.target.files[0]);
             },
 
             openAlert: function () {
