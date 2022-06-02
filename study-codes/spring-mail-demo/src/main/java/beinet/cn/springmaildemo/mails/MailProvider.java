@@ -1,5 +1,7 @@
 package beinet.cn.springmaildemo.mails;
 
+import org.springframework.util.StringUtils;
+
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
 import javax.mail.search.*;
@@ -106,8 +108,15 @@ public abstract class MailProvider {
     }
 
     private List<MailDto> readMailFromFolder(String username, String password, FolderOperator operator) {
+        String host = getHost();
+        if (!StringUtils.hasLength(host)) {
+            throw new RuntimeException("主机不能为空:" + this.getClass().getName());
+        }
         try {
             String protocol = getProtocol();
+            if (!StringUtils.hasLength(protocol)) {
+                protocol = "pop3";
+            }
             Properties props = new Properties();// System.getProperties();
             props.put("mail.store.protocol", protocol);
             //创建会话
@@ -116,7 +125,7 @@ public abstract class MailProvider {
             //存储对象
             try (Store store = session.getStore(protocol)) {
                 //连接
-                store.connect(getHost(), username, password);
+                store.connect(host, username, password);
                 //创建目录对象
                 try (Folder folder = store.getFolder("Inbox")) {
                     if (folder == null) {
