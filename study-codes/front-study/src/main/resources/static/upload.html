@@ -16,14 +16,14 @@
 <hr>
 <div id="divApp">
     {{title}}
-    <div class="el-button--primary el-button" @click="$refs.fileInput.click()">
-        <input type="file" ref="fileInput" accept="*" @change="getFile" style="display: none">
+    <div class="el-button--primary el-button" @click="$refs.fileInput1.click()">
+        <input type="file" ref="fileInput1" accept="*" @change="getFile" style="display: none">
         <img src="https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png" style="height:15px;"/>添加
     </div>
     <hr>
     用js读取本地文件：
-    <div class="el-button--primary el-button" @click="$refs.fileInput.click()">
-        <input type="file" ref="fileInput" accept="*" @change="readFile" style="display: none">
+    <div class="el-button--primary el-button" @click="$refs.fileInput2.click()">
+        <input type="file" ref="fileInput2" accept="*" @change="readFile" style="display: none">
         <img src="https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png" style="height:15px;"/>选要读取的文件
     </div>
 </div>
@@ -51,14 +51,14 @@
                 //调用接口
                 let url = '/upload';
                 return axios.post(url, formFile).then(response => {
-                    alert(response.data);
+                    alert("上传成功: " + response.data);
                 }).catch(error => this.ajaxError(error));
             },
             readFile: function (event) {
                 let reader = new FileReader();
                 reader.onload = ev => {
                     console.log(ev);
-                    alert(ev.target.result);
+                    alert("读取成功:" + ev.target.result);
                 }
                 reader.readAsText(event.target.files[0]);
             },
