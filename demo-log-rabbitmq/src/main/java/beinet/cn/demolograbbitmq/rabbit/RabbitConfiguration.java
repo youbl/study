@@ -1,6 +1,7 @@
 package beinet.cn.demolograbbitmq.rabbit;
 
 import lombok.extern.slf4j.Slf4j;
+import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.amqp.core.Message;
@@ -12,6 +13,9 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class RabbitConfiguration implements BeanPostProcessor {
@@ -28,7 +32,16 @@ public class RabbitConfiguration implements BeanPostProcessor {
             case "rabbitListenerContainerFactory":
                 // 修改原有Bean，避免new SimpleRabbitListenerContainerFactory 出现问题
                 if (!StringUtils.isEmpty(env.getProperty("logging.level.beinet.cn.demolograbbitmq.rabbit.RabbitAdvice"))) {
-                    ((SimpleRabbitListenerContainerFactory) bean).setAdviceChain(new RabbitAdvice());
+                    SimpleRabbitListenerContainerFactory factory = (SimpleRabbitListenerContainerFactory) bean;
+                    Advice myAdvice = new RabbitAdvice();
+                    Advice[] adviceList = factory.getAdviceChain();
+                    if (adviceList == null || adviceList.length <= 0) {
+                        adviceList = new Advice[]{myAdvice};
+                    } else {
+                        adviceList = Arrays.copyOf(adviceList, adviceList.length + 1);
+                        adviceList[adviceList.length] = myAdvice;
+                    }
+                    factory.setAdviceChain(adviceList);
                 }
 
                 ((SimpleRabbitListenerContainerFactory) bean).setMessageConverter(new Jackson2JsonMessageConverter());
