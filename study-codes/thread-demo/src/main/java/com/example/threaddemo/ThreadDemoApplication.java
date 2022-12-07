@@ -1,5 +1,6 @@
 package com.example.threaddemo;
 
+import com.example.threaddemo.lockDemo.LockClas;
 import com.example.threaddemo.poolDemo.MyRunnable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -23,6 +24,17 @@ public class ThreadDemoApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        testThreadLock();
+        // testThreadPool();
+    }
+
+
+    private void testThreadLock() {
+        new Thread(new LockClas.LockClas1()).start();
+        new Thread(new LockClas.LockClas2()).start();
+    }
+
+    private void testThreadPool() {
         log.info("程序开始");
         /*
 public ThreadPoolExecutor(
