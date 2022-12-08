@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>aws S3上传演示</title>
+    <script type="text/javascript" src="/res/unpkg/vue.min.js"></script>
+    <script type="text/javascript" src="/res/unpkg/axios.min.js"></script>
+</head>
+
+<body>
+<hr>
+<div id="divApp">
+    <div style="font-weight: bold; font-size: 20px;"> {{title}}</div>
+    <hr>
+    <div class="el-button--primary el-button" @click="$refs.fileInput1.click()" style="cursor: pointer">
+        <input type="file" ref="fileInput1" accept="*" @change="getFile" style="display: none">
+        <img src="https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png" style="height:15px;"/>选择文件上传
+    </div>
+</div>
+<hr>
+<script>
+    var vueApp = new Vue({
+        el: '#divApp',
+        data: function () {
+            return {
+                title: 'S3免ak/sk上传演示代码',
+                s3signUrl: '',
+            }
+        },
+        created: function () {
+        },
+        computed: {},
+        methods: {
+            getS3SignUrl: function () {
+                let url = '/s3/sign?s3FileName=abc/signFile123.xxx';
+                return axios.get(url).then(response => {
+                    this.s3signUrl = response.data;
+                }).catch(error => this.ajaxError(error));
+            },
+            // 获取文件数据
+            getFile: function (event) {
+                this.getS3SignUrl().then(() => {
+                    this.uploadToSignUrl(event);
+                });
+            },
+            uploadToSignUrl: function (evt) {
+                // 选择的文件
+                //let formFile = new FormData();
+                //formFile.append("fieldNameHere", evt.target.files[0]);
+                
+                // 通过s3的签名url，上传到对应的bucket
+                let url = this.s3signUrl;
+                return axios.put(url, evt.target.files[0]).then(response => {
+                    alert("上传成功" + response.data);
+                }).catch(error => this.ajaxError(error));
+            },
+
+            ajaxError: function (error) {
+                if (error.response && error.response.data) {
+                    console.log(JSON.stringify(error.response.data));
+                    let msg = error.response.data['msg'];
+                    if (!msg)
+                        msg = '出错了';
+                    alert(msg);
+                } else {
+                    console.log(JSON.stringify(error));
+                    alert('未知错误');
+                }
+            },
+        },
+    });
+</script>
+</body>
+
+</html>

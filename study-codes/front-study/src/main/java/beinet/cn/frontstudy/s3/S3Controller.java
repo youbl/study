@@ -1,15 +1,17 @@
 package beinet.cn.frontstudy.s3;
 
 import com.amazonaws.ClientConfiguration;
+import com.amazonaws.HttpMethod;
 import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.joda.time.LocalDateTime;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,9 +22,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Date;
 
 /**
- * 新类
+ * 上传S3的类
  *
  * @author youbl
  * @date 2022/12/8 11:42
@@ -52,6 +55,45 @@ public class S3Controller {
                 //.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endpoint, region))
                 .enablePathStyleAccess()
                 .build();
+    }
+
+    /**
+     * 生成一个预签名的url，给前端js上传
+     * 注1: Method aws官方要求必须是PUT
+     * 注2: Bucket必须开启跨域支持，在Bucket的【权限】->【跨源资源共享(CORS)】,编辑，输入：
+     * [
+     *     {
+     *         "AllowedHeaders": [
+     *             "*"
+     *         ],
+     *         "AllowedMethods": [
+     *             "PUT",
+     *             "POST",
+     *             "GET"
+     *         ],
+     *         "AllowedOrigins": [
+     *             "*"
+     *         ],
+     *         "ExposeHeaders": [
+     *             "ETag",
+     *             "x-amz-meta-custom-header"
+     *         ]
+     *     }
+     * ]
+     *
+     * @param s3FileName 上传到s3的文件相对路径
+     * @return 签名后的url
+     */
+    @GetMapping("s3/sign")
+    public String preUploadFile(@RequestParam String s3FileName) {
+        // token设置1小时后过期
+        Date expiration = LocalDateTime.now().plusHours(1).toDate();
+        GeneratePresignedUrlRequest urlRequest = new GeneratePresignedUrlRequest(bucket, s3FileName)
+                .withExpiration(expiration)
+                .withMethod(HttpMethod.PUT);
+        //.withResponseHeaders();
+        URL url = client.generatePresignedUrl(urlRequest);
+        return url.toString();
     }
 
     // 调用方法 http://localhost:8801/s3/file?filePath=d:/xxx.jpg
@@ -124,8 +166,9 @@ public class S3Controller {
             metadata.setContentType(contentType);
         }
         metadata.setContentLength(contentLength);
-        PutObjectRequest request = new PutObjectRequest(bucket, s3FileName, stream, metadata)
-                .withCannedAcl(CannedAccessControlList.PublicReadWrite);
+        PutObjectRequest request = new PutObjectRequest(bucket, s3FileName, stream, metadata);
+        // 可能报错： The bucket does not allow ACLs 需要去S3控制台【权限】编辑【对象所有权】启用ACL
+        //.withCannedAcl(CannedAccessControlList.PublicReadWrite);
         client.putObject(request);
         URL url = client.getUrl(bucket, s3FileName);
         return url.toString();
