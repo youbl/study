@@ -10,5 +10,8 @@ spring:
 
 mybatis-plus:
   configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 输出SQL日志
+    # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 输出SQL日志
     map-underscore-to-camel-case: false # 数据库下划线自动转驼峰标示关闭
+
+logging.level:
+  beinet.cn.demologmybatis.dal: debug  # 这是mybatis-plus的mapper类所在的package名
