@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: ops-ci
+  #  profiles:
+  #    active: test
+  datasource:
+    username: "root"
+    password: "ybl123456"
+    url: jdbc:mysql://10.100.72.165:3306/rpalog?allowMultiQueries=true&useUnicode=true&characterEncoding=utf8&socketTimeout=3000&connectTimeout=3000&rewriteBatchedStatements=true
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 输出SQL日志
+    map-underscore-to-camel-case: false # 数据库下划线自动转驼峰标示关闭
