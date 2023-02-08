@@ -9,10 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @SpringBootApplication
 @Slf4j
@@ -24,12 +21,35 @@ public class ThreadDemoApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        testThreadLock();
+        testWaitNotBlock();
+        // testThreadLock();
         // testThreadPool();
     }
 
 
+    private void testWaitNotBlock() {
+        // 演示 Future.get虽然会抛出TimeoutExcetption，但是并不会中断线程
+        // 参考 https://stackoverflow.com/questions/16231508/does-a-future-timeout-kill-the-thread-execution
+        ExecutorService ex = Executors.newSingleThreadExecutor();
+        Future<?> f = ex.submit(new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println("not interrupt, finished");
+            }
+        });
+        try {
+            f.get(1, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void testThreadLock() {
+        // 演示wait 会释放锁的效果
         new Thread(new LockClas.LockClas1()).start();
         new Thread(new LockClas.LockClas2()).start();
     }
