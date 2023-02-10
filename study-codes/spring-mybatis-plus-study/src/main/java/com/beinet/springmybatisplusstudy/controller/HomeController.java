@@ -55,5 +55,13 @@ public class HomeController {
         return userMapper.selectList(wrapper);
     }
 
+    @GetMapping("user/add")
+    public User addUser() {
+        User user = new User();
+        user.setName("adddddd");
+        user.setAge(123);
+        userMapper.insert(user);
+        return user;
+    }
 
 }
