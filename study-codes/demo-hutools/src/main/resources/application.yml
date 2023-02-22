@@ -1,0 +1,5 @@
+server:
+  port: 8801
+spring:
+  application:
+    name: demo-hutools
