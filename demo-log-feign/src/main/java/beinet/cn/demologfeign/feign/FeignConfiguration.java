@@ -13,6 +13,12 @@ import java.security.cert.X509Certificate;
 
 @Configuration
 public class FeignConfiguration {
+    @Bean
+    @ConditionalOnProperty("logging.level.beinet.cn.demologfeign.feign.MyFeignLogger")
+    MyFeignLogger createMyLogger() {
+        return new MyFeignLogger();
+    }
+
     // 默认不注入，如果yml配置里有 logging.level.beinet.cn.demostudy.MyClient 才注入
     @Bean
     @ConditionalOnProperty("logging.level.beinet.cn.demologfeign.feign.MyClient")

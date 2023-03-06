@@ -7,6 +7,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @SpringBootApplication
 @EnableFeignClients
 public class DemoLogFeignApplication implements CommandLineRunner {
@@ -20,6 +23,11 @@ public class DemoLogFeignApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        feign.getHome();
+        System.out.println("启动请求");
+        Map<String, String> para = new HashMap<>();
+        para.put("abc", "def");
+        para.put("kkk", "123");
+        String str = feign.getHome(para);
+        System.out.println("请求结束");
     }
 }

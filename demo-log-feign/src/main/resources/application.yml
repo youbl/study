@@ -3,4 +3,10 @@ spring:
 
 logging:
   level:
-    beinet.cn.demologfeign.feign.MyClient: debug
+    beinet.cn.demologfeign.feign.MyFeignLogger: debug
+
+feign:
+  client:
+    config:
+      default:
+        logger-level: full
