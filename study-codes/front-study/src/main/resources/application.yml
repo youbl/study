@@ -7,6 +7,11 @@ spring:
   thymeleaf:
     cache: false # 修改页面实时生效，不缓存。注意：不用重启，但是要按Ctrl+F9重新编译一下项目才生效
 
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
 management:
   #server:
   #port: 7777 #不单独设置端口的话，和服务的端口一致
