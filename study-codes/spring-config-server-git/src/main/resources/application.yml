@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: spring-config-server-git
+
+beinet:
+  config: 我是一个本地配置项
