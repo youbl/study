@@ -1,6 +1,25 @@
+server:
+  port: 8999
+
 spring:
   application:
     name: spring-config-server-git
+
+  # 配置完直接启动即可，访问方式：
+  # http://localhost:8999/{spring.application.name}/{spring.profiles.active}/{git分支}
+  # {spring.application.name} 必需，就是具体项目的项目名（yml里配置的），不是config-server的哦
+  # {spring.profiles.active} 必需，就是具体项目的环境（yml里配置的），注：具体项目可以不配置，使用默认值
+  # {git分支} 可空，git配置文件所在的分支，默认使用下面的default-label
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/youbl/study   # git项目的url地址，支持gitlab、github、gitee等
+          search-paths: spring-configs          # git项目下，存放yml配置文件的子目录
+          username: beinet                      # git账号
+          password: 123456                      # git密码
+          default-label: master   # 默认会获取main分支，不存在就报错： No such label: main
+          timeout: 6              # 读取git的超时时间，默认5秒
 
 beinet:
   config: 我是一个本地配置项
