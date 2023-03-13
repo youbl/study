@@ -35,11 +35,13 @@ public class RabbitConfiguration implements BeanPostProcessor {
                     SimpleRabbitListenerContainerFactory factory = (SimpleRabbitListenerContainerFactory) bean;
                     Advice myAdvice = new RabbitAdvice();
                     Advice[] adviceList = factory.getAdviceChain();
-                    if (adviceList == null || adviceList.length <= 0) {
+                    
+                    int len = adviceList == null ? 0 : adviceList.length;
+                    if (len <= 0) {
                         adviceList = new Advice[]{myAdvice};
                     } else {
-                        adviceList = Arrays.copyOf(adviceList, adviceList.length + 1);
-                        adviceList[adviceList.length] = myAdvice;
+                        adviceList = Arrays.copyOf(adviceList, len + 1);
+                        adviceList[len] = myAdvice;
                     }
                     factory.setAdviceChain(adviceList);
                 }
