@@ -1,10 +1,13 @@
 package beinet.cn.frontstudy;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.env.Environment;
 
 @SpringBootApplication
-public class FrontStudyApplication {
+public class FrontStudyApplication implements CommandLineRunner {
 
     public static void main(String[] args) {
         testStrEquals();
@@ -54,5 +57,14 @@ public class FrontStudyApplication {
 
         System.out.println(dd.equals(cc));              // true
         System.out.println(dd == cc);                   // true
+    }
+
+    @Autowired
+    Environment env;
+
+    @Override
+    public void run(String... args) throws Exception {
+        String str = env.getProperty("beinet.config");
+        System.out.println(str);
     }
 }

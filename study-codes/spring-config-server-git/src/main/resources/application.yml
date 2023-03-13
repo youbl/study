@@ -10,6 +10,8 @@ spring:
   # {spring.application.name} 必需，就是具体项目的项目名（yml里配置的），不是config-server的哦
   # {spring.profiles.active} 必需，就是具体项目的环境（yml里配置的），注：具体项目可以不配置，使用默认值
   # {git分支} 可空，git配置文件所在的分支，默认使用下面的default-label
+  #
+  # 注意：server项目启动后，会把git项目clone到本地，如windows系统会在 C:\Users\xxx\AppData\Local\Temp\config-repo-xxx
   cloud:
     config:
       server:

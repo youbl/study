@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: front-study                   # 项目名，配置中心读取配置用
+  cloud:
+    config:
+      uri: http://localhost:8999       # 指定配置中心url
+      profile: test                      # 指定使用哪个配置
+      label: master                     # 指定分支，可为空，默认取主干
