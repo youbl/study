@@ -1,12 +1,17 @@
 package beinet.cn.frontstudy;
 
+import beinet.cn.frontstudy.configTest.ConfigTest1;
+import beinet.cn.frontstudy.configTest.ConfigTest2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.core.env.Environment;
 
 @SpringBootApplication
+@RefreshScope
 public class FrontStudyApplication implements CommandLineRunner {
 
     public static void main(String[] args) {
@@ -62,9 +67,27 @@ public class FrontStudyApplication implements CommandLineRunner {
     @Autowired
     Environment env;
 
+    @Autowired
+    ConfigTest1 configTest1;
+
+    @Autowired
+    ConfigTest2 configTest2;
+
+    @Value("${beinet.newVal}")
+    String str3;
+
+    // 调用 curl -X POST http://localhost:8801/actuator/refresh
+    // 刷新后，这些配置是否会变化呢？
     @Override
     public void run(String... args) throws Exception {
-        String str = env.getProperty("beinet.config");
-        System.out.println(str);
+        while (true) {
+            //String str = env.getProperty("beinet.config");
+            String str2 = env.getProperty("beinet.newVal");
+            System.out.println(configTest1.getStr3()); // 没加RefreshScope注解，不会刷新
+            System.out.println(configTest2.getStr3()); // 会刷新
+            System.out.println(str2 + "--");           // 通过Env获取，会刷新
+            System.out.println(str3 + "--");           // main所在类的RefreshScope不生产，不会刷新
+            Thread.sleep(10000);
+        }
     }
 }
