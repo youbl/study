@@ -9,6 +9,15 @@ spring:
       filter:
         enabled: true
 
+  # 注：以下用于修改kafka topic名称，实际测试，必须放在application.yml里，不能放在bootstrap.yml里，否则无效
+  cloud:
+    stream:
+      bindings:
+        springCloudBusInput:
+          destination: "newtopicname"  # 修改配置中心刷新用的kafka topic，默认是 springCloudBus
+        springCloudBusOutput:
+          destination: "newtopicname"  # 修改配置中心刷新用的kafka topic，默认是 springCloudBus
+
 management:
   #server:
   #port: 7777 #不单独设置端口的话，和服务的端口一致

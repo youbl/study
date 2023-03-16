@@ -31,6 +31,13 @@ spring:
     bus:
       refresh:
         enabled: true
+    stream: # client端也要放在application.yml里，不能放bootstrap.yml里
+      bindings:
+        springCloudBusInput:
+          destination: "newtopicname"  # 修改配置中心刷新用的kafka topic，默认是 springCloudBus
+        springCloudBusOutput:
+          destination: "newtopicname"  # 修改配置中心刷新用的kafka topic，默认是 springCloudBus
+
   kafka:
     bootstrap-servers: 10.1.2.3:9092
 
