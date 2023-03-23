@@ -25,6 +25,7 @@ spring:
           #clone-on-start: true    # 启动时把配置clone到本地，默认false，第一次访问会比较慢
           # basedir:
           #refresh-rate: 100         # 服务从git更新配置的时间间隔，单位秒，默认值0，表示每次请求都去获取最新配置
+          skip-ssl-validation: true  # 忽略git地址的ssl错误： unable to find valid certification path to requested target
 
     # 启用bus后，对应的消息队列（如kafka）会自动创建一个topic springCloudBus
     # 使用 curl -X POST http://localhost:8999/actuator/busrefresh 会触发消息推送到这个topic，供client使用
