@@ -9,8 +9,22 @@ spring:
       filter:
         enabled: true
 
-  # 注：以下用于修改kafka topic名称，实际测试，必须放在application.yml里，不能放在bootstrap.yml里，否则无效
+  application:
+    name: front-study                   # 项目名，配置中心读取配置用
+  profiles:
+    active: test    # 启用哪个环境，注意：这种形式下，不支持加载 application-test.yml，必须写在当前文件里
+  kafka:
+    bootstrap-servers: 10.1.2.3:9092
+  config:
+    # 用application.yml代替bootstrap.yml，可以少一个maven依赖，并用spring.config.import来代替原来的spring.cloud.config.uri
+    import: optional:configserver:http://localhost:8999
   cloud:
+    config:
+      # uri: http://localhost:8999       # 指定配置中心url
+      #profile: test                      # 指定使用哪个配置
+      #label: master                     # 指定分支，可为空，默认取主干
+
+  # 注：以下用于修改kafka topic名称，实际测试，必须放在application.yml里，不能放在bootstrap.yml里，否则无效
     stream:
       bindings:
         springCloudBusInput:
@@ -32,3 +46,13 @@ management:
     export:
       prometheus:
         enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  cloud:
+    config:
+      profile: ${spring.profiles.active}                  # 对应加载哪个环境的yml
+      label: ${spring.profiles.active}                    # 当前环境要读取的git分支名
