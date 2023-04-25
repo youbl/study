@@ -12,7 +12,6 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -25,16 +24,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KafkaConfiguration {
     private final KafkaProperties kafkaProperties;
-
+    private final ConcurrentKafkaListenerContainerFactory<String, Object> kafkaFactory;
 
     Map<String, Object> consumerConfigs() {
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getConsumer().getBootstrapServers());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaProperties.getConsumer().getGroupId());
-//        props.put(ConsumerConfig.CLIENT_ID_CONFIG, kafkaProperties.getConsumer().getClientId());
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, kafkaProperties.getConsumer().getMaxPollRecords());
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, kafkaProperties.getConsumer().getKeyDeserializer());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, kafkaProperties.getConsumer().getValueDeserializer());
+        Map<String, Object> props = kafkaProperties.buildConsumerProperties();
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         return props;
@@ -48,4 +41,14 @@ public class KafkaConfiguration {
         factory.setBatchListener(true);
         return factory;
     }
+
+    // 使用原生配置，并改用RoundRobin分区分配策略
+    @Bean("robinKafkaFactory")
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Object>> batchFactoryOrigin() {
+        Map<String, Object> props = kafkaProperties.buildConsumerProperties();
+        props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, "org.apache.kafka.clients.consumer.RoundRobinAssignor");
+        kafkaFactory.setConsumerFactory(new DefaultKafkaConsumerFactory<>(props));
+        return kafkaFactory;
+    }
+
 }
