@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: cb-admin
+  profiles:
+    active: local
+  cloud:
+    config:
+      profile: ${spring.profiles.active}
+      label: ybltest
+
+  config:
+    import: configserver:http://admin:admin@10.1.2.3
+
+management:
+  #server:
+  #port: 7777 #不单独设置端口的话，和服务的端口一致
+  #servlet:
+  #context-path: /boot
+  endpoints:
+    web:
+      exposure:
+        include: "*"   # 用*表示暴露全部
