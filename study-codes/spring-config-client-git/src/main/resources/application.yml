@@ -7,9 +7,10 @@ spring:
     config:
       profile: ${spring.profiles.active}
       label: ybltest
-
+      client:
+        skip-ssl-validation: true
   config:
-    import: configserver:http://admin:admin@10.1.2.3
+    import: configserver:https://admin:admin@dev.benet.cn
 
 management:
   #server:
