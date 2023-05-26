@@ -7,10 +7,9 @@ spring:
     config:
       profile: ${spring.profiles.active}
       label: ybltest
-      client:
-        skip-ssl-validation: true
+      # client.skip-ssl-validation: true 这个配置无效
   config:
-    import: configserver:https://admin:admin@dev.benet.cn
+    import: configserver:http://localhost:3344
 
 management:
   #server:
