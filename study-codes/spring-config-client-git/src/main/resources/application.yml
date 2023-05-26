@@ -9,13 +9,9 @@ spring:
       label: ybltest
       # client.skip-ssl-validation: true 这个配置无效
   config:
-    import: configserver:http://localhost:3344
+    import: configserver:http://localhost:8999
 
 management:
-  #server:
-  #port: 7777 #不单独设置端口的话，和服务的端口一致
-  #servlet:
-  #context-path: /boot
   endpoints:
     web:
       exposure:
