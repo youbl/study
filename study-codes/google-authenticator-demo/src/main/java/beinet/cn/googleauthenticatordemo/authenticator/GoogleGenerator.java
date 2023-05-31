@@ -1,10 +1,10 @@
 package beinet.cn.googleauthenticatordemo.authenticator;
 
 import org.apache.commons.codec.binary.Base32;
-import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -15,9 +15,8 @@ public class GoogleGenerator {
     public static final String ISSUER = "beinet.cn";
 
     // 生成的key长度( Generate secret key length)
-    public static final int SECRET_SIZE = 10;
+    public static final int SECRET_SIZE = 32;
 
-    public static final String SEED = "22150146801713967E8g";
     // Java实现随机数算法
     public static final String RANDOM_NUMBER_ALGORITHM = "SHA1PRNG";
 
@@ -34,11 +33,12 @@ public class GoogleGenerator {
         SecureRandom sr;
         try {
             sr = SecureRandom.getInstance(RANDOM_NUMBER_ALGORITHM);
-            sr.setSeed(Base64.decodeBase64(SEED));
+            sr.setSeed(getSeed());
             byte[] buffer = sr.generateSeed(SECRET_SIZE);
             Base32 codec = new Base32();
             byte[] bEncodedKey = codec.encode(buffer);
-            return new String(bEncodedKey);
+            String ret = new String(bEncodedKey);
+            return ret.replaceAll("=+$", "");// 移除末尾的等号
         } catch (NoSuchAlgorithmException e) {
             // should never occur... configuration error
             throw new RuntimeException(e);
@@ -131,21 +131,8 @@ public class GoogleGenerator {
         return (int) truncatedHash;
     }
 
-    /*private String addZero ( long code ) {
-        System.out.println ( "addZero code:" + code );
-        String codeString = String.valueOf ( code );
-        System.out.println ( "addZero codeString" + codeString );
-        int codeLength = codeString.length ();
-        StringBuffer sb = new StringBuffer ( codeString );
-        if (codeLength < 6) {
-            for (int i = 0; i < (6 - codeLength); i++) {
-                sb.insert ( 0 , "0" );
-            }
-        }
-        return sb.toString ();
-    }*/
-
-    private static String addZero(long code) {
-        return String.format("%06d", code);
+    private static byte[] getSeed() {
+        String str = ISSUER + System.currentTimeMillis() + ISSUER;
+        return str.getBytes(StandardCharsets.UTF_8);
     }
 }
