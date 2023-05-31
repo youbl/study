@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <title>Beinet登录页</title>
+    <script src="./res/unpkg/vue.min.js"></script>
+    <script src="./res/unpkg/axios.min.js"></script>
+    <script src="./res/unpkg/elemeIndex.js"></script>
+    <script type="text/javascript" src="./res/qs.min.js"></script>
+    <script src="./res/common.js"></script>
+
+    <link rel="stylesheet" href="./res/unpkg/elemeIndex.css">
+</head>
+<body>
+<div id="divApp" style="text-align: center;">
+    <el-form :model="login" :rules="rulesLogin" ref="loginForm" style="width:600px">
+        <h1 style="text-align: center">
+            登 录
+        </h1>
+        <el-form-item label="账号" prop="beinetUser" label-width="200px">
+            <el-input v-model="login.beinetUser" placeholder="请输入账号"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="beinetPwd" label-width="200px">
+            <el-input v-model="login.beinetPwd" placeholder="请输入" show-password></el-input>
+        </el-form-item>
+        <!--        <el-form-item label="验证码" prop="imgCode" label-width="200px" style="text-align: left">-->
+        <!--            <el-input v-model="login.imgCode" placeholder="请输入图形验证码" maxlength="6" style="width:50%"></el-input>-->
+        <!--            <img :src="imgCodeBase64" style="cursor: pointer; height: 30px; vertical-align: middle"-->
+        <!--                 @click="getImgCode"/>-->
+        <!--        </el-form-item>-->
+        <div>
+            <el-button icon="el-icon-success" type="primary" @click="doLogin('loginForm')">登 录</el-button>
+        </div>
+    </el-form>
+</div>
+<script type="text/javascript">
+    const BASE_URL = '/';// + location.pathname.split('/')[1] + '/';
+    const vueApp = new Vue({
+        el: '#divApp',
+        data: function () {
+            return {
+                env: '',
+                imgCodeBase64: '/favicon.ico',
+                login: {
+                    beinetUser: '',
+                    beinetPwd: '',
+                    imgSn: '',
+                    imgCode: '',
+                    beinetRemember: 1, // 用于后台记住登录状态
+                },
+                rulesLogin: {
+                    beinetUser: [
+                        {required: true, message: '账号不能为空', trigger: 'blur'},
+                        {min: 2, max: 30, message: '账号长度为2~30个字符', trigger: 'blur'},
+                    ],
+                    beinetPwd: [
+                        {required: true, message: '密码不能为空', trigger: 'blur'},
+                        {min: 5, max: 30, message: '密码长度为5~30个字符', trigger: 'blur'},
+                    ],
+                    // imgCode: [
+                    //     {required: true, message: '图形验证码不能为空', trigger: 'blur'},
+                    // ],
+                },
+            }
+        },
+        mounted: function () {
+        },
+        created: function () {
+            this.enterLogin()
+            //this.getImgCode();
+        },
+        computed: {},
+        methods: {
+            enterLogin: function () {
+                document.onkeydown = e => {
+                    //13表示回车键，baseURI是当前页面的地址，为了更严谨，也可以加别的，可以打印e看一下
+                    if (e.keyCode === 13 && e.target.baseURI.match(/ops\/login\/index\.html/)) {
+                        //回车后执行搜索方法
+                        this.doLogin('loginForm');
+                    }
+                }
+            },
+            // getImgCode: function () {
+            //     return;
+            //     let url = BASE_URL + 'validcode/img';
+            //     return axios.get(url).then(response => {
+            //         if (!response || !response.data || !response.data.sn) {
+            //             return alert('获取图形验证码失败');
+            //         }
+            //         this.imgCodeBase64 = "data:image/jpg;base64," + response.data.img;
+            //         this.login.imgSn = response.data.sn;
+            //     }).catch(error => this.ajaxError(error));
+            // },
+            doLogin: function (form) {
+                this.$refs[form].validate(valid => {
+                    if (!valid)
+                        return false;
+                    let url = BASE_URL + 'login';
+                    return axios.post(url, this.login).then(response => {
+                        if (response.data.code && response.data.code !== 200) {
+                            alert('登录失败 ' + response.data.msg);
+                            return;
+                        }
+                        let goUrl = getQueryString('url');
+                        if (!goUrl)
+                            goUrl = 'index.html';
+
+                        top.location.href = goUrl;
+                    }).catch(error => {
+                        //this.getImgCode();
+                        this.ajaxError(error);
+                    });
+                });
+            },
+            ajaxError: function (error) {
+                if (error.response && error.response.data) {
+                    console.log(JSON.stringify(error.response.data));
+                    let msg = error.response.data['msg'];
+                    if (!msg)
+                        msg = '出错了';
+                    alert(msg);
+                } else {
+                    console.log(JSON.stringify(error));
+                    alert('未知错误');
+                }
+            },
+        },
+    });
+</script>
+</body>
+</html>
