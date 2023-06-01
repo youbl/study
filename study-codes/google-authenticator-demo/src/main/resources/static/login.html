@@ -9,6 +9,7 @@
     <script src="./res/unpkg/elemeIndex.js"></script>
     <script type="text/javascript" src="./res/qs.min.js"></script>
     <script src="./res/common.js"></script>
+    <script type="text/javascript" src="./res/qrcode.min.js"></script>
 
     <link rel="stylesheet" href="./res/unpkg/elemeIndex.css">
 </head>
@@ -33,6 +34,34 @@
             <el-button icon="el-icon-success" type="primary" @click="doLogin('loginForm')">登 录</el-button>
         </div>
     </el-form>
+
+    <!-- 二维码绑定窗口 -->
+    <el-dialog :visible.sync="showQRCodeDialog" :title="'用户绑定'" :close-on-press-escape="false" :show-close="false"
+               :close-on-click-modal="false">
+        <div style="text-align: left;">
+            请用手机上的Google身份验证器，扫码绑定:
+            <div id="divQrCode" name="divQrCodeName" class="divQrCodeCss"></div>
+        </div>
+        <div class="dialog-footer" slot="footer">
+            <el-button @click="showOTPCodeWin" icon="el-icon-success" type="primary">已扫码完成
+            </el-button>
+            <el-button @click="showQRCodeDialog=false">取 消</el-button>
+        </div>
+    </el-dialog>
+
+    <!-- OTPCode输入窗口 -->
+    <el-dialog :visible.sync="showOTPCodeDialog" :title="'二次验证'" :close-on-press-escape="false" :show-close="false"
+               :close-on-click-modal="false">
+        <div>
+            OTPCode:
+            <el-input placeholder="请输入" v-model="otpCode"></el-input>
+        </div>
+        <div class="dialog-footer" slot="footer">
+            <el-button @click="doOtpValid" icon="el-icon-success" type="primary">验 证
+            </el-button>
+            <el-button @click="showOTPCodeDialog=false">取 消</el-button>
+        </div>
+    </el-dialog>
 </div>
 <script type="text/javascript">
     const BASE_URL = '/';// + location.pathname.split('/')[1] + '/';
@@ -43,8 +72,8 @@
                 env: '',
                 imgCodeBase64: '/favicon.ico',
                 login: {
-                    beinetUser: '',
-                    beinetPwd: '',
+                    beinetUser: 'beinet',
+                    beinetPwd: 'beinet',
                     imgSn: '',
                     imgCode: '',
                     beinetRemember: 1, // 用于后台记住登录状态
@@ -62,6 +91,11 @@
                     //     {required: true, message: '图形验证码不能为空', trigger: 'blur'},
                     // ],
                 },
+
+                showQRCodeDialog: false,// 是否显示绑定二维码窗口
+                showOTPCodeDialog: false,// 是否显示输入OTPCode的窗口
+                otpCode: '',
+                qrCodeObj: null,
             }
         },
         mounted: function () {
@@ -75,7 +109,7 @@
             enterLogin: function () {
                 document.onkeydown = e => {
                     //13表示回车键，baseURI是当前页面的地址，为了更严谨，也可以加别的，可以打印e看一下
-                    if (e.keyCode === 13 && e.target.baseURI.match(/ops\/login\/index\.html/)) {
+                    if (e.keyCode === 13 && e.target.baseURI.match(/login\.html/)) {
                         //回车后执行搜索方法
                         this.doLogin('loginForm');
                     }
@@ -102,15 +136,61 @@
                             alert('登录失败 ' + response.data.msg);
                             return;
                         }
-                        let goUrl = getQueryString('url');
-                        if (!goUrl)
-                            goUrl = 'index.html';
-
-                        top.location.href = goUrl;
+                        this.getOTPCodeBindStatus();
                     }).catch(error => {
                         //this.getImgCode();
                         this.ajaxError(error);
                     });
+                });
+            },
+            getOTPCodeBindStatus: function () {
+                let url = BASE_URL + 'otp/status';
+                return axios.get(url).then(response => {
+                    let binded = response.data['binded'];
+                    if (binded === undefined) {
+                        return alert('出错了，请重新登录');
+                    }
+                    if (binded) {
+                        return this.showOTPCodeWin();
+                    }
+                    this.showQRCodeWin(response.data['qrCode']);
+                }).catch(error => {
+                    //this.getImgCode();
+                    this.ajaxError(error);
+                });
+            },
+            showQRCodeWin: function (qrCodeUrl) {
+                this.showOTPCodeDialog = false;
+                this.showQRCodeDialog = true;
+
+                // 稍等100ms再画二维码，否则会出现元素还没显示，导致绘图失败
+                setTimeout(() => {
+                    if (this.qrCodeObj == null) {
+                        this.qrCodeObj = new QRCode(document.getElementById('divQrCode'), qrCodeUrl);
+                    } else {
+                        this.qrCodeObj.clear(); // clear the code.
+                        this.qrCodeObj.makeCode(qrCodeUrl); // make another code.
+                    }
+                }, 100);
+            },
+            showOTPCodeWin: function () {
+                this.showQRCodeDialog = false;
+                this.showOTPCodeDialog = true;
+            },
+            doOtpValid: function () {
+                let url = BASE_URL + 'otp/valid?code=' + this.otpCode;
+                return axios.post(url).then(response => {
+                    if (response.data.code && response.data.code !== 200) {
+                        alert('OTP验证失败 ' + response.data.msg);
+                        return;
+                    }
+                    let goUrl = getQueryString('url');
+                    if (!goUrl)
+                        goUrl = 'index.html';
+
+                    top.location.href = goUrl;
+                }).catch(error => {
+                    this.ajaxError(error);
                 });
             },
             ajaxError: function (error) {

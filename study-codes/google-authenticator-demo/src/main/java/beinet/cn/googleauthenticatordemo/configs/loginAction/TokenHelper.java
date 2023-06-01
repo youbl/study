@@ -20,6 +20,9 @@ public final class TokenHelper {
     // token cookie名
     public static final String TOKEN_COOKIE_NAME = "beinetUser";
 
+    // otp code验证通过的cookie名
+    public static final String OTP_COOKIE_NAME = "sid";
+
     // token校验md5的盐值
     private static final String TOKEN_SALT = "beinet.cn";
 

@@ -38,12 +38,21 @@ public class AuthenticatorService {
      * @return 校验成功与否
      */
     public boolean validateCode(String username, int code) {
-        // todo: 从数据库里读取该用户的secretKey
-        String secret = userKeys.get(username);
+        String secret = getSecureKey(username);
         if (!StringUtils.hasLength(secret)) {
             throw new RuntimeException("该用户未使用Google身份验证器注册，请先注册");
         }
 
         return GoogleGenerator.checkCode(secret, code);
+    }
+
+    public boolean existSecureKey(String username) {
+        String secret = getSecureKey(username);
+        return StringUtils.hasLength(secret);
+    }
+
+    private String getSecureKey(String username) {
+        // todo: 从数据库里读取该用户的secretKey
+        return userKeys.get(username);
     }
 }
