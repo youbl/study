@@ -16,6 +16,8 @@
     <div v-if="ts">服务端时间戳: {{ts}}</div>
     <img :src="imgBase64" style="cursor: pointer; height: 30px; vertical-align: middle"
          @click="showBiggerImg"/>
+    <hr>
+    <img src="/imgBlob"/>
 </div>
 <script>
     var vueApp = new Vue({

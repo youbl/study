@@ -3,6 +3,9 @@ package beinet.cn.frontstudy.imgs;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,5 +34,18 @@ public class ImgController {
         ret.put("sn", "123");
         ret.put("ts", String.valueOf(System.currentTimeMillis()));
         return ret;
+    }
+
+    /**
+     * 直接输出二进制流到响应里
+     *
+     * @param response 响应
+     * @throws IOException
+     */
+    @GetMapping(value = "imgBlob", produces = "image/jpeg")
+    public void getImgBlob(HttpServletResponse response) throws IOException {
+        String strForImg = "beinet.cn";
+        BufferedImage img = ImgHelper.getImage(strForImg);
+        ImageIO.write(img, "jpg", response.getOutputStream());
     }
 }
