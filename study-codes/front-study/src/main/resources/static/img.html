@@ -18,6 +18,8 @@
          @click="showBiggerImg"/>
     <hr>
     <img src="/imgBlob"/>
+    <hr>
+    <img :src="imgBlobUrl"/>
 </div>
 <script>
     var vueApp = new Vue({
@@ -26,10 +28,13 @@
             return {
                 imgBase64: '/favicon.ico',
                 ts: 0,
+
+                imgBlobUrl: '/favicon.ico',
             }
         },
         created: function () {
             this.loadImg();
+            this.loadBlogImg();
         },
         computed: {},
         methods: {
@@ -45,6 +50,15 @@
             },
             showBiggerImg: function () {
             },
+            loadBlogImg: function () {
+                let url = '/imgBlob';
+                axios.get(url, {responseType: 'blob'})
+                    .then(res => {
+                        let url = URL.createObjectURL(res.data);
+                        console.log(url);
+                        this.imgBlobUrl = url;
+                    });
+            },
             ajaxError: function (error) {
                 if (error.response && error.response.data) {
                     console.log(JSON.stringify(error.response.data));
@@ -59,61 +73,6 @@
             },
         },
     });
-
-
-    /**
-     * 滚动到窗口底部
-     */
-    function toWindowBottom() {
-        window.scrollTo(0, getWindowHeight());
-    }
-
-    /**
-     * 获取窗口高度
-     * @return {number} 窗口高度值
-     */
-    function getWindowHeight() {
-        // body是chrome，documentElement是IE和Firefox
-        return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-    }
-
-    /**
-     * 获取url里的变量值
-     * @param {string} name 变量名
-     * @return {string} 变量值
-     */
-    function getQueryString(name) {
-        if (typeof (name) !== 'string') {
-            return '';
-        }
-        name = name.trim();
-        if (name.length === 0) {
-            return '';
-        }
-        let localSearch = location.search.toLocaleLowerCase();
-        name = name.toLowerCase() + '=';
-        let tmpName = '?' + name;
-        let idx = localSearch.indexOf(tmpName);
-        if (idx < 0) {
-            tmpName = '&' + name;
-            idx = localSearch.indexOf(tmpName);
-            if (idx < 0) {
-                return '';
-            }
-        }
-        name = tmpName;
-        let tmp = location.search.substr(idx + name.length);
-        idx = tmp.indexOf('&');
-        if (idx === 0)
-            return '';
-        let ret;
-        if (idx < 0) {
-            ret = tmp;
-        } else {
-            ret = tmp.substr(0, idx);
-        }
-        return decodeURIComponent(ret.trim());
-    }
 </script>
 </body>
 
