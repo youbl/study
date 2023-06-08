@@ -52,12 +52,12 @@
             },
             loadBlogImg: function () {
                 let url = '/imgBlob';
-                axios.get(url, {responseType: 'blob'})
-                    .then(res => {
-                        let url = URL.createObjectURL(res.data);
-                        console.log(url);
-                        this.imgBlobUrl = url;
-                    });
+                // 如果不指定 responseType: 'blob'，则axios会把后端返回的数据当成字符串赋值给response.data
+                axios.get(url, {responseType: 'blob'}).then(response => {
+                    let url = URL.createObjectURL(response.data);
+                    console.log(url);
+                    this.imgBlobUrl = url;
+                }).catch(error => this.ajaxError(error));
             },
             ajaxError: function (error) {
                 if (error.response && error.response.data) {
@@ -68,7 +68,7 @@
                     alert(msg);
                 } else {
                     console.log(JSON.stringify(error));
-                    alert('未知错误');
+                    alert('未知错误:' + error.message);
                 }
             },
         },
