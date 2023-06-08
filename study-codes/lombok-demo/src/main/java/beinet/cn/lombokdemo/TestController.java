@@ -169,4 +169,16 @@ public class TestController {
     public String TestVal() {
         return ValDemo.valDemo();
     }
+
+
+    @GetMapping("NonNull")
+    public String TestNonNull() {
+        return new NonNullDemo(null).getField() + "===";
+    }
+
+    @GetMapping("NonNull2")
+    public String TestNonNull2() {
+        return NonNullDemo.nonNullDemo2(null) + "===";
+    }
+
 }
