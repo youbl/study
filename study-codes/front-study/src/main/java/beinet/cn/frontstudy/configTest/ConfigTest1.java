@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConfigTest1 {
 
-    @Value("${beinet.newVal}")
+    @Value("${beinet.newVal:}")
     String str3;
 
     public String getStr3() {

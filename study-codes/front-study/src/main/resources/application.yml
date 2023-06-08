@@ -15,9 +15,9 @@ spring:
     active: test    # 启用哪个环境，注意：这种形式下，不支持加载 application-test.yml，必须写在当前文件里
   kafka:
     bootstrap-servers: 10.1.2.3:9092
-  config:
+#  config:
     # 用application.yml代替bootstrap.yml，可以少一个maven依赖，并用spring.config.import来代替原来的spring.cloud.config.uri
-    import: optional:configserver:http://localhost:8999
+#    import: optional:configserver:http://localhost:8999
   cloud:
     config:
       # uri: http://localhost:8999       # 指定配置中心url

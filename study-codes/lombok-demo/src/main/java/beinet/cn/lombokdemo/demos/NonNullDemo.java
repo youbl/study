@@ -11,7 +11,7 @@ import lombok.NonNull;
  */
 @AllArgsConstructor
 public class NonNullDemo {
-    // 注解在类的字段上，必须配合AllArgsConstructor使用，自己写的构造函数无效
+    // 注解在类的字段上，必须配合AllArgsConstructor或RequiredArgsConstructor使用，自己写的构造函数无效
     @NonNull
     private String field;
 
