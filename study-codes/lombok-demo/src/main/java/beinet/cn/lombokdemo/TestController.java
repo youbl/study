@@ -188,4 +188,19 @@ public class TestController {
         CleanupDemo.test(response);
     }
 
+    @GetMapping(value = "Cleanup2")
+    public void TestCleanup2(HttpServletResponse response) {
+        CleanupDemo.test2(response);
+    }
+
+    @GetMapping("GetterSetter")
+    public void TestGetterSetter() {
+        var dto1 = new GetterSetterDemo.Dto1();
+        var dto2 = new GetterSetterDemo.Dto2();
+        var dto3 = new GetterSetterDemo.Dto3();
+        dto1.getId();  // dto1没有setId方法
+        dto2.setId(123);// dto2没有getId方法
+        dto3.getId();// dto3没有setId方法
+        dto3.setName("");// dto2没有getName方法
+    }
 }
