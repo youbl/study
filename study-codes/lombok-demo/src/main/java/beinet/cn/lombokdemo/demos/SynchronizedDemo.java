@@ -37,4 +37,16 @@ public class SynchronizedDemo {
         num++;
         log.info("after-num:{}", num);
     }
+
+    @Synchronized
+    @SneakyThrows
+    public static void syncStaticMethod2() {
+        num++;
+        log.info("2-before-num:{}", num);
+
+        Thread.sleep(3000);
+
+        num++;
+        log.info("2-after-num:{}", num);
+    }
 }
