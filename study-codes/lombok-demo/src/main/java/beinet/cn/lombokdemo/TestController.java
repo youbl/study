@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -179,6 +180,12 @@ public class TestController {
     @GetMapping("NonNull2")
     public String TestNonNull2() {
         return NonNullDemo.nonNullDemo2(null) + "===";
+    }
+
+
+    @GetMapping(value = "Cleanup")
+    public void TestCleanup(HttpServletResponse response) {
+        CleanupDemo.test(response);
     }
 
 }
