@@ -14,10 +14,22 @@ spring:
 spring:
   profiles: dev # 开发使用这一段
   datasource:
-    driver-class-name: org.h2.Driver
     schema: classpath:db/schema-h2.sql
     data: classpath:db/data-h2.sql
-    url: jdbc:h2:mem:test
-    username: root
-    password: test
+
+    dynamic:
+      primary: xxx
+      strict: true # true:未匹配到数据源时，抛异常；false:未匹配到时使用primary定义的数据
+      datasource:
+        xxx:  # 主数据源可以使用上面的 schema 和 data进行初始化，其它数据源不会用
+          driver-class-name: org.h2.Driver
+          url: jdbc:h2:mem:test
+          username: root
+          password: test
+        dyn-source2:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://10.100.72.165:3306/testdb?allowMultiQueries=true&useUnicode=true&characterEncoding=utf8&socketTimeout=600000&connectTimeout=15000&rewriteBatchedStatements=true&useSSL=false&zeroDateTimeBehavior=round&serverTimezone=Asia/Shanghai
+          username: root
+          password: ybl123456
+
 ---
