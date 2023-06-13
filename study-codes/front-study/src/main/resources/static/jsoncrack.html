@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>json展示</title>
+    <script type="text/javascript" src="/res/unpkg/axios.min.js"></script>
+</head>
+
+<body>
+<div id="divApp">
+    <div>
+        <button onclick="sendToEmbed()">获取json数据并展示</button>
+    </div>
+    <div>
+        <!-- JSON Crack iframe embed goes here -->
+        <iframe id="jsoncrackEmbed" src="https://jsoncrack.com/widget" width="100%" height="600px"></iframe>
+    </div>
+    <div><textarea style="width: 100%; height: 800px;" id="txtJson"></textarea></div>
+    <!-- Option 1: Communicate with onclick event -->
+    <script>
+        function sendToEmbed() {
+            let url = 'https://json.tewx.cn/json/API_kdd531mytfdzm06i?sdAS1dsnuUa3sd=190001&Jsdh4bajs99dii=sohpuisypf4nfaei';
+            axios.get(url).then(response => {
+                if (!response || !response.data) {
+                    return alert('获取json失败');
+                }
+                sendJson(response.data);
+            }).catch(error => alert(error.message));
+        }
+
+        function sendJson(data) {
+            const json = JSON.stringify(data, null, 4);
+            const options = {
+                theme: "light", // "light" or "dark"
+                direction: "RIGHT", // "UP", "DOWN", "LEFT", "RIGHT"
+            };
+
+            const txtJson = document.getElementById("txtJson");
+            txtJson.value = json;
+
+            const jsonCrackEmbed = document.getElementById("jsoncrackEmbed");
+            jsonCrackEmbed.contentWindow.postMessage({
+                json,
+                options
+            }, "*");
+        }
+    </script>
+
+</div>
+<script>
+</script>
+</body>
+
+</html>
