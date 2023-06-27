@@ -45,9 +45,13 @@
             getFile(event) {
                 // 选择的文件
                 let formFile = new FormData();
+                // 要上传的文件，后端会接收到2部分数据：本地文件名 和 文件内容
                 formFile.append("fieldNameHere", event.target.files[0]);
+
+                // 要提交的其它变量内容，后端接收代码：@RequestParam(value = "fileName", required = false) String fileName
                 formFile.append("fileName", 'abcddd.xlsx');
                 formFile.append("file_type", 'excel');
+                formFile.append("otherVar", 'abcde');
                 //调用接口
                 let url = '/upload';
                 return axios.post(url, formFile).then(response => {
