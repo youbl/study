@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
+import java.beans.Introspector;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,24 +70,26 @@ public class TestController {
         dto3Another.setName("abc");
 
         // 使用了EqualsAndHashCode，且继承父类
+        // 通过设置子类相同属性，父类不同属性进行测试
         DataDemo.DtoChild1 dtoChild1 = new DataDemo.DtoChild1();
         dtoChild1.setId(11);
         dtoChild1.setName("aaa");
-        dtoChild1.setAge(456);
+        dtoChild1.setAge(456); // 子类属性相同
         DataDemo.DtoChild1 dtoChild2 = new DataDemo.DtoChild1();
         dtoChild2.setId(22);
         dtoChild2.setName("bbb");
-        dtoChild2.setAge(456);
+        dtoChild2.setAge(456); // 子类属性相同
 
         // 使用了EqualsAndHashCode(callSuper = true)，且继承父类
+        // 通过设置子类相同属性，父类不同属性进行测试
         DataDemo.DtoChild2 dtoChildSuper1 = new DataDemo.DtoChild2();
         dtoChildSuper1.setId(11);
         dtoChildSuper1.setName("aaa");
-        dtoChildSuper1.setAge(456);
+        dtoChildSuper1.setAge(456); // 子类属性相同
         DataDemo.DtoChild2 dtoChildSuper2 = new DataDemo.DtoChild2();
         dtoChildSuper2.setId(22);
         dtoChildSuper2.setName("bbb");
-        dtoChildSuper2.setAge(456);
+        dtoChildSuper2.setAge(456); // 子类属性相同
 
         Map<String, String> ret = new HashMap<>();
         // lombok中重写了hashCode方法，对key/value全部相同的对象，生成相同的hashCode，并判断equals为相等
@@ -107,6 +110,54 @@ public class TestController {
         ret.put("lombok.callSuperChild.equals", dtoChildSuper1.equals(dtoChildSuper2) + "");
 
         return ret;
+    }
+
+    @GetMapping("EqualsAndHashCode2")
+    public Map<Object, Object> TestEqualsAndHashCode2() {
+        Introspector aa;
+        Map<Object, Object> testMap = new HashMap<>();
+
+        // 使用了EqualsAndHashCode，且继承父类
+        // 通过设置子类相同属性，父类不同属性进行测试
+        DataDemo.DtoChild1 dtoChild1 = new DataDemo.DtoChild1();
+        dtoChild1.setId(11);
+        dtoChild1.setName("aaa");
+        dtoChild1.setAge(456); // 子类属性相同
+        testMap.put(dtoChild1, dtoChild1);
+        System.out.println(testMap.size());
+
+        DataDemo.DtoChild1 dtoChild2 = new DataDemo.DtoChild1();
+        dtoChild2.setId(22);
+        dtoChild2.setName("bbb");
+        dtoChild2.setAge(456); // 子类属性相同
+        testMap.put(dtoChild2, dtoChild2);
+        System.out.println(testMap.size());
+
+
+        // 使用了EqualsAndHashCode(callSuper = true)，且继承父类
+        // 通过设置子类相同属性，父类不同属性进行测试
+        DataDemo.DtoChild2 dtoChildSuper1 = new DataDemo.DtoChild2();
+        dtoChildSuper1.setId(111);
+        dtoChildSuper1.setName("aaa");
+        dtoChildSuper1.setAge(456); // 子类属性相同
+        testMap.put(dtoChildSuper1, dtoChildSuper1);
+        System.out.println(testMap.size());
+
+        DataDemo.DtoChild2 dtoChildSuper2 = new DataDemo.DtoChild2();
+        dtoChildSuper2.setId(222);
+        dtoChildSuper2.setName("bbb");
+        dtoChildSuper2.setAge(456); // 子类属性相同
+        testMap.put(dtoChildSuper2, dtoChildSuper2);
+        System.out.println(testMap.size());
+
+        // 测试结果：会输出3条数据
+        for (Map.Entry<Object, Object> item : testMap.entrySet()) {
+            System.out.println(item.getKey() + "   " + item.getValue());
+        }
+
+        // 在前端只会看到2条数据，因为转成json时，会调用key.toString()方法作为key返回，
+        // 但是后面添加的2个元素，toString相同，导致给前端时数据丢失了
+        return testMap;
     }
 
 

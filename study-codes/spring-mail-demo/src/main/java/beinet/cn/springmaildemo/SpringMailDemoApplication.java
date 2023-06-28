@@ -185,7 +185,7 @@ public class SpringMailDemoApplication implements CommandLineRunner {
             // 登录密码
             String password = "123456";
 
-            String to = "beiliang_you@fzzixun.com";
+            String to = "youbl@126.com";
             String from = username;
 
             Properties props = new Properties();

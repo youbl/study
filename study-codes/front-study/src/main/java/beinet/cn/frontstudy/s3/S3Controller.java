@@ -35,6 +35,10 @@ import java.util.Date;
 public class S3Controller {
     // 下面4个参数，是上传到s3的必需配置
     private AmazonS3 client;
+    // 注意：绝对不要把ak sk写在代码里，或写在配置里，泄露会导致s3数据泄露，被删除，被占用等不可预知的后果
+    // 建议：
+    // 1、安全性较低：加密后写入配置文件，代码里解密，参考： https://youbl.blog.csdn.net/article/details/122603550
+    // 2、安全性较高：由运维在服务器上配置环境变量，程序中读取环境变量使用
     private String accessKey = "我是ak";
     private String secretKey = "我是sk";
     private String region = "cn-northwest-1";// 对应endpoint参考： https://docs.amazonaws.cn/en_us/aws/latest/userguide/endpoints-Beijing.html
