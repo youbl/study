@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>阿里云OSS上传演示</title>
+    <script type="text/javascript" src="/res/unpkg/vue.min.js"></script>
+    <script type="text/javascript" src="/res/unpkg/axios.min.js"></script>
+</head>
+
+<body>
+<hr>
+<div id="divApp">
+    <div style="font-weight: bold; font-size: 20px;"> {{title}}</div>
+    <hr>
+    <div class="el-button--primary el-button" @click="$refs.fileInput1.click()" style="cursor: pointer">
+        <input type="file" ref="fileInput1" accept="*" @change="getFile" style="display: none">
+        <img src="https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png" style="height:15px;"/>选择文件上传
+    </div>
+</div>
+<hr>
+<script>
+    var vueApp = new Vue({
+        el: '#divApp',
+        data: function () {
+            return {
+                title: '阿里云OSS-免ak/sk上传演示代码',
+                ossSignUrl: '',
+            }
+        },
+        created: function () {
+        },
+        computed: {},
+        methods: {
+            getOssSignUrl: function (type) {
+                // 因为rfc2616协议要求，语法有body必须有Content-Type的header，而oss又会对这个header进行签名计算，所以获取签名url时，要指定Content-Type
+                let url = '/oss/sign?contentType=' + type + '&ossFileName=abc/signFile123.xxx';
+                return axios.get(url).then(response => {
+                    this.ossSignUrl = response.data;
+                }).catch(error => this.ajaxError(error));
+            },
+            // 获取文件数据
+            getFile: function (event) {
+                let type = event.target.files[0].type;
+                this.getOssSignUrl(type).then(() => {
+                    this.uploadToSignUrl(event, type);
+                });
+            },
+            uploadToSignUrl: function (evt, type) {
+                // 通过fiddler抓包测试，body直接就是文件的内容，不能带有其它格式
+                axios({
+                    method: "PUT",
+                    url: this.ossSignUrl,
+                    data: evt.target.files[0],
+                    transformRequest: [
+                        function (data, headers) {
+                            //delete headers.common['Content-Type'];
+                            headers.put['Content-Type'] = type;
+                            return data;
+                        }
+                    ],
+                }).then(response => {
+                    alert("上传成功" + response.data);
+                }).catch(error => this.ajaxError(error));
+                return;
+
+                // 报错代码：The request signature we calculated does not match the signature you provided. Check your key and signing method.
+                let formFile = new FormData();
+                formFile.append("file", evt.target.files[0]);
+                axios.put(this.ossSignUrl, formFile);
+
+                // 报错代码：The request signature we calculated does not match the signature you provided. Check your key and signing method.
+                axios.put(this.ossSignUrl, evt.target.files[0]);
+            },
+
+            ajaxError: function (error) {
+                if (error.response && error.response.data) {
+                    console.log(JSON.stringify(error.response.data));
+                    let msg = error.response.data['msg'];
+                    if (!msg)
+                        msg = '出错了';
+                    alert(msg);
+                } else {
+                    console.log(JSON.stringify(error));
+                    alert('未知错误');
+                }
+            },
+        },
+    });
+</script>
+</body>
+
+</html>
