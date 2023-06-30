@@ -17,7 +17,17 @@ public enum DesensitizeEnum {
     /**
      * 地址，只保留前3字和后3字
      */
-    ADDRESS(originStr -> originStr.replaceAll("^(.{3}).+(.{3})$", "$1**$2"));
+    ADDRESS(originStr -> originStr.replaceAll("^(.{3}).+(.{3})$", "$1**$2")),
+
+    /**
+     * 密码，固定返回星号
+     */
+    PASSWORD(originStr -> "******"),
+
+    /**
+     * 姓名，调用静态方法
+     */
+    NAME(DesensitizeEnum::processName);
 
 
     /**
@@ -37,5 +47,15 @@ public enum DesensitizeEnum {
      */
     public Function<String, String> getDesensitizeMethod() {
         return desensitizeMethod;
+    }
+
+    private static String processName(String name) {
+        final String mask = "**";
+        int len = name.length();
+        if (len <= 1)
+            return mask;
+        if (len == 2)
+            return name.substring(0, 1) + mask;
+        return name.substring(0, 1) + mask + name.substring(len - 1, len);
     }
 }

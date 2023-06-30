@@ -14,6 +14,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class UserItem {
+    @NeedDesensitize(DesensitizeEnum.NAME)
     private String username;
 
     @NeedDesensitize(DesensitizeEnum.PHONE)
@@ -23,4 +24,7 @@ public class UserItem {
 
     @NeedDesensitize(DesensitizeEnum.ADDRESS)
     private String addr;
+
+    @NeedDesensitize(DesensitizeEnum.PASSWORD)
+    private String accessKey;
 }

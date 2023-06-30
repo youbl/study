@@ -27,12 +27,14 @@ public class DesensitizeSerializer extends JsonSerializer<String> implements Con
      */
     @Override
     public void serialize(String s, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        // 由 com.fasterxml.jackson.databind.ser.BeanPropertyWriter类的serializeAsField方法调用，字符串s不可能为null，所以无须判断
         jsonGenerator.writeString(desensitizeEnum.getDesensitizeMethod().apply(s));
     }
 
     /**
      * ContextualSerializer接口定义的方法
-     * 查找加了脱敏注解的字段，获取注解的方法暂存
+     * 查找加了脱敏注解的字段，获取注解的方法暂存.
+     * 注：每个属性只会调用一次，然后被缓存
      *
      * @param prov     Serializer provider to use for accessing config, other serializers
      * @param property Method or field that represents the property

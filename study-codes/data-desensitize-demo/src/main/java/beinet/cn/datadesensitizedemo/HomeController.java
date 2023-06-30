@@ -38,13 +38,22 @@ public class HomeController {
                 .setAddr("北京市长安大街365号")
                 .setEmail("youbl@126.com")
                 .setPhone("13012345678")
-                .setUsername("游北亮");
+                .setUsername("游北亮")
+                .setAccessKey("abcdefghijkl");
         arr.add(item);
         item = new UserItem()
                 .setAddr("福建省福州市五四北路365号")
                 .setEmail("youbl@126.com")
                 .setPhone("18912345678")
-                .setUsername("游北亮2");
+                .setUsername("游北")
+                .setAccessKey("1234567890");
+        arr.add(item);
+        item = new UserItem()
+                .setAddr("福建省福州市五四北路365号")
+                .setEmail("youbl@126.com")
+                .setPhone("18912345678")
+                .setUsername("游")
+                .setAccessKey("");
         arr.add(item);
         return arr;
     }
