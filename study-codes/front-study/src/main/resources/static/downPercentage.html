@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>演示直接下载文件，并显示下载百分比</title>
+    <style type="text/css">
+        .fa {
+            width: 400px;
+            margin-bottom: 30px;
+            border: 1px solid red;
+        }
+
+        .son {
+            width: 0px;
+            height: 40px;
+            background-color: #f0f;
+            text-align: center;
+            line-height: 40px;
+            /*让height值等于行高line-height值，文本内容垂直显示*/
+        }
+    </style>
+</head>
+<body>
+<div class="fa">
+    <div class="son">
+        <span>0</span><span>%</span>
+    </div>
+</div>
+<!--
+第1个参数：要下载的文件url，暂时仅支持本站文件，
+第2个参数：下载到本地的文件名
+ -->
+<button onclick="saveOrOpenBlob('/abc/mine.rar', 'zxxx.txt')">下载</button>
+<script>
+    var div = undefined;
+    var span = undefined;
+
+    function saveOrOpenBlob(url, blobName) {
+        if (!div) {
+            div = document.getElementsByTagName('div');
+            span = document.getElementsByTagName('span');
+        }
+        let blob;
+        let xmlHTTP = new XMLHttpRequest();
+        xmlHTTP.open('GET', url, true);
+        xmlHTTP.responseType = 'arraybuffer';
+        xmlHTTP.onload = function (e) {
+            blob = new Blob([this.response]);
+        };
+        xmlHTTP.onprogress = function (pr) {
+            let percent = countPercent(pr.loaded, pr.total);
+
+            //pr.loaded - current state
+            //pr.total  - max
+            div[1].style.width = (percent * 4) + 'px';
+            //显示百分比
+            let txt = '' + pr.loaded + '/' + pr.total;
+            span[0].innerText = txt + '(' + percent + '%)';
+        };
+        xmlHTTP.onloadend = function (e) {
+            let fileName = blobName;
+            let tempEl = document.createElement("a");
+            document.body.appendChild(tempEl);
+            tempEl.style.display = 'none';
+            url = window.URL.createObjectURL(blob);
+            tempEl.href = url;
+            tempEl.download = fileName;
+            tempEl.click();
+            window.URL.revokeObjectURL(url);
+        }
+        xmlHTTP.send();
+    }
+
+    function countPercent(loaded, total) {
+        return Math.ceil(loaded * 100 / total);
+    }
+</script>
+</body>
+</html>
