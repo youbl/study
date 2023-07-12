@@ -40,7 +40,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "prometheus,info,health,refresh"   # 用*表示暴露全部
+        include: "prometheus,info,health,refresh,enums"   # 用*表示暴露全部
       #base-path: /    # 访问路径中没有actuator 直接是http://localhost:8080/Prometheus
   metrics:
     export:
