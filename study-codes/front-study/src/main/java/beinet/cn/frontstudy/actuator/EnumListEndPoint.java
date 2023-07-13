@@ -6,6 +6,7 @@ import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Description;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -44,6 +45,8 @@ public class EnumListEndPoint {
                 }
 
                 EnumObject enumObject = new EnumObject();
+                enumObject.Description = getDescription(enumClass);
+
                 if (enumMap == null)
                     enumMap = new HashMap<>();
                 enumMap.put(enumClass.getTypeName(), enumObject);
@@ -61,6 +64,13 @@ public class EnumListEndPoint {
         }
     }
 
+    /**
+     * 获取指定类上SpringBootApplication注解定义的scanBasePackages属性，
+     * 不存在时，返回类所属的package
+     *
+     * @param appClass SpringBootApplication注解所在的类
+     * @return package包名
+     */
     private String getScanPackageName(Class<?> appClass) {
         SpringBootApplication anno = appClass.getAnnotation(SpringBootApplication.class);
         if (anno != null) {
@@ -69,6 +79,19 @@ public class EnumListEndPoint {
                 return packages[0];
         }
         return appClass.getPackage().getName();// .getPackageName();
+    }
+
+    /**
+     * 获取指定类上，org.springframework.context.annotation.Description的值
+     *
+     * @param enumClass 枚举类
+     * @return Description说明
+     */
+    private String getDescription(Class<? extends Enum> enumClass) {
+        Description description = enumClass.getAnnotation(Description.class);
+        if (description == null)
+            return "";
+        return description.value();
     }
 
     @ReadOperation
