@@ -10,7 +10,6 @@ import lombok.SneakyThrows;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -32,7 +31,8 @@ import java.util.Map;
  * @author youbl
  * @since 2023/5/30 13:40
  */
-@RestController
+//@RestController 废弃，迁移到OtpController类中
+@Deprecated
 @RequiredArgsConstructor
 public class CodeController {
     private final AuthenticatorService authService;
