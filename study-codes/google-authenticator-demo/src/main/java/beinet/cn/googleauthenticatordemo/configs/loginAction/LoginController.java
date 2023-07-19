@@ -30,7 +30,7 @@ public class LoginController {
         dto = getUserPwd(dto, request);
 
         // 登录失败
-        if (!loginService.processLogin(dto.getBeinetUser(), dto.getBeinetUser())) {
+        if (!loginService.processLogin(dto.getBeinetUser(), dto.getBeinetPwd())) {
             addTokenCookie("", response);
             ContextUtil.endResponse(request, response, "账号或密码错误");
             return;

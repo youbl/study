@@ -40,6 +40,12 @@
             <version>3.5.1</version>
         </dependency>
 
+		<!-- LDAP登录支持库 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-ldap</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>

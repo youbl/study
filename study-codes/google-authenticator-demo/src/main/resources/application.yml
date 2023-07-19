@@ -3,3 +3,9 @@ server.port: 8111
 spring:
   application:
     name: google-authenticator-demo
+
+  ldap:
+    urls: ldap://ldap.beinet.cn:389
+    #username: cn=ldapauth,${spring.ldap.base}
+    #password: 123456
+    base: OU=OrgUnit,DC=beinet,DC=cn
