@@ -3,3 +3,7 @@ server:
 spring:
   application:
     name: spring-bean-study
+
+myapp:
+  demo-config: abc
+  str: 'aaa,bbb,ccc'
