@@ -6,4 +6,4 @@ spring:
 
 myapp:
   demo-config: abc
-  str: 'aaa,bbb,ccc'
+  str1: 'aaa,bbb,ccc'
