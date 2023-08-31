@@ -7,6 +7,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
 
+/*
+前端的js下载，可以直接去这里搜索：
+https://www.jsdelivr.com/
+如 https://cdn.jsdelivr.net/npm/alova@2.9.3/dist/alova.umd.js
+也可以去这里拼接：
+https://www.unpkg.com/
+如 https://www.unpkg.com/alova@2.9.3/dist/alova.umd.js
+* */
 @SpringBootApplication
 //@RefreshScope
 public class FrontStudyApplication implements CommandLineRunner {

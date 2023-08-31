@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>cors跨域请求写Cookie举例</title>
+    <script type="text/javascript" src="/res/unpkg/vue.min.js"></script>
+    <script type="text/javascript" src="/res/unpkg/axios.min.js"></script>
+</head>
+
+<body>
+<hr>
+<div id="divApp">
+    <div style="font-weight: bold; font-size: 20px;"> {{title}}</div>
+    <hr>
+    {{ret1}}
+    <hr>
+    {{ret2}}
+</div>
+<hr>
+<script>
+    var vueApp = new Vue({
+        el: '#divApp',
+        data: function () {
+            return {
+                title: 'cors跨域请求写Cookie举例,需要先启动另一个项目：spring-bean-study',
+                ret1: '',
+                ret2: '',
+            }
+        },
+        created: function () {
+            // 没有这一句，会导致跨域请求返回的set-cookie不生效
+            axios.defaults.withCredentials = true;
+            this.getServerSetCookie().then(this.getServerReadCookie);
+        },
+        computed: {},
+        methods: {
+            getServerSetCookie: function () {
+                let url = 'http://localhost:8801/cors/1';
+                return axios.get(url).then(response => {
+                    this.ret1 = response.data;
+                }).catch(error => this.ajaxError(error));
+            },
+            getServerReadCookie: function () {
+                let url = 'http://localhost:8801/cors/2';
+                return axios.get(url).then(response => {
+                    this.ret2 = response.data;
+                }).catch(error => this.ajaxError(error));
+            },
+            ajaxError: function (error) {
+                if (error.response && error.response.data) {
+                    console.log(JSON.stringify(error.response.data));
+                    let msg = error.response.data['msg'];
+                    if (!msg)
+                        msg = '出错了';
+                    alert(msg);
+                } else {
+                    console.log(JSON.stringify(error));
+                    alert('未知错误');
+                }
+            },
+        },
+    });
+</script>
+</body>
+
+</html>
