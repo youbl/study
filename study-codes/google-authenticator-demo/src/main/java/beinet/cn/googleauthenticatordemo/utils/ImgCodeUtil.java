@@ -23,7 +23,7 @@ public class ImgCodeUtil {
     private int height = 40;
     //private String[] fontNames = {"宋体", "华文楷体", "黑体", "微软雅黑", "楷体_GB2312"};   //字体数组
     //字体数组
-    private String[] fontNames = {"Georgia"};
+    private String[] fontNames = {"Arial"};// {"Georgia"}; Georgia默认Centos上没有，会报异常：sun.awt.fontconfiguration.getversion nullpointerexception
 
     private char[] RND_STR_SOURCE = "abcdefghjkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789".toCharArray();
     private char[] RND_NUM_SOURCE = "0123456789".toCharArray();
