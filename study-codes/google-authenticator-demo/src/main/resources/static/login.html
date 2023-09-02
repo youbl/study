@@ -41,6 +41,7 @@
         <div style="text-align: left;">
             请用手机上的Google身份验证器，扫码绑定:
             <div id="divQrCode" name="divQrCodeName" class="divQrCodeCss"></div>
+            <div>{{qrCodeUrl}}</div>
         </div>
         <div class="dialog-footer" slot="footer">
             <el-button @click="showOTPCodeWin" icon="el-icon-success" type="primary">已扫码完成
@@ -95,6 +96,8 @@
                 showQRCodeDialog: false,// 是否显示绑定二维码窗口
                 showOTPCodeDialog: false,// 是否显示输入OTPCode的窗口
                 otpCode: '',
+
+                qrCodeUrl: '',
                 qrCodeObj: null,
             }
         },
@@ -162,6 +165,7 @@
             showQRCodeWin: function (qrCodeUrl) {
                 this.showOTPCodeDialog = false;
                 this.showQRCodeDialog = true;
+                this.qrCodeUrl = qrCodeUrl;
 
                 // 稍等100ms再画二维码，否则会出现元素还没显示，导致绘图失败
                 setTimeout(() => {
