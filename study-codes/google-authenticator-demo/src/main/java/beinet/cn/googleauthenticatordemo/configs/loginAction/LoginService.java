@@ -95,7 +95,7 @@ public class LoginService {
         InitialLdapContext context = (InitialLdapContext) objContext;
         NamingEnumeration<? extends Attribute> atts = context.getAttributes("").getAll();
         log.info("第一种方式遍历打印：");
-        while(atts.hasMore()){
+        while (atts.hasMore()) {
             Attribute att = atts.next();
             System.out.println(att.getID() + ": " + att.get());
         }

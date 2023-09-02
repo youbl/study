@@ -3,6 +3,7 @@ package beinet.cn.googleauthenticatordemo.configs.loginAction;
 import beinet.cn.googleauthenticatordemo.utils.ContextUtil;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,12 +23,28 @@ import javax.servlet.http.HttpServletResponse;
 @RequiredArgsConstructor
 public class LoginController {
     private final LoginService loginService;
+    private final ImgCodeService codeService;
+
+    /**
+     * 获取图形验证码
+     *
+     * @return
+     */
+    @GetMapping("login/imgcode")
+    public ImgCodeService.ImgCodeDto getImgCode() {
+        return codeService.getImgCode();
+    }
 
     @PostMapping("login")
     public void doLogin(@RequestBody(required = false) LoginDto dto,
                         HttpServletRequest request,
                         HttpServletResponse response) {
         dto = getUserPwd(dto, request);
+        if (!codeService.validImgCode(dto.getBeinetCodeSn(), dto.getBeinetCode())) {
+            addTokenCookie("", response);
+            ContextUtil.endResponse(request, response, "验证码错误");
+            return;
+        }
 
         // 登录失败
         if (!loginService.processLogin(dto.getBeinetUser(), dto.getBeinetPwd())) {
@@ -81,8 +98,11 @@ public class LoginController {
     }
 
     @Data
+    @Accessors(chain = true)
     public static class LoginDto {
         private String beinetUser;
         private String beinetPwd;
+        private String beinetCode;
+        private String beinetCodeSn;
     }
 }
