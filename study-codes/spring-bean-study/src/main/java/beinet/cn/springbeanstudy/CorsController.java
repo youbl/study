@@ -1,5 +1,6 @@
 package beinet.cn.springbeanstudy;
 
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,11 +16,11 @@ import javax.servlet.http.HttpServletResponse;
  */
 @RestController
 public class CorsController {
-    private String corsSourceSite = "http://localhost:8808"; // 注意不能有最后一个斜杠
 
     @GetMapping("cors/1")
-    public String m1(HttpServletResponse response) {
-        response.addHeader("Access-Control-Allow-Origin", corsSourceSite);
+    public String m1(HttpServletRequest request, HttpServletResponse response) {
+        addAllowOrigin(request, response);
+
         // 如果前端带上了 withCredentials:true 后端要写cookie必须设置这个header
         response.addHeader("Access-Control-Allow-Credentials", "true");
 
@@ -32,7 +33,8 @@ public class CorsController {
 
     @GetMapping("cors/2")
     public String m2(HttpServletRequest request, HttpServletResponse response) {
-        response.addHeader("Access-Control-Allow-Origin", corsSourceSite);
+        addAllowOrigin(request, response);
+
         // 如果前端带上了 withCredentials:true,则请求时会加上cookie，此时后端必须设置这个header
         response.addHeader("Access-Control-Allow-Credentials", "true");
 
@@ -46,5 +48,40 @@ public class CorsController {
             sb.append(item.getName()).append(":").append(item.getValue());
         }
         return arr.length + "个cookie " + sb.toString();
+    }
+
+    private void addAllowOrigin(HttpServletRequest request, HttpServletResponse response) {
+        // 调用 org.apache.catalina.connector.Request类方法
+        String referer = request.getHeader("referer");
+        if (!StringUtils.hasLength(referer)) {
+            referer = getRequestDomain(request);
+        }
+        if (StringUtils.hasLength(referer)) {
+            if (referer.endsWith("/"))
+                referer = referer.substring(0, referer.length() - 1); // 注意不能有最后一个斜杠
+            response.addHeader("Access-Control-Allow-Origin", referer);
+        }
+    }
+
+    // 拼接协议+主机名+端口
+    private static String getRequestDomain(HttpServletRequest request) {
+        StringBuffer url = new StringBuffer();
+        String scheme = request.getScheme();
+        int port = request.getServerPort();
+        if (port < 0) {
+            // Work around java.net.URL bug
+            port = 80;
+        }
+
+        url.append(scheme);
+        url.append("://");
+        url.append(request.getServerName());
+        if ((scheme.equals("http") && (port != 80))
+                || (scheme.equals("https") && (port != 443))) {
+            url.append(':');
+            url.append(port);
+        }
+
+        return url.toString();
     }
 }
