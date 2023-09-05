@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
@@ -19,7 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Component
 public class ImgCodeUtil {
 
-    private int weight = 100;           //验证码图片的长和宽
+    private int width = 100;           //验证码图片的长和宽
     private int height = 40;
     //private String[] fontNames = {"宋体", "华文楷体", "黑体", "微软雅黑", "楷体_GB2312"};   //字体数组
     //字体数组
@@ -46,7 +47,9 @@ public class ImgCodeUtil {
             int idx = getRnd().nextInt(RND_NUM_SOURCE.length);
             sb.append(RND_NUM_SOURCE[idx]);
         }
-        return sb.toString();
+        String ret = sb.toString();
+        //System.out.println(ret);
+        return ret;
     }
 
     /**
@@ -62,29 +65,11 @@ public class ImgCodeUtil {
             int idx = getRnd().nextInt(RND_STR_SOURCE.length);
             sb.append(RND_STR_SOURCE[idx]);
         }
-        return sb.toString();
+        String ret = sb.toString();
+        System.out.println(ret);
+        return ret;
     }
 
-    /**
-     * 获取验证码图片对象
-     *
-     * @param text 难码
-     * @return 图片
-     */
-    private BufferedImage getImage(String text) {
-        BufferedImage image = createImage();
-        Graphics2D g = (Graphics2D) image.getGraphics(); //获取画笔
-        for (int i = 0; i < text.length(); i++)             //画四个字符即可
-        {
-            String chr = text.substring(i, i + 1);
-            float x = i * 1.0F * weight / 4;   //定义字符的x坐标
-            g.setFont(randomFont());           //设置字体，随机
-            g.setColor(randomColor());         //设置颜色，随机
-            g.drawString(chr, x, height - 5);
-        }
-        drawLine(image);
-        return image;
-    }
 
     /**
      * 获取验证码图片字符串
@@ -104,7 +89,66 @@ public class ImgCodeUtil {
         return base64.replaceAll("[\\r\\n]", "");
     }
 
+    /**
+     * 获取验证码图片对象
+     *
+     * @param text 难码
+     * @return 图片
+     */
+    private BufferedImage getImage(String text) {
+        //创建图片缓冲区
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        //获取画笔
+        Graphics2D graphic = (Graphics2D) image.getGraphics(); //获取画笔
 
+        try {
+            fillImage(graphic);     // 填充随机底色
+            drawTxt(graphic, text);
+            drawLine(graphic, 5, 10); // 画随机线
+            drawPoint(graphic, 100, 200); // 画随机点
+            return image;
+        } finally {
+            if (graphic != null)
+                graphic.dispose();
+        }
+    }
+
+    /**
+     * 使用画笔，绘制一串文本字符串
+     *
+     * @param graphic 画笔
+     * @param text    文本
+     */
+    private void drawTxt(Graphics2D graphic, String text) {
+        // 循环绘制
+        for (int i = 0; i < text.length(); i++) {
+            String chr = text.substring(i, i + 1);
+            graphic.setFont(randomFont());           //设置随机字体
+            graphic.setColor(randomColor());         //设置随机颜色
+
+            float x = i * 1.0F * width / 4;   //定义字符的x坐标
+            // y坐标，定义为随机高度
+            int y = height - getRnd().nextInt(3, 20);
+
+            {
+                // 用于倾斜绘制的对象
+                AffineTransform transform = new AffineTransform();
+                // 倾斜度数
+                int radians = getRnd().nextInt(-40, 40);
+                // 这里的x和y，是旋转点的坐标
+                transform.rotate(Math.toRadians(radians), x, y);
+                graphic.setTransform(transform);
+            }
+
+            graphic.drawString(chr, x, y);
+        }
+    }
+
+    /**
+     * 获取随机颜色
+     *
+     * @return 颜色
+     */
     private Color randomColor() {
         int r = getRnd().nextInt(225);  //这里为什么是225，因为当r，g，b都为255时，即为白色，为了好辨认，需要颜色深一点。
         int g = getRnd().nextInt(225);
@@ -128,36 +172,49 @@ public class ImgCodeUtil {
     /**
      * 画干扰线，验证码干扰线用来防止计算机解析图片
      *
-     * @param image 图片
+     * @param graphic 画笔
+     * @param minNum  干扰线最小条数
+     * @param maxNum  干扰线最大条数
      */
-    private void drawLine(BufferedImage image) {
-        int num = getRnd().nextInt(10); //定义干扰线的数量
-        Graphics2D g = (Graphics2D) image.getGraphics();
+    private void drawLine(Graphics2D graphic, int minNum, int maxNum) {
+        int num = getRnd().nextInt(minNum, maxNum); //定义干扰线的数量
         for (int i = 0; i < num; i++) {
-            int x1 = getRnd().nextInt(weight);
+            int x1 = getRnd().nextInt(width / 2);
             int y1 = getRnd().nextInt(height);
-            int x2 = getRnd().nextInt(weight);
+            int x2 = getRnd().nextInt(width / 2, width);
             int y2 = getRnd().nextInt(height);
-            g.setColor(randomColor());
-            g.drawLine(x1, y1, x2, y2);
+            graphic.setColor(randomColor());
+            graphic.drawLine(x1, y1, x2, y2);
+        }
+    }
+
+
+    /**
+     * 画干扰点，验证码干扰点用来防止计算机解析图片
+     *
+     * @param graphic 画笔
+     * @param minNum  干扰点最小条数
+     * @param maxNum  干扰点最大条数
+     */
+    private void drawPoint(Graphics2D graphic, int minNum, int maxNum) {
+        int num = getRnd().nextInt(minNum, maxNum); //随机数量
+        for (int i = 0; i < num; i++) {
+            int x1 = getRnd().nextInt(width);
+            int y1 = getRnd().nextInt(height);
+            graphic.setColor(randomColor());
+            graphic.fillOval(x1, y1, 2, 2);
         }
     }
 
     /**
-     * 创建图片的方法
+     * 使用画笔填充图片底色
      *
-     * @return 图片
+     * @param graphics 画笔
      */
-    private BufferedImage createImage() {
-        //创建图片缓冲区
-        BufferedImage image = new BufferedImage(weight, height, BufferedImage.TYPE_INT_RGB);
-        //获取画笔
-        Graphics2D g = (Graphics2D) image.getGraphics();
+    private void fillImage(Graphics2D graphics) {
         //设置背景色随机
-        g.setColor(new Color(255, 255, getRnd().nextInt(245) + 10));
-        g.fillRect(0, 0, weight, height);
-        //返回一个图片
-        return image;
+        graphics.setColor(new Color(255, 255, getRnd().nextInt(245) + 10));
+        graphics.fillRect(0, 0, width, height);
     }
 
 }
