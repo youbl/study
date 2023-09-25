@@ -5,11 +5,9 @@ import beinet.cn.algorithmdemo.sort.Sort;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.sql.ResultSet;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,6 +19,41 @@ public class HomeController {
         this.sortMethodList = sortMethodList;
     }
 
+    @GetMapping(value = "/", produces = "text/plain")
+    public String index(HttpServletRequest request) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(request.getMethod())
+                .append(" ")
+                .append(request.getRequestURL())
+                .append("\n");
+
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String header = headerNames.nextElement();
+            sb.append("\n")
+                    .append(header)
+                    .append(": ")
+                    .append(request.getHeader(header));
+        }
+
+        return sb.toString();
+    }
+
+    @PostMapping(value = "/", produces = "text/plain")
+    public String indexPost(HttpServletRequest request) {
+        return index(request);
+    }
+
+    @DeleteMapping(value = "/", produces = "text/plain")
+    public String indexDelete(HttpServletRequest request) {
+        return index(request);
+    }
+
+    @PutMapping(value = "/", produces = "text/plain")
+    public String indexPut(HttpServletRequest request) {
+        return index(request);
+    }
+
     /**
      * 对数据排序后返回。
      * 第一行为源数组及长度
@@ -29,8 +62,8 @@ public class HomeController {
      * @param ids
      * @return
      */
-    @GetMapping("/")
-    public List<Result> index(@RequestParam(required = false) String ids) {
+    @GetMapping("/sort")
+    public List<Result> indexSort(@RequestParam(required = false) String ids) {
         SortItem[] arr = toArr(ids);
 
         List<Result> results = new ArrayList<>(sortMethodList.size() + 1);
