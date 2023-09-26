@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <title>rsa测试</title>
+    <script src="./res/unpkg/vue.min.js"></script>
+    <script src="./res/unpkg/axios.min.js"></script>
+    <script src="./res/common.js"></script>
+    <script src="./res/jsencrypt.min.js"></script>
+</head>
+<body>
+<div id="divApp" style="text-align: center;">
+    <div>
+        输入原文：
+        <textarea v-model="origin" rows="5" cols="100" @change="encrypt"></textarea>
+    </div>
+    <div>
+        加密结果：
+        <textarea v-model="encStr" rows="5" cols="100"></textarea>
+    </div>
+    <div>
+        <button @click="submitData">提交</button>
+    </div>
+    <div>
+        后端解密结果：
+        <textarea v-model="decryptStr" rows="5" cols="100"></textarea>
+    </div>
+</div>
+<script type="text/javascript">
+    // RSA的公钥
+    const publicKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArCHVjJ9N+thGJ45jhHSOU0PuvQYRLUaZPbCMbRd7kuZmDiNJm0Q7ucqnlvrnmaBjZMrKI+aRiRQJzq8eW63qX60/RThwM+Le5tudsTReEaY8VLB0KwJb4DYn5Z1d5Afjr6E8BzJsZkX0feOWLi7IHXwnkepznDjs7WYEVimQZ4xRCOu4z540jnd8pPHAEz7Egy7zjGppguL265TufFjA3LFbb8v0c9oMGacR5joXnVulIT7z/GbBF5iDlE4vN7PFjpxZT0+gw6mb5HeklPmx2aRZddBNBwVAc1X+uw7wEo8FCeRaa+QwqICIr/EXHTsff74NIpfunyTfCW0MnBkn5wIDAQAB';
+
+    const BASE_URL = '/';// + location.pathname.split('/')[1] + '/';
+    const vueApp = new Vue({
+        el: '#divApp',
+        data: function () {
+            return {
+                origin: '',
+                encStr: '',
+                decryptStr: '',
+            }
+        },
+        mounted: function () {
+        },
+        created: function () {
+        },
+        computed: {},
+        methods: {
+            encrypt: function () {
+                const crypt = new JSEncrypt({default_key_size: 2048}); // 默认密钥字节长度
+                crypt.setPublicKey(publicKey); // 公钥加密
+                this.encStr = crypt.encrypt(this.origin);
+            },
+            submitData: function () {
+                let url = BASE_URL + 'testRsa';
+                return axios.post(url, {data: this.encStr}).then(response => {
+                    this.decryptStr = (response.data);
+                }).catch(error => this.ajaxError(error));
+            },
+            ajaxError: function (error) {
+                if (error.response && error.response.data) {
+                    console.log(JSON.stringify(error.response.data));
+                    let msg = error.response.data['msg'];
+                    if (!msg)
+                        msg = '出错了';
+                    alert(msg);
+                } else {
+                    console.log(JSON.stringify(error));
+                    alert('未知错误');
+                }
+            },
+        },
+    });
+</script>
+</body>
+</html>
