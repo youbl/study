@@ -1,6 +1,5 @@
 package beinet.cn.googleauthenticatordemo.configs;
 
-import beinet.cn.googleauthenticatordemo.configs.loginAction.LoginService;
 import beinet.cn.googleauthenticatordemo.configs.loginValidator.Validator;
 import beinet.cn.googleauthenticatordemo.utils.ContextUtil;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class LoginFilter extends OncePerRequestFilter {
-    private final LoginService loginService;
     private final List<Validator> validatorList;
 
     @Override

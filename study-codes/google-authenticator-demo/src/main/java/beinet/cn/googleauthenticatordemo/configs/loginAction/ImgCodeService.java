@@ -34,7 +34,7 @@ public class ImgCodeService {
     public ImgCodeDto getImgCode() {
         String code = codeUtil.getRndTxt(4);
         // 这里生成sn，并把sn和code的关联关系存入redis或数据库
-        // todo: 如果未使用过的code，需要在10分钟内过期，这里没做
+        // todo: 如果未使用过的code，需要在10分钟内过期，建议用redis，这里是map不好做，所以没做
         String sn = getSn(code);
 
         String base64 = codeUtil.getImageBase64(code);

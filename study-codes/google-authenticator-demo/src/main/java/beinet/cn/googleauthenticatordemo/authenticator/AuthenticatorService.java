@@ -43,6 +43,9 @@ public class AuthenticatorService {
             throw new RuntimeException("该用户未使用Google身份验证器注册，请先注册");
         }
 
+        // todo: 一个code只应该成功一次，如果当前的code之前使用过，这里应该要失败，让用户等30秒，用下一个code验证
+        // todo: 一个code只应该失败3次，这里应该要校验当前的code失败过几次，超过了要让用户等30秒，用下一个code验证
+
         return GoogleGenerator.checkCode(secret, code);
     }
 

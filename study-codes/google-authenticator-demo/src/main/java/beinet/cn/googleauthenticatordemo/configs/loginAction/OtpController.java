@@ -50,8 +50,6 @@ public class OtpController {
     public ResponseDto validOtpCode(@RequestParam int code,
                                     HttpServletResponse response,
                                     AuthDetails authDetails) {
-        // todo: 一个code只应该成功一次，这次要校验这个code有没有成功过
-
         String username = authDetails.getAccount();
         if (authService.validateCode(username, code)) {
             // 用同样的规则生成otp的cookie
