@@ -7,7 +7,10 @@
     <script src="./res/unpkg/vue.min.js"></script>
     <script src="./res/unpkg/axios.min.js"></script>
     <script src="./res/common.js"></script>
-    <script src="./res/jsencrypt.min.js"></script>
+    <!-- 用于RSA加密解密数据，这个不好用，改用下面的jsrsasign -->
+    <!--    <script src="./res/jsencrypt.min.js"></script>-->
+    <!-- 用于RSA签名和验签数据 -->
+    <script src="./res/jsrsasign-all-min.js"></script>
 </head>
 <body>
 <div id="divApp" style="text-align: center;">
@@ -20,25 +23,45 @@
         <textarea v-model="encStr" rows="5" cols="100"></textarea>
     </div>
     <div>
-        <button @click="submitData">提交</button>
+        <button @click="serverDecryptData">获取服务端解密数据</button>
     </div>
     <div>
         后端解密结果：
         <textarea v-model="decryptStr" rows="5" cols="100"></textarea>
     </div>
+    <div>
+        后端签名结果：
+        <textarea v-model="decryptSign" rows="5" cols="100"></textarea>
+    </div>
+    <div>
+        js用公钥校验服务端的签名结果：{{validSign}}
+    </div>
 </div>
 <script type="text/javascript">
-    // RSA的公钥
-    const publicKey = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArCHVjJ9N+thGJ45jhHSOU0PuvQYRLUaZPbCMbRd7kuZmDiNJm0Q7ucqnlvrnmaBjZMrKI+aRiRQJzq8eW63qX60/RThwM+Le5tudsTReEaY8VLB0KwJb4DYn5Z1d5Afjr6E8BzJsZkX0feOWLi7IHXwnkepznDjs7WYEVimQZ4xRCOu4z540jnd8pPHAEz7Egy7zjGppguL265TufFjA3LFbb8v0c9oMGacR5joXnVulIT7z/GbBF5iDlE4vN7PFjpxZT0+gw6mb5HeklPmx2aRZddBNBwVAc1X+uw7wEo8FCeRaa+QwqICIr/EXHTsff74NIpfunyTfCW0MnBkn5wIDAQAB';
+    // RSA的公钥, jsrsasign一定要pem格式，就是有BEGIN和END
+    const publicKey = '-----BEGIN PUBLIC KEY-----\n' +
+        'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArCHVjJ9N+thGJ45jhHSOU0PuvQYRLUaZPbCMbRd7kuZmDiNJm0Q7ucqnlvrnmaBjZMrKI+aRiRQJzq8eW63qX60/RThwM+Le5tudsTReEaY8VLB0KwJb4DYn5Z1d5Afjr6E8BzJsZkX0feOWLi7IHXwnkepznDjs7WYEVimQZ4xRCOu4z540jnd8pPHAEz7Egy7zjGppguL265TufFjA3LFbb8v0c9oMGacR5joXnVulIT7z/GbBF5iDlE4vN7PFjpxZT0+gw6mb5HeklPmx2aRZddBNBwVAc1X+uw7wEo8FCeRaa+QwqICIr/EXHTsff74NIpfunyTfCW0MnBkn5wIDAQAB' +
+        '\n-----END PUBLIC KEY-----';
+
+    const privateKey = '-----BEGIN PRIVATE KEY-----\n' +
+        'MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCsIdWMn0362EYnjmOEdI5TQ+69BhEtRpk9sIxtF3uS5mYOI0mbRDu5yqeW+ueZoGNkysoj5pGJFAnOrx5brepfrT9FOHAz4t7m252xNF4RpjxUsHQrAlvgNiflnV3kB+OvoTwHMmxmRfR945YuLsgdfCeR6nOcOOztZgRWKZBnjFEI67jPnjSOd3yk8cATPsSDLvOMammC4vbrlO58WMDcsVtvy/Rz2gwZpxHmOhedW6UhPvP8ZsEXmIOUTi83s8WOnFlPT6DDqZvkd6SU+bHZpFl10E0HBUBzVf67DvASjwUJ5Fpr5DCogIiv8RcdOx9/vg0il+6fJN8JbQycGSfnAgMBAAECggEAbJ5RDhJ8d5y/8DgWrj+KjBpi7R6F+kcBbf8ZLcHStajzn1o/GV4ePigWRtx/Bt9BuRmKIstc7N4bLjQs+Pcu3T8KnNh3XRZ9R7ovsOF1trdqfJp4Q6eSaFJkLK130Ov1jh81LOlxo7vjAwl4/B2DI6/znE0QtPTq9QcaF3DU8bF8ix+sDazI5YlexUrT+I/QSUwFzcHRf8ULQ9MfPdiD4cY8ii3o4DrCxtQNFbQBIrvrwtEaZu6Hb12EtV0bhf3/VEndIerUNE5IrixCwm6o0fsSCF5+JMMRVAnJZebJoaQ28NVjjAVFpefYbNtNH3RGu4Id5LAVnGLWdmrdCyevGQKBgQDk0h02ERwT0xOQXdgJ5wtkx9bBrvSnv4Ncz3Rcc7VvMnCwU9zl9DCC+HKzqAtXW1GJcMWiWInwhoTlL8egCc61qLh5QAqkkhwrMJwwRWAnhDf8wmW+1K/3qqa8mc8wofE7jRTl6trDZjROmzL2gvLtYrhDszWdaZQYsvMQcBX9SwKBgQDAk/UAPPCoi5ZPZIzZgSbL04JxZ1nxOHjYiKDjiqqzFH79jIuHUfYkAFKe5V0UimKdMsSsD8dOrRzhA3G5Mszq/VmmOy8Il4dORO79yX8jHNN2JxQsO8Wk2gXezvKhxGJuSqxN37/k7DGbRUhVCtAlYy83UG7DmmcdbXccIeFqVQKBgGKOrc5P6EwRqmeQRDFftuSdvr6F4RMvxiD/qhr4K7nNfAQ22vqhBxQidyUyyE/EIYaVcErQ3/kdt7gPsGgaUVKlbW+sSelAlal0spGIEDZ1GLhh8vkTGwgOFOs/RKKp3gHMbqfpVHi9WOJSrszG8mOVFdDzK7C1fPh2e4MlBBOpAoGBAIzhsLJj4orq0yNxo7jays8CBMOBoELf1UhTa6AKqaYosF48mzZ7t13O/qJPmTCVrF7j7Q0S3fOooR/brS6XA2JFxXfehCH8+HdB5rSy29eMFwawwAk8EPLwrKq7KrU9PeUBq9usfG20fPXiUXAlYPB5BumoZd+i7RySIDjscEOhAoGBAIPCTEhQFySqhLatm/YvKGnpWbz89AwBi5obqSMb4UaljUwAmObPgXi3wm1B8uUveBG9l2QK9KyQHn6/2w/Fm6RUiA8c9wDktp6Xewc93bvrocqG4UGLeqV8/W3bHzRroMXDkLWQxyZ1XTfSPsRdWlYm6SvILD+/T6L21fx6SgjA' +
+        '\n-----END PRIVATE KEY-----';
+
+    const publicKeyObj = KEYUTIL.getKey(publicKey);
+    const privateKeyObj = KEYUTIL.getKey(privateKey);
 
     const BASE_URL = '/';// + location.pathname.split('/')[1] + '/';
     const vueApp = new Vue({
         el: '#divApp',
         data: function () {
             return {
+                cryptObj: null,
+
                 origin: '',
                 encStr: '',
                 decryptStr: '',
+                decryptSign: '',
+                validSign: '',
             }
         },
         mounted: function () {
@@ -48,15 +71,36 @@
         computed: {},
         methods: {
             encrypt: function () {
-                const crypt = new JSEncrypt({default_key_size: 2048}); // 默认密钥字节长度
-                crypt.setPublicKey(publicKey); // 公钥加密
-                this.encStr = crypt.encrypt(this.origin);
+                // 使用公钥，进行RSA数据加密
+                let encData = KJUR.crypto.Cipher.encrypt(this.origin, publicKeyObj, 'RSA');
+                this.encStr = hextob64(encData);
+                console.log('密文:\n' + this.encStr);
+                console.log(b64tohex(this.encStr) === encData);
+                // 这是使用私钥，进行RSA数据解密的代码
+                console.log('解密后:\n' + KJUR.crypto.Cipher.decrypt(b64tohex(this.encStr), privateKeyObj, 'RSA'));
             },
-            submitData: function () {
+            serverDecryptData: function () {
                 let url = BASE_URL + 'testRsa';
                 return axios.post(url, {data: this.encStr}).then(response => {
-                    this.decryptStr = (response.data);
+                    this.decryptStr = response.data.data;
+                    this.decryptSign = response.data.sign;
+                    this.validSign = this.checkSignature();
                 }).catch(error => this.ajaxError(error));
+            },
+            checkSignature: function () {
+                // 这是使用私钥，计算签名的代码
+                let signGet = new KJUR.crypto.Signature({alg: 'SHA256withRSA'});
+                signGet.init(privateKeyObj);// 设置私钥
+                signGet.updateString(this.decryptStr); // 设置用于签名的源文
+                let sign = signGet.sign(); // 计算签名
+                console.log('签名结果:\n' + sign + '\n' + hex2b64(sign));
+
+                // 这是使用公钥，验证签名的代码
+                let sigValid = new KJUR.crypto.Signature({alg: 'SHA256withRSA'});
+                sigValid.init(publicKeyObj);// 设置公钥
+                sigValid.updateString(this.decryptStr); // 设置用于签名的源文
+                let validSign = b64tohex(this.decryptSign);// 必须转换后校验
+                return sigValid.verify(validSign);
             },
             ajaxError: function (error) {
                 if (error.response && error.response.data) {
@@ -66,8 +110,8 @@
                         msg = '出错了';
                     alert(msg);
                 } else {
-                    console.log(JSON.stringify(error));
-                    alert('未知错误');
+                    console.log(error);
+                    alert('未知错误:' + error);
                 }
             },
         },

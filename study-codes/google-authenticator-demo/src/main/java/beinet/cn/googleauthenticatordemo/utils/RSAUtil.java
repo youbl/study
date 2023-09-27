@@ -22,6 +22,8 @@ public final class RSAUtil {
     private static final String ALGORITHM = "RSA";
     private static final int KEY_LEN = 2048;
 
+    private static final String ALGORITHM_SIGN = "SHA256withRSA";
+
     private static final Charset UTF8 = StandardCharsets.UTF_8;//Charset.forName("UTF-8");
 
 
@@ -52,6 +54,7 @@ public final class RSAUtil {
 
     /**
      * 使用私钥解密
+     * 注：每2次调用，会生成2个不同的加密结果
      *
      * @param privateKey 私钥
      * @param data       要解密的数据
@@ -89,6 +92,68 @@ public final class RSAUtil {
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, key);
         return cipher.doFinal(data);
+    }
+
+
+    /**
+     * 使用私钥计算签名.
+     * 注：每2次调用，会生成2个不同的签名
+     *
+     * @param privateKey 私钥
+     * @param data       要加密的数据
+     * @return 签名结果
+     */
+    public static String sign(String privateKey, String data) {
+        PrivateKey key = decodePrivateKey(privateKey);
+        byte[] byteData = data.getBytes(UTF8);
+        byte[] result = sign(key, byteData);
+        return Base64.getEncoder().encodeToString(result);
+    }
+
+    /**
+     * 使用公钥验证签名
+     *
+     * @param publicKey 公钥
+     * @param data      要解密的数据
+     * @param signature 提供的签名数据
+     * @return 验证通过与否
+     */
+    public static boolean verify(String publicKey, String data, String signature) {
+        PublicKey key = decodePublicKey(publicKey);
+        byte[] byteData = data.getBytes(UTF8);
+        byte[] signData = Base64.getDecoder().decode(signature);
+        return verify(key, byteData, signData);
+    }
+
+    /**
+     * 使用私钥计算签名
+     *
+     * @param privateKey 私钥
+     * @param data       要加密的数据
+     * @return 签名结果
+     */
+    @SneakyThrows
+    private static byte[] sign(PrivateKey privateKey, byte[] data) {
+        Signature signature = Signature.getInstance(ALGORITHM_SIGN);
+        signature.initSign(privateKey);
+        signature.update(data);
+        return signature.sign();
+    }
+
+    /**
+     * 使用公钥验证签名
+     *
+     * @param publicKey 公钥
+     * @param data      要解密的数据
+     * @param signature 提供的签名数据
+     * @return 验证通过与否
+     */
+    @SneakyThrows
+    private static boolean verify(PublicKey publicKey, byte[] data, byte[] signature) {
+        Signature verifySignature = Signature.getInstance(ALGORITHM_SIGN);
+        verifySignature.initVerify(publicKey);
+        verifySignature.update(data);
+        return verifySignature.verify(signature);
     }
 
 
