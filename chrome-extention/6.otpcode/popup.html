@@ -8,6 +8,7 @@
     <style>
         body {
             min-width: 500px;
+            height: 350px;
             overflow-x: hidden;
         }
     </style>
@@ -15,11 +16,29 @@
 
 <body>
     <div>
-        说明:<input type="text" id="txtName" value="新的密钥">
-        密钥:<input type="text" id="txtSecret">
+        说明:<input type="text" id="txtName" style="width:100px">
+        密钥:<input type="text" id="txtSecret" style="width:100px">
         <button id="btnAddCode">添加</button>
+        <button id="btnRefresh">刷新</button>
     </div>
     <div id="divCode"></div>
+
+    <div id="customAlert" style="display: none; width: 200px; height: 40px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #5971cf; border: 1px solid #ccc; padding: 20px;">
+        <div id="alertContent"></div>
+    </div>
+
+    <template id="codeItemTemp">
+        <li style="height:30px">
+            <div>
+                <div style="float: left;width:200px;">{{desc}}</div>
+                <div style="float: left;width:50px">{{code}}</div>
+                <div style="float: left;"><a href="#0" class="copy-btn" data="{{code}}">复制</a></div>                
+                <div style="float: left; padding-left: 5px;"><a href="#0" class="del-btn" data="{{desc}}">删除</a></div>
+                <div style="float: left;padding-left: 5px;"><a href="#0" class="copy-btn" data="{{secret}}">复制密钥</a></div> 
+                <div style="clear: both;"></div>
+            </div>
+        </li>
+    </template>
     <script src="js/otpauth.umd.min.js"></script>
     <script src="js/popup.js"></script>
 </body>
