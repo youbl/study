@@ -1,5 +1,5 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 2, // 目前版本必须是2，2024年会强制要求升级为3
     "name": "beinetExt",
     "description": "First chrome extension by beinet.",
     "version": "0.5",
@@ -14,7 +14,7 @@
     },
     "content_scripts": [
         {
-            "js": [
+            "js": [    // js表示注入到网页中的脚本文件，根据matches匹配的url去注入
                 "js/console.js"
             ],
             "matches": [

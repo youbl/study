@@ -1,4 +1,4 @@
-# Chrome扩展开发演示
+# Chrome扩展开发演示（使用VisualCode开发）
 - 目录下必须存在 manifest.json，所以只要根目录下看到这个文件，就说明这个目录是一个Chrome扩展
     - manifest_version: 必需属性，且只能写2，不要问我为啥，这是规定
     - name: 必需属性，扩展的名称

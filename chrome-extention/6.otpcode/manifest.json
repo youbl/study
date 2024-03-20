@@ -1,0 +1,18 @@
+{
+    "manifest_version": 2,  // 固定为2
+    "name": "beinetOtpExt", // 插件名
+    "description": "tool about generate otp-code.", // 插件说明
+    "version": "0.5",       // 插件版本，自定义
+    "permissions": [
+        "http://*/*", // 插件允许访问的url，匹配所有http网站
+        "https://*/*", // 匹配所有https网站
+        "storage"     // 使用存储权限
+    ],
+    "browser_action": {
+        "default_icon": "clock.png", // 浏览器上工具栏的图标，没有就是默认图标
+        "default_title": "beinet-otp生成工具", // 鼠标悬停时的弹出文字，没有时显示name
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [
+    ]
+}

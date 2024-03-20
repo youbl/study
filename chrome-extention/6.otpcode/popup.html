@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>otp-code</title>
+    <meta charset="utf-8">
+
+    <style>
+        body {
+            min-width: 500px;
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        说明:<input type="text" id="txtName" value="新的密钥">
+        密钥:<input type="text" id="txtSecret">
+        <button id="btnAddCode">添加</button>
+    </div>
+    <div id="divCode"></div>
+    <script src="js/otpauth.umd.min.js"></script>
+    <script src="js/popup.js"></script>
+</body>
+
+</html>
