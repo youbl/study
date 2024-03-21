@@ -9,8 +9,70 @@ function startRun() {
     document.getElementById('btnRefresh').addEventListener('click', function (){
         refreshCode();
     });
+    document.getElementById('btnExport').addEventListener('click', function (){
+        exportSecrets();
+    });
+    document.getElementById('btnImport').addEventListener('click', function (){
+        importSecrets();
+    });
 
     refreshCode();
+}
+
+function exportSecrets() {
+    getStorage()
+        .then((arrSecrets)=>{
+            let ret = '';
+            if(arrSecrets) {
+                Object.keys(arrSecrets).forEach((key) => {
+                    let secret = arrSecrets[key];
+                    ret += key + ':' + secret + '\n';
+                });
+            }
+            if(!ret){
+                return showCustomAlert('无数据可以导出');
+            }
+            copyStr(ret).then(()=>{
+                showCustomAlert('已成功导出到粘贴板，请维持格式，复制到目标电脑粘贴');
+            });            
+        });    
+}
+
+function importSecrets() {
+    readCopy().then(text=>{
+        if(!text)
+            return showCustomAlert('粘贴板没有找到要导入的数据');
+        let arr = text.split(/[\r\n]/g);
+        let result = [];
+        for(let i=0,j=arr.length;i<j;i++) {
+            let item = arr[i].trim();
+            if(item.length === 0) 
+                continue;
+            let idx = item.lastIndexOf(':');
+            if(idx <= 0 || idx >= item.length - 1)
+                continue;
+            let desc = item.substring(0, idx);
+            let secret = item.substring(idx+1);
+            result.push([desc, secret]);
+        }
+        
+        if(result.length <= 0)
+            return showCustomAlert('粘贴板没有要导入的数据');
+        if(!confirm('确认要导入这' + result.length + '行数据吗？注意：相同说明的密钥会被替换！'))
+            return;
+        getStorage()
+            .then((arrSecrets)=>{
+                if(!arrSecrets)
+                    arrSecrets = {};
+                for(let i=0,j=result.length;i<j;i++){
+                    let item = result[i];
+                    console.log(item[0] + ' 密钥: ' + item[1]);            
+                    arrSecrets[item[0]] = item[1];
+                }
+                setStorage(arrSecrets)
+                    .then(refreshCode);
+            });
+    });
 }
 
 function refreshCode(){
@@ -48,8 +110,9 @@ function addCopyClick(container){
         //let code = btns[i].parentNode.previousElementSibling.innerText;        
         btns[i].addEventListener('click', function () {
             let code = this.getAttribute('data');
-            copyStr(code);
-            showCustomAlert('复制成功:' + code);
+            copyStr(code).then(()=>{
+                showCustomAlert('复制成功:' + code);
+            });
         });
     }
 }
@@ -160,20 +223,12 @@ function validVal(val){
 
 // 把指定的字符串复制到剪切板
 function copyStr(str) {
-    const el = document.createElement('textarea');
-    el.value = str;
-    el.setAttribute('readonly', '');
-    el.style.position = 'absolute';
-    el.style.left = '-9999px';
-    document.body.appendChild(el);
-    const selected = document.getSelection().rangeCount > 0 ? document.getSelection().getRangeAt(0) : false;
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
-    if (selected) {
-        document.getSelection().removeAllRanges();
-        document.getSelection().addRange(selected);
-    }
+    return navigator.clipboard.writeText(str);
+}
+
+// 从剪切板读取文本数据
+function readCopy() {
+    return navigator.clipboard.readText();
 }
 
 // JavaScript
@@ -193,3 +248,4 @@ function showCustomAlert(message) {
         alertElement.style.display = 'none';
     }, 3000);
   }
+

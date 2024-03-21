@@ -4,7 +4,9 @@
     "description": "tool about generate otp-code.", // 插件说明
     "version": "0.5",       // 插件版本，自定义
     "permissions": [
-        "storage"     // 使用存储权限
+        "clipboardRead",    // 粘贴板读取权限
+        "clipboardWrite",   // 粘贴板写入权限
+        "storage"           // 使用存储权限
     ],
     "action": {
         "default_icon": "clock.png", // 浏览器上工具栏的图标，没有就是默认图标
