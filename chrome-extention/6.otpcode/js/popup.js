@@ -3,17 +3,45 @@ let __codeRefreshing = false;
 startRun();
 
 function startRun() {
+    // 阻止esc关闭窗口
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+          event.preventDefault(); // 阻止默认的 Esc 按钮行为
+          // 这里可以添加你的自定义操作
+        }
+    });
+
+    /** 因为插件开发，不让直接在html里添加onclick属性，只能在js里添加监听 */
+    // 显示添加密钥的对话框
+    document.getElementById('btnShowAddCode').addEventListener('click', function (){
+        document.getElementById('dialogAdd').style.display = 'block';
+    });
+    // 所有对话框的关闭按钮添加事件
+    let closeBtns = document.getElementsByClassName('dialog-close');
+    for(let i=0,j=closeBtns.length;i<j;i++){
+        closeBtns[i].addEventListener('click', function (){
+            this.parentNode.style.display = 'none';
+        });
+    }
+    // 添加密钥对话框里的确认添加按钮事件
     document.getElementById('btnAddCode').addEventListener('click', function (){
         addSecret();
     });
+    // 重新生成页面所有otp-code
     document.getElementById('btnRefresh').addEventListener('click', function (){
         refreshCode();
     });
+    // 导出页面所有otp密钥到粘贴板
     document.getElementById('btnExport').addEventListener('click', function (){
         exportSecrets();
     });
+    // 从粘贴板导入所有otp密钥
     document.getElementById('btnImport').addEventListener('click', function (){
         importSecrets();
+    });
+    // 关闭页面按钮
+    document.getElementById('btnClose').addEventListener('click', function (){
+        window.close();
     });
 
     refreshCode();
@@ -131,8 +159,10 @@ function addDelClick(container){
 
 // 添加一个说明和密钥
 function addSecret(){
-    let desc = document.getElementById('txtName').value;
-    let secret = document.getElementById('txtSecret').value;
+    let desc = document.getElementById('txtName').value.trim();
+    let secret = document.getElementById('txtSecret').value.trim();
+    if(!desc || !secret)
+        return alert('请输入说明和密钥!');
     getStorage()
         .then((arrSecrets)=>{
             if(!arrSecrets)
@@ -141,6 +171,7 @@ function addSecret(){
             setStorage(arrSecrets)
                 .then(refreshCode);
         });
+    document.getElementById('dialogAdd').style.display = 'none';
 }
 
 // 根据说明，删除该密钥

@@ -11,24 +11,59 @@
             height: 350px;
             overflow-x: hidden;
         }
+
+        .dialog {
+            display: none; 
+            text-align: center; 
+            width: 300px; 
+            height: 80px; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            background-color: #c0c8e7; 
+            border: 1px solid #ccc; 
+            padding: 20px;
+        }
+        .dialog-close {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 
 <body>
     <div>
-        说明:<input type="text" id="txtName" style="width:100px">
-        密钥:<input type="text" id="txtSecret" style="width:100px">
-        <button id="btnAddCode">添  加</button>
-        <button id="btnRefresh">刷  新</button>
-        <button id="btnExport">导  出</button>
-        <button id="btnImport">导  入</button>
+        <button id="btnShowAddCode">添  加</button>
+        <button id="btnRefresh">刷新OTP-Code</button>
+        <button id="btnExport">导出到粘贴板</button>
+        <button id="btnImport">从粘贴板导入</button>
+        <button id="btnClose">关  闭</button>
     </div>
     <div id="divCode"></div>
 
-    <div id="customAlert" style="display: none; width: 200px; height: 40px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #5971cf; border: 1px solid #ccc; padding: 20px;">
+    <div id="customAlert" class="dialog" style="overflow: auto;">
         <div id="alertContent"></div>
+        <button class="dialog-close">X</button>
     </div>
-
+    <div id="dialogAdd" class="dialog">
+        <div>
+            <div style="padding: 5px;">
+                说明:<input type="text" id="txtName" style="width:200px">
+            </div>
+            <div style="padding: 5px;">
+                密钥:<input type="text" id="txtSecret" style="width:200px">
+            </div>
+            <div style="padding: 5px;">
+                <button id="btnAddCode">添  加</button>
+            </div>
+        </div>
+        <button class="dialog-close">X</button>
+    </div>
     <template id="codeItemTemp">
         <li style="height:30px">
             <div>
