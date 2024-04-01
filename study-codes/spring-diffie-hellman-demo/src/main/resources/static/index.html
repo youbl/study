@@ -1,0 +1,45 @@
+<html>
+<script src="res/jsrsasign-all-min.js"></script>
+<script src="res/jsencrypt.min.js"></script>
+<body>
+<h1>hello word!!!</h1>
+<p>this is a html page</p>
+<script>
+    //  jsencrypt 生成公钥和私钥的方法
+    function getKey1() {
+        let encryptor = new JSEncrypt({default_key_size: 2048});
+        encryptor.getKey();
+        return [encryptor.getPublicKey(), encryptor.getPrivateKey()];
+    }
+
+    //  jsrsasign 生成公钥和私钥的方法
+    function getKey2() {
+        let keyPair = KEYUTIL.generateKeypair('RSA', 2048)
+        return [KEYUTIL.getPEM(keyPair.pubKeyObj), KEYUTIL.getPEM(pair.prvKeyObj, 'PKCS8PRV')];
+    }
+
+    // 使用Diffie-Hellman密钥交换协议，与服务端交换密钥
+    async function exchangeKeys() {
+        const keyPair = getKey2();
+        const publicKey = keyPair[0];
+
+        // 进行一次HTTP请求，这里使用Fetch API
+        const response = await fetch("/exchangeKeys", {
+            method: "POST",
+            body: publicKey,
+            headers: {"Content-Type": "application/octet-stream"},
+        });
+
+        // 检查响应
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // 解析响应内容得到共享的密钥
+        const sharedKey = await response.arrayBuffer();
+
+        return sharedKey;
+    }
+</script>
+</body>
+</html>

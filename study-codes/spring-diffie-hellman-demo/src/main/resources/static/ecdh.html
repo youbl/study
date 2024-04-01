@@ -1,0 +1,57 @@
+<html>
+<head>
+    <title>ECDH密钥交换算法示例</title>
+    <meta charset="utf-8">
+    <!--    https://cdnjs.com/libraries/crypto-js  -->
+    <script src="res/crypto-js.min.4.2.0.js"></script>
+</head>
+<body>
+<h1>ECDH密钥交换算法示例</h1>
+<textarea id="key1" style="width:95%;height: 50px;"></textarea>
+<textarea id="key2" style="width:95%;height: 50px;"></textarea>
+<div id="divResult"></div>
+<script>
+    // 生成一对公钥私钥
+    async function getKeys() {
+        return await window.crypto.subtle.generateKey({name: 'ECDH', namedCurve: 'P-521'}, false, ['deriveBits']);
+    }
+
+    // 使用一个公钥 和 一个私钥，生成一个密钥（公钥私钥无关系）
+    async function countSecret(publicKey, privateKey) {
+        return await window.crypto.subtle.deriveBits({
+                name: "ECDH",
+                namedCurve: "P-521",
+                public: publicKey,
+            },
+            privateKey,
+            521
+        );
+    }
+
+    // ArrayBuffer转base64字符串
+    function arrayBufferToBase64(buffer) {
+        var binary = '';
+        var bytes = new Uint8Array(buffer);
+        var len = bytes.byteLength;
+        for (var i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa(binary);
+    }
+
+    (async function () {
+        const aliceKey = await getKeys();
+        const bobKey = await getKeys();
+        const secret1 = await countSecret(bobKey.publicKey, aliceKey.privateKey);
+        const secret2 = await countSecret(aliceKey.publicKey, bobKey.privateKey);
+        const strSecret1 = arrayBufferToBase64(secret1);
+        const strSecret2 = arrayBufferToBase64(secret2);
+
+        document.getElementById('key1').value = strSecret1;
+        document.getElementById('key2').value = strSecret2;
+        document.getElementById('divResult').innerText = strSecret1 === strSecret2;
+    })
+    ();
+</script>
+</body>
+</html>
