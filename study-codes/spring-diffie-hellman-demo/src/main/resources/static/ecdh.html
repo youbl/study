@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <!--    https://cdnjs.com/libraries/crypto-js  -->
     <script src="res/crypto-js.min.4.2.0.js"></script>
+    <script src="res/axios.min.js"></script>
 </head>
 <body>
 <h1>ECDH密钥交换算法示例</h1>
@@ -14,6 +15,11 @@
     // 生成一对公钥私钥
     async function getKeys() {
         return await window.crypto.subtle.generateKey({name: 'ECDH', namedCurve: 'P-521'}, false, ['deriveBits']);
+    }
+
+    async function publicKeyToStr(keyPair) {
+        let arrayBuffer = await window.crypto.subtle.exportKey('spki', keyPair.publicKey);
+        return arrayBufferToBase64(arrayBuffer);
     }
 
     // 使用一个公钥 和 一个私钥，生成一个密钥（公钥私钥无关系）
@@ -40,6 +46,17 @@
     }
 
     (async function () {
+        const clientKey = await getKeys();
+        let publicKey = await publicKeyToStr(clientKey);
+        let url = '/exchange?clientPublicKey=' + encodeURIComponent(publicKey);
+        return axios.get(url).then(response => {
+            debugger
+        }).catch(error => {
+            debugger
+        });
+        // 下面的代码是在js内部，计算2对key，并尝试交换的demo，没有实际使用意义。
+        // 实际使用应该是本地生成1对key，与另一端生成的另1对key，进行密钥交换
+        /*
         const aliceKey = await getKeys();
         const bobKey = await getKeys();
         const secret1 = await countSecret(bobKey.publicKey, aliceKey.privateKey);
@@ -50,6 +67,7 @@
         document.getElementById('key1').value = strSecret1;
         document.getElementById('key2').value = strSecret2;
         document.getElementById('divResult').innerText = strSecret1 === strSecret2;
+        */
     })
     ();
 </script>
