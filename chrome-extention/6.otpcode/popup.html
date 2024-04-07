@@ -65,10 +65,11 @@
         <button class="dialog-close">X</button>
     </div>
     <template id="codeItemTemp">
-        <li style="height:30px">
+        <li style="height:30px; border-top: goldenrod solid 1px;">
             <div>
-                <div style="float: left;width:200px;">{{desc}}</div>
+                <div style="float: left;width:250px;">{{desc}}</div>
                 <div style="float: left;width:50px">{{code}}</div>
+                <div style="float: left;width:27px">{{endTime}}秒</div>
                 <div style="float: left;"><a href="#0" class="copy-btn" data="{{code}}">复制</a></div>                
                 <div style="float: left; padding-left: 5px;"><a href="#0" class="del-btn" data="{{desc}}">删除</a></div>
                 <div style="float: left;padding-left: 5px;"><a href="#0" class="copy-btn" data="{{secret}}">复制密钥</a></div> 

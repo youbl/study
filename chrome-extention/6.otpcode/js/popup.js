@@ -45,6 +45,8 @@ function startRun() {
     });
 
     refreshCode();
+    // 设置每秒重新生成
+    setInterval(refreshCode, 1001);
 }
 
 function exportSecrets() {
@@ -113,11 +115,16 @@ function refreshCode(){
             if(arrSecrets) {
                 let innerHtml = '';
                 let codeTml = document.getElementById('codeItemTemp').innerHTML;
+                
+                let endTime = getCodeTimeLeft();
                 Object.keys(arrSecrets).forEach((key) => {
                     let secret = arrSecrets[key];
                     let code = getCode(secret);
                     // console.log(key + ':' + secret + ' code:' + code);
-                    let itemHtml = codeTml.replace(/\{\{desc\}\}/g, key).replace(/\{\{code\}\}/g, code).replace(/\{\{secret\}\}/g, secret);
+                    let itemHtml = codeTml.replace(/\{\{desc\}\}/g, key)
+                        .replace(/\{\{code\}\}/g, code)
+                        .replace(/\{\{secret\}\}/g, secret)
+                        .replace(/\{\{endTime\}\}/g, endTime);
                     innerHtml += itemHtml;
                 });
                 let container = document.getElementById('divCode');
@@ -203,6 +210,16 @@ function getCode(secret) {
         secret: secret,        // 生成otp使用的密钥
     });
     return totp.generate();    // 生成密钥
+}
+
+/**
+ * 计算otp code的剩余时间，每30秒生成一个
+ */
+function getCodeTimeLeft() {
+    let ts = Math.floor(Date.now()/1000); // 当前时间戳
+    let beginTime = Math.floor(ts / 30) * 30;
+    let endTime = beginTime + 30;
+    return endTime - ts;
 }
 
 /**
