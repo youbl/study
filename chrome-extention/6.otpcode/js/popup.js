@@ -46,7 +46,7 @@ function startRun() {
 
     refreshCode();
     // 设置每秒重新生成
-    setInterval(refreshCode, 1001);
+    setInterval(refreshCode, 2000);
 }
 
 function exportSecrets() {
@@ -129,12 +129,12 @@ function refreshCode(){
                 });
                 let container = document.getElementById('divCode');
                 container.innerHTML = '<ul>' + innerHtml + '</ul>';
-                // 等300ms, 防止未渲染
+                // 等一等, 防止未渲染
                 setTimeout(()=>{
                     addCopyClick(container);
                     addDelClick(container);
                     __codeRefreshing = false;
-                }, 300);
+                }, 50);
             }            
         });    
 }
