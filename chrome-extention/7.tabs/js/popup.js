@@ -23,6 +23,14 @@ function startRun() {
             this.parentNode.style.display = 'none';
         });
     }
+    document.getElementById('btnAddText').addEventListener('click', function () {
+        chrome.tabs.query({}, (tabs) => {
+            tabs.forEach((tabInfo) => {
+                if(tabInfo.url.indexOf('http') === 0)
+                    addControl(tabInfo);
+            });
+        });
+    });
 
     showTabInfos();
 }
@@ -47,6 +55,20 @@ function showTabInfos() {
             console.log(tabInfo);
         });
         document.getElementById('objTabInfo').innerHTML = innerHtml;
+    });
+}
+
+function addControl(tabInfo) {
+
+    // 在每个页面中添加文本框
+    chrome.scripting.executeScript({
+      target: { tabId: tabInfo.id },
+      function: () => {
+        const textBox = document.createElement('input');
+        textBox.type = 'text';
+        textBox.value = '这是一个新添加的文本输入框';
+        document.body.prepend(textBox);
+      },
     });
 }
 
