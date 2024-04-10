@@ -283,14 +283,7 @@ function readCopy() {
 function showCustomAlert(message) {
     const alertElement = document.getElementById('customAlert');
     const alertContentElement = document.getElementById('alertContent');
-    const closeButton = document.getElementById('closeButton');
-  
     alertContentElement.textContent = message;
-  
-    // closeButton.addEventListener('click', () => {
-    //     alertElement.style.display = 'none';
-    // });
-  
     alertElement.style.display = 'block';
     setTimeout(()=>{
         alertElement.style.display = 'none';

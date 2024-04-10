@@ -1,0 +1,19 @@
+{
+    "manifest_version": 3,  // 2024年开始不再支持版本2
+    "name": "beinetTabsExt", // 插件名
+    "description": "对chrome页签进行一些操作.", // 插件说明
+    "version": "0.5",       // 插件版本，自定义
+    "permissions": [
+        "tabs",             // 所有tab页签权限，不加无法获取标题和url等属性
+        "clipboardRead",    // 粘贴板读取权限
+        "clipboardWrite",   // 粘贴板写入权限
+        "storage"           // 使用存储权限
+    ],
+    "action": {
+        "default_icon": "clock.png", // 浏览器上工具栏的图标，没有就是默认图标
+        "default_title": "beinet-tab页签操作", // 鼠标悬停时的弹出文字，没有时显示name
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [
+    ]
+}

@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>otp-code</title>
+    <meta charset="utf-8">
+
+    <style>
+        body {
+            min-width: 500px;
+            height: 350px;
+            overflow-x: hidden;
+        }
+
+        .dialog {
+            display: none; 
+            text-align: center; 
+            width: 300px; 
+            height: 80px; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            background-color: #c0c8e7; 
+            border: 1px solid #ccc; 
+            padding: 20px;
+        }
+        .dialog-close {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <button id="btnClose">关  闭</button>
+    </div>
+    <div>
+        <ul id="objTabInfo"></ul>
+    </div>
+    
+    <template id="dataItemTemp">
+        <li style="height:30px; border-top: goldenrod solid 1px;">
+            <div>
+                <div style="float: left;width:150px;" title="{{title}}">{{titleShort}}</div>
+                <div style="float: left;width:250px" title="{{url}}">{{urlShort}}</div>
+                <div style="clear: both;"></div>
+            </div>
+        </li>
+    </template>
+
+    <div id="customAlert" class="dialog" style="overflow: auto;">
+        <div id="alertContent"></div>
+        <button class="dialog-close">X</button>
+    </div>
+    <script src="js/popup.js"></script>
+</body>
+
+</html>
