@@ -36,6 +36,7 @@ function startRun() {
 }
 
 function showTabInfos() {
+
     // query第一个参数是查询条件，第二个参数是结果回调
     chrome.tabs.query({}, (tabs) => {
         let innerHtml = '';
@@ -45,7 +46,7 @@ function showTabInfos() {
             const url = tabInfo.url;
 
             let itemTml = document.getElementById('dataItemTemp').innerHTML;
-            let itemHtml = itemTml
+            let itemHtml = itemTml.replace(/\{\{active\}\}/g, tabInfo.active)
                 .replace(/\{\{title\}\}/g, title)
                 .replace(/\{\{titleShort\}\}/g, cutstr(title, 20, '..'))
                 .replace(/\{\{url\}\}/g, url)
@@ -59,7 +60,6 @@ function showTabInfos() {
 }
 
 function addControl(tabInfo) {
-
     // 在每个页面中添加文本框
     chrome.scripting.executeScript({
       target: { tabId: tabInfo.id },
