@@ -1,7 +1,6 @@
 package com.example.springutilsdemo;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,7 +21,7 @@ public class HomeController {
         return this.getClass().getName() + " " + LocalDateTime.now();
     }
 
-    @RequestMapping("*")
+    // @RequestMapping("*") 这个注解会把html静态资源也拦截，不能用
     public String is404() {
         // 所有404请求，都要到这里
         return "404页面找不到";

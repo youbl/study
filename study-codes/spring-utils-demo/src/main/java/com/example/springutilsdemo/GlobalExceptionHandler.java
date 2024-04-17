@@ -2,6 +2,7 @@ package com.example.springutilsdemo;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -15,6 +16,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     @ExceptionHandler
     public Result handlerExp(Exception exp) {
+        if (exp instanceof MethodArgumentNotValidException) {
+            // 拦截@Valid导致的异常
+            var msg = "参数校验错误:" + exp.getClass().getName() + ": " + exp.getMessage();
+            return new Result().setCode(500).setMsg(msg);
+        }
         var msg = exp.getClass().getName() + ": " + exp.getMessage();
         return new Result().setCode(500).setMsg(msg);
     }

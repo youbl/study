@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="res/unpkg/axios.min.js"></script>
+</head>
+<body>
+aaa
+<button onclick="postData()">测试valid注解</button>
+<script>
+    // 没有这一句，会导致跨域请求返回的set-cookie不生效
+    axios.defaults.withCredentials = true;
+    init();
+
+    function init() {
+    }
+
+    function postData() {
+        const url = '/validate';
+        const data = {};
+        return axios.post(url, data).then(response => {
+            alert(JSON.stringify(response.data, null, 4));
+        }).catch(error => alert(error.message));
+    }
+</script>
+</body>
+</html>
