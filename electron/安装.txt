@@ -1,0 +1,106 @@
+Windows上nodejs安装步骤：
+1、去这里下载最新版本 
+https://nodejs.org/download/release/v16.18.1/  
+或 
+https://nodejs.org/en/download 或 https://nodejs.org/dist/latest-v12.x/
+如 https://nodejs.org/dist/latest-v12.x/node-v12.6.0-win-x64.7z
+2、解压到某个目录，然后在系统属性里，设置：
+2.1、新建环境变量 NODE_PATH  值就是这个目录
+2.2、修改环境变量PATH，添加 %NODE_PATH%
+配置完，进入cmd看版本 node -v
+3、创建全局目录和缓存目录，并进行配置
+mkdir D:\nodedir\node_global\  && mkdir D:\nodedir\node_cache
+npm config -g set prefix "D:\nodedir\node_global" && npm config -g set cache "D:\nodedir\node_cache"
+4、设置淘宝镜像源
+npm config -g set registry https://registry.npmmirror.com/
+5、查看配置是否成功( npm config ls -l 可以查看所有默认值)
+npm config ls  或 npm config get
+
+===================================================================================
+nodejs安装好后，配置和启动electron项目步骤：
+1、新建空目录，如 D:\mine\study\electron，在该目录输入npm init，回车，在后续提示中，只要输入第一个package name即可：
+注：运行完，目录下会出现一个 package.json文件：
+D:\mine\study\electron>npm init
+This utility will walk you through creating a package.json file.
+It only covers the most common items, and tries to guess sensible defaults.
+
+See `npm help init` for definitive documentation on these fields
+and exactly what they do.
+
+Use `npm install <pkg>` afterwards to install a package and
+save it as a dependency in the package.json file.
+
+Press ^C at any time to quit.
+package name: (electron) first-electron-app
+version: (1.0.0)
+description:
+entry point: (index.js)
+test command:
+git repository:
+keywords:
+author:
+license: (ISC)
+About to write to D:\mine\study\electron\package.json:
+
+{
+  "name": "first-electron-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
+
+Is this OK? (yes) y
+
+2、接着在目录中安装electron依赖，输入：  npm install electron --save-dev
+注：安装完目录下多出node_modules 和 package-lock.json
+D:\mine\study\electron>npm install --save-dev electron
+
+added 77 packages, and audited 78 packages in 52s
+
+21 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+3、使用VisualCode打开目录，并打开package.json, 在scripts字段下添加属性 "start": "electron ."
+注：这个表示使用 npm start时，要启动Electron，空格和点，表示当前目录下的程序
+{
+  "name": "first-electron-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^30.0.1"
+  }
+}
+
+
+4、目录下新建 index.js 文件（package.json里声明的），内容参考：
+const {app, BrowserWindow } = require('electron')
+
+const createWindow = ()=>{
+    const win = new BrowserWindow({
+        width: 800,
+        height: 600
+    });
+
+    win.loadFile('index.html')
+}
+
+app.whenReady().then(()=>{
+    createWindow();
+})
+
+5、目录下新建 index.html，内容随意，比如 Hello world.
+6、点击“VisualCode”菜单的“Terminal”=>“New Terminal”，在新开的终端里，输入npm start，会看到启动的Electron窗口，并显示上一步的html文件内容。
