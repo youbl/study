@@ -135,7 +135,9 @@ function refreshCode(){
                     addDelClick(container);
                     __codeRefreshing = false;
                 }, 50);
-            }            
+            } else {
+                __codeRefreshing = false;
+            }
         });    
 }
 
