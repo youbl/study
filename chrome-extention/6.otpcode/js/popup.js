@@ -25,7 +25,13 @@ function startRun() {
     }
     // 添加密钥对话框里的确认添加按钮事件
     document.getElementById('btnAddCode').addEventListener('click', function (){
-        addSecret();
+        let desc = document.getElementById('txtName').value.trim();
+        let secret = document.getElementById('txtSecret').value.trim();
+        if(!desc || !secret)
+            return alert('请输入说明和密钥!');
+        addNode(desc, secret);            
+        addSecret(desc, secret);
+        document.getElementById('dialogAdd').style.display = 'none';
     });
     // 重新生成页面所有otp-code
     document.getElementById('btnRefresh').addEventListener('click', function (){
@@ -46,7 +52,7 @@ function startRun() {
 
     refreshCode();
     // 设置每秒重新生成
-    setInterval(refreshCode, 2000);
+    setInterval(refreshCode, 1000);
 }
 
 function exportSecrets() {
@@ -109,89 +115,144 @@ function refreshCode(){
     if(__codeRefreshing)
         return;
     __codeRefreshing = true;
-
-    getStorage()
-        .then((arrSecrets)=>{
-            if(arrSecrets) {
-                let innerHtml = '';
-                let codeTml = document.getElementById('codeItemTemp').innerHTML;
-                
-                let endTime = getCodeTimeLeft();
-                Object.keys(arrSecrets).forEach((key) => {
-                    let secret = arrSecrets[key];
-                    let code = getCode(secret);
-                    // console.log(key + ':' + secret + ' code:' + code);
-                    let itemHtml = codeTml.replace(/\{\{desc\}\}/g, key)
-                        .replace(/\{\{code\}\}/g, code)
-                        .replace(/\{\{secret\}\}/g, secret)
-                        .replace(/\{\{endTime\}\}/g, endTime);
-                    innerHtml += itemHtml;
-                });
-                let container = document.getElementById('divCode');
-                container.innerHTML = '<ul>' + innerHtml + '</ul>';
-                // 等一等, 防止未渲染
-                setTimeout(()=>{
-                    addCopyClick(container);
-                    addDelClick(container);
-                    __codeRefreshing = false;
-                }, 50);
-            } else {
-                __codeRefreshing = false;
-            }
-        });    
+    
+    try{
+        let root = document.getElementById('divCode');
+        let ulList = root.getElementsByTagName('UL');
+        if(ulList.length <= 0){
+            // 首次要完整加载一下
+            getStorage()
+                .then((arrSecrets)=>{
+                    if(arrSecrets) {
+                        Object.keys(arrSecrets).forEach((key) => {
+                            let secret = arrSecrets[key];
+                            addNode(key, secret);
+                        });
+                    }
+                });    
+            return;
+        }
+    
+        // 刷新时，只刷新code和时间，别的不动，避免影响
+        let liList = ulList[0].getElementsByTagName('LI');
+        let endTime = getCodeTimeLeft();
+        for(let i=0,j=liList.length;i<j;i++) {
+            let node = liList[i];
+            let codeNode = node.getElementsByClassName('code')[0];
+            let copyNodes = node.getElementsByClassName('copy-btn');
+            let copyCodeNode = copyNodes[0];
+            let copySecretNode = copyNodes[1];
+            let endTimeNode = node.getElementsByClassName('endTime')[0];
+    
+            let secret = copySecretNode.getAttribute('data');
+            let code = getCode(secret);
+    
+            endTimeNode.innerText = endTime + '秒';
+            codeNode.innerText = code;
+            copyCodeNode.setAttribute('data', code);
+        }
+    }catch(e){
+        alert('出错了:' + e.message);
+    }finally{
+        __codeRefreshing = false;
+    }
 }
 
 function addCopyClick(container){
     let btns = container.getElementsByClassName('copy-btn');
     for(let i=0,j=btns.length;i<j;i++){
-        //let code = btns[i].parentNode.previousElementSibling.innerText;        
-        btns[i].addEventListener('click', function () {
-            let code = this.getAttribute('data');
-            copyStr(code).then(()=>{
-                showCustomAlert('复制成功:' + code);
+        //let code = btns[i].parentNode.previousElementSibling.innerText;
+        if(btns[i].getAttribute('bindclick') === null) {
+            btns[i].addEventListener('click', function () {
+                let code = this.getAttribute('data');
+                copyStr(code).then(()=>{
+                    showCustomAlert('复制成功:' + code);
+                });
             });
-        });
+            btns[i].setAttribute('bindclick', 1); // 避免重复绑定多次事件
+        }
     }
 }
 
 function addDelClick(container){
     let btns = container.getElementsByClassName('del-btn');
     for(let i=0,j=btns.length;i<j;i++){
-        btns[i].addEventListener('click', function () {
-            let desc = this.getAttribute('data');
-            if(!confirm('确认要删除该密钥？注意：此操作无法恢复!'))
-                return;
-            removeSecret(desc);
-        });
+        if(btns[i].getAttribute('bindclick') === null) {
+            btns[i].addEventListener('click', function () {
+                let desc = this.getAttribute('data');
+                if(!confirm('确认要删除该密钥？注意：此操作无法恢复!'))
+                    return;
+                removeNode(this);
+                removeSecret(desc);
+            });
+            btns[i].setAttribute('bindclick', 1); // 避免重复绑定多次事件
+        }
     }
 }
 
-// 添加一个说明和密钥
-function addSecret(){
-    let desc = document.getElementById('txtName').value.trim();
-    let secret = document.getElementById('txtSecret').value.trim();
-    if(!desc || !secret)
-        return alert('请输入说明和密钥!');
+// 添加一行
+function addNode(desc, secret) {
+    let codeTml = document.getElementById('codeItemTemp').innerHTML;
+    
+    let endTime = getCodeTimeLeft();
+    let code = getCode(secret);
+    // console.log(key + ':' + secret + ' code:' + code);
+    let itemHtml = codeTml.replace(/\{\{desc\}\}/g, desc)
+        .replace(/\{\{code\}\}/g, code)
+        .replace(/\{\{secret\}\}/g, secret)
+        .replace(/\{\{endTime\}\}/g, endTime);
+
+    let root = document.getElementById('divCode');
+    let ulList = root.getElementsByTagName('UL');
+    let container = null;
+    if(ulList.length > 0){
+        ulList[0].innerHTML += itemHtml;
+        
+    }else{
+        root.innerHTML = '<ul>' + itemHtml + '</ul>';
+    }
+    // 等一等, 防止未渲染
+    setTimeout(()=>{
+        let liList = root.getElementsByTagName('LI');
+        for(let i=0,j=liList.length;i<j;i++){
+        let container = liList[i]; 
+        addCopyClick(container);
+        addDelClick(container);}
+        __codeRefreshing = false;
+    }, 50);
+}
+
+// 往LocalStorage里，添加一个说明和密钥
+function addSecret(desc, secret){
     getStorage()
         .then((arrSecrets)=>{
             if(!arrSecrets)
                 arrSecrets = {};
             arrSecrets[desc] = secret;
-            setStorage(arrSecrets)
-                .then(refreshCode);
+            setStorage(arrSecrets);
         });
-    document.getElementById('dialogAdd').style.display = 'none';
 }
 
-// 根据说明，删除该密钥
+// 删除当前btn节点的父li节点，即删除当前行
+function removeNode(btn) {
+    let parent = btn.parentNode;
+    while(parent) {
+        if(parent.tagName.toLowerCase() === 'li') {
+            parent.remove();
+            break;
+        }
+        parent = parent.parentNode;
+    }
+}
+
+// 根据说明，从LocalStorage中删除该密钥
 function removeSecret(desc) {
     getStorage()
         .then((arrSecrets)=>{
             if(!arrSecrets)
                 return;
             delete arrSecrets[desc]; // 删除属性
-            setStorage(arrSecrets)
-                .then(refreshCode);
+            setStorage(arrSecrets);
         });
 }
 
