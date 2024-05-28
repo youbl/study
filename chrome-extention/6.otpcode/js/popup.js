@@ -282,7 +282,10 @@ function getCodeTimeLeft() {
     let ts = Math.floor(Date.now()/1000); // 当前时间戳
     let beginTime = Math.floor(ts / 30) * 30;
     let endTime = beginTime + 30;
-    return endTime - ts;
+    let ret = endTime - ts;
+    if(ret > 9)
+        return ret.toString();
+    return '0' + ret.toString();
 }
 
 /**
@@ -342,14 +345,29 @@ function readCopy() {
     return navigator.clipboard.readText();
 }
 
-// JavaScript
+// 这2个变量，用于避免执行多个setTimeout，导致后面的alert被提前关闭
+var __customAlertSecond = 3;
+var __customAlertRuning = false;
 function showCustomAlert(message) {
+    __customAlertSecond = 3;
     const alertElement = document.getElementById('customAlert');
     const alertContentElement = document.getElementById('alertContent');
     alertContentElement.textContent = message;
     alertElement.style.display = 'block';
-    setTimeout(()=>{
-        alertElement.style.display = 'none';
-    }, 3000);
-  }
 
+    if(__customAlertRuning)
+        return;
+    __customAlertRuning=true;
+    hideCustomAlert();
+}
+
+function hideCustomAlert() {
+    if(__customAlertSecond > 0){
+        __customAlertSecond--;
+        setTimeout(hideCustomAlert, 1000);
+        return;
+    }
+    __customAlertRuning = false;
+    const alertElement = document.getElementById('customAlert');
+    alertElement.style.display = 'none';
+}
