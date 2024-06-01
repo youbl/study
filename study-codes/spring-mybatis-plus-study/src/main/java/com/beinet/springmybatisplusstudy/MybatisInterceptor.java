@@ -1,5 +1,6 @@
 package com.beinet.springmybatisplusstudy;
 
+import lombok.SneakyThrows;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.plugin.Interceptor;
@@ -227,13 +228,15 @@ public class MybatisInterceptor implements Interceptor {
         }
     }
 
+    @SneakyThrows
     private Object getProperty(Object obj, Field field) {
         try {
             field.setAccessible(true);
-            return field.get(obj);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            // throw new RuntimeException(e);
+            return "不支持setAccessible:" + e.getMessage();
         }
+        return field.get(obj);
     }
 
 //    @Override
