@@ -58,13 +58,12 @@
 
 <body>
     <div>
-        <button id="btnShowAddCode">添  加</button>
-        <button id="btnRefresh">刷新OTP-Code</button>
+        <button id="btnShowAddCode">添加密钥</button>
         <button id="btnExport">导出到粘贴板</button>
         <button id="btnImport">从粘贴板导入</button>
         <button id="btnClose">关  闭</button>
     </div>
-    <div id="divCode"></div>
+    <div id="divCode" style="padding-bottom: 10px;"></div>
 
     <!-- 代替alert的浮层弹窗 -->
     <div id="customAlert" class="dialog" style="overflow: auto;">
@@ -92,10 +91,10 @@
     <template id="codeItemTemp">
         <li style="height:30px;">
             <div>
+                <div style="float: left;padding-right:10px;"><a href="#0" class="copy-btn" data="{{code}}">复制</a></div>                
                 <div style="float: left;width:250px;font-weight: bold;" class="desc">{{desc}}</div>
                 <div style="float: left;width:50px;font-weight: bold;" class="code">{{code}}</div>
                 <div style="float: left;width:27px" class="endTime">{{endTime}}秒</div>
-                <div style="float: left;"><a href="#0" class="copy-btn" data="{{code}}">复制</a></div>                
                 <div style="float: left; padding-left: 5px;"><a href="#0" class="del-btn" data="{{desc}}">删除</a></div>
                 <div style="float: left;padding-left: 5px;"><a href="#0" class="copy-btn" data="{{secret}}">复制密钥</a></div> 
                 <div style="clear: both;"></div>

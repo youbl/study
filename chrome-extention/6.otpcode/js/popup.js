@@ -33,10 +33,6 @@ function startRun() {
         addSecret(desc, secret);
         document.getElementById('dialogAdd').style.display = 'none';
     });
-    // 重新生成页面所有otp-code
-    document.getElementById('btnRefresh').addEventListener('click', function (){
-        refreshCode();
-    });
     // 导出页面所有otp密钥到粘贴板
     document.getElementById('btnExport').addEventListener('click', function (){
         exportSecrets();
@@ -102,7 +98,7 @@ function importSecrets() {
                     arrSecrets = {};
                 for(let i=0,j=result.length;i<j;i++){
                     let item = result[i];
-                    console.log(item[0] + ' 密钥: ' + item[1]);            
+                    //console.log(item[0] + ' 密钥: ' + item[1]);            
                     arrSecrets[item[0]] = item[1];
                 }
                 setStorage(arrSecrets)
@@ -302,7 +298,7 @@ function setStorage(val) {
             if (chrome.runtime.lastError) {
                 reject(chrome.runtime.lastError);
               } else {
-                console.log('Storage saved ok' + JSON.stringify(data));
+                //console.log('Storage saved ok' + JSON.stringify(data));
                 resolve(val);
               }
         });
@@ -321,7 +317,7 @@ function getStorage() {
             console.error(chrome.runtime.lastError);
             reject(chrome.runtime.lastError);
           } else {
-            console.log('Storage get到的值为 ' + JSON.stringify(result));
+            //console.log('Storage get到的值为 ' + JSON.stringify(result));
             let ret = validVal(result.key) ? result.key : '';
             resolve(ret);
           }
