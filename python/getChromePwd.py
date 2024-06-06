@@ -22,6 +22,9 @@ def main():
     # === 注意2：
     # ===   建议先关闭Chrome，再把"Login Data"和"Local State" 2个文件拷贝出来验证，
     # ===   实际测试中直接读取LocalAppData下的数据，导致数据被破坏了……
+    # === 注意3：
+    # ===   只能在同一台机器上解密，如果把文件拷贝到其它电脑上，是无法解密的，也会报错: 
+    # ===     pywintypes.error: (-2146893813, 'CryptUnprotectData', '该项不适于在指定状态下使用。')
     # ========================================================================================
 
     # 账号和密码所在的文件 "%LocalAppData%\Google\Chrome\User Data\Default\Login Data" 也可以在 chrome://version/ 里找Profile Path
