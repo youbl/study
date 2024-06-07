@@ -134,18 +134,20 @@ function refreshCode(){
         let endTime = getCodeTimeLeft();
         for(let i=0,j=liList.length;i<j;i++) {
             let node = liList[i];
-            let codeNode = node.getElementsByClassName('code')[0];
             let copyNodes = node.getElementsByClassName('copy-btn');
-            let copyCodeNode = copyNodes[0];
-            let copySecretNode = copyNodes[1];
+            let copyCodeNode = copyNodes[1];
+            let copySecretNode = copyNodes[0];
             let endTimeNode = node.getElementsByClassName('endTime')[0];
     
             let secret = copySecretNode.getAttribute('data');
             let code = getCode(secret);
     
             endTimeNode.innerText = endTime + '秒';
-            codeNode.innerText = code;
-            copyCodeNode.setAttribute('data', code);
+            if(code !== copyCodeNode.getAttribute('data')) {
+                // 不同时才渲染
+                copyCodeNode.innerText = code;
+                copyCodeNode.setAttribute('data', code);
+            }
         }
     }catch(e){
         alert('出错了:' + e.message);
