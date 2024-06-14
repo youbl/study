@@ -37,6 +37,8 @@ def main():
     with sqlite3.connect(database_path) as conn:
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM cookies')
+        # 注：时间字段 creation_utc expires_utc last_access_utc last_update_utc 不是时间戳
+        #    对应的时间转换语法是 datetime(字段名 / 1000000 + (strftime('%s', '1601-01-01')), 'unixepoch', 'localtime')
         #results = cursor.fetchall()
 
         # 收集字段名的数组
