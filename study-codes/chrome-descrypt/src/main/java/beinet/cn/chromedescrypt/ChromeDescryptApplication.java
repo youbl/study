@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ChromeDescryptApplication {
 
     public static void main(String[] args) {
-        String localStateFile = "D:/Local State"; // 解密密钥文件路径
-        String localPwdDB = "D:/Login Data";      // 账号密码的sqlite文件路径
+        String localStateFile = "D:/Local State"; // 瑙ｅ瘑瀵嗛挜鏂囦欢璺緞
+        String localPwdDB = "D:/Login Data";      // 璐﹀彿瀵嗙爜鐨剆qlite鏂囦欢璺緞
         var result = new ChromeUserDataReader(localPwdDB, localStateFile).queryData();
         for (var item : result) {
             System.out.println(item);
