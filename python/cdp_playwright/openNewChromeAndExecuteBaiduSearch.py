@@ -14,10 +14,12 @@ async def main():
 
 async def run(playwright: Playwright):
     try:
-        await operationEnv('', playwright)
+        # first, you need start chrome and enable debug-port by command line:
+        # "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222
+        await operationEnv('http://127.0.0.1:9222', playwright)
 
         # wait 10 second
-        await asyncio.sleep(10)
+        await asyncio.sleep(110)
 
     except:
         error_message = traceback.format_exc()
@@ -29,6 +31,9 @@ async def operationEnv(cdp_url, playwright):
         browser = await playwright.chromium.connect_over_cdp( cdp_url ) # connect to existed chrome, cdp_url format: http://127.0.0.1:12345
         default_context = browser.contexts[0]
     else:
+        # start new chrome: need npm install playwright
+        # and the chrome will be: C:\Users\youbl\AppData\Local\ms-playwright\chromium-1117\chrome-win\chrome.exe
+        # not system default chrome.
         browser = await playwright.chromium.launch(headless=False) # run chrome        
         default_context = await browser.new_context()
     
