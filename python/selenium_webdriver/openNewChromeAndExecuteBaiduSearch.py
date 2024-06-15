@@ -7,13 +7,9 @@ from selenium.webdriver.support import expected_conditions as EC
 
 import traceback,time
 
-# download and install WebDriver from here: 
-# https://googlechromelabs.github.io/chrome-for-testing/#stable
-# for example: 
-# download this: https://storage.googleapis.com/chrome-for-testing-public/126.0.6478.61/win64/chromedriver-win64.zip
-# then unzip, the exe's path will like: D:\chromedriver-win64\chromedriver.exe
 # help doc: https://developer.chrome.com/docs/chromedriver/get-started
-CHROMEDRIVER = 'D:/chromedriver-win64/chromedriver.exe'
+# this demo worked well on chrome125, and using default chromedriver.exe
+# the exe path on my computer: C:\Users\youbl\.cache\selenium\chromedriver\win64\125.0.6422.141
 
 def main():
     try:
