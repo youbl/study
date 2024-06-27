@@ -158,8 +158,15 @@ public class S3Helper {
     @SneakyThrows
     public String uploadFile(MultipartFile file, String directoryName, String fixedDirectory, boolean overwrite) {
         String fileName = file.getOriginalFilename();
-        if ("random".equals(directoryName) && file.getOriginalFilename().contains(".")) {
-            fileName = UUID.randomUUID() + "." + file.getOriginalFilename().split("\\.")[1];
+        if (fileName == null || fileName.isEmpty()) {
+            fileName = UUID.randomUUID().toString();
+        } else if ("random".equals(directoryName)) {
+            String ext = "";
+            int idx = fileName.lastIndexOf(".");
+            if (idx != -1 && idx < fileName.length() - 1) {
+                ext = fileName.substring(idx);
+            }
+            fileName = UUID.randomUUID() + ext;
         }
         String s3FileName = SpringUtil.getActiveProfile() + "/" + directoryName + "/" + fileName;
         if (StringUtils.hasLength(fixedDirectory)) {
@@ -214,7 +221,7 @@ public class S3Helper {
      * @return url
      */
     public String getOriS3Url(String bucket, String fileName) {
-        return "https://" + property.getBucket() + ".s3.amazonaws.com/" + fileName;
+        return "https://" + bucket + ".s3.amazonaws.com/" + fileName;
     }
 
     /**
@@ -288,10 +295,10 @@ public class S3Helper {
                         .key(s3FileName)
                         .build();
         //try {
-            HeadObjectResponse headObjectResponse =
-                    client.headObject(headObjectRequest);
-            Long contentLength = headObjectResponse.contentLength();
-            return contentLength == null ? -1 : contentLength;
+        HeadObjectResponse headObjectResponse =
+                client.headObject(headObjectRequest);
+        Long contentLength = headObjectResponse.contentLength();
+        return contentLength == null ? -1 : contentLength;
         //} catch (Exception exp) {
         //    return -2;
         //}
@@ -360,12 +367,23 @@ public class S3Helper {
         return ret;
     }
 
+    /**
+     * 列出当前ak下所有桶名
+     *
+     * @return 桶列表
+     */
     public List<String> listBucket() {
         ListBucketsResponse response = client.listBuckets();
         List<Bucket> buckets = response.buckets();
         return buckets.stream().map(Bucket::name).collect(Collectors.toList());
     }
 
+    /**
+     * 返回指定文件的下载地址
+     *
+     * @param key 指定文件，相对路径
+     * @return url
+     */
     public String getUrl(String key) {
         if (StringUtils.hasLength(property.getDownUrl())) {
             return property.getDownUrl() + "/" + key;
