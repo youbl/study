@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SSE演示</title>
+    <script type="text/javascript" src="/res/unpkg/vue.min.js"></script>
+    <script type="text/javascript" src="/res/unpkg/axios.min.js"></script>
+</head>
+
+<body>
+<div id="divApp">
+    <div>
+        这个页面展示新消息，可以通过访问接口： http://localhost:8808/sse/process?id=SN123
+        看到数据响应情况
+    </div>
+    <div>
+        <button @click="testSendMsg">发SSE消息</button>
+    </div>
+    <h1 v-html="processTxt"></h1>
+</div>
+<script>
+    const source = new EventSource('/sse/watch?id=SN123');
+    source.onopen = function () {
+        console.log('Connection to the server was opened.');
+    };
+    source.onmessage = function (event) {
+        console.log(event);
+        vueApp.processTxt += '<br>' + event.data;
+    };
+    source.onerror = function (error) {
+        console.error('Error occurred:', error);
+        // 处理重连或其他错误逻辑
+    };
+
+    var vueApp = new Vue({
+        el: '#divApp',
+        data: function () {
+            return {
+                id: 'SN123',
+                processTxt: '等待处理中...',
+            }
+        },
+        created: function () {
+            this.startSSE();
+        },
+        computed: {},
+        methods: {
+            startSSE: function () {
+            },
+            testSendMsg: function () {
+                let url = '/sse/process?id=' + this.id;
+                return axios.get(url).then(response => {
+                    console.log('调用结果：' + response.data);
+                }).catch(error => {
+                    if (error.response.status === 304) {
+                        // 304表示继续下一次长轮询
+                        return this.longLoop();
+                    }
+                    this.ajaxError(error);
+                });
+            },
+            ajaxError: function (error) {
+                if (error.response && error.response.data) {
+                    console.log(JSON.stringify(error.response.data));
+                    let msg = error.response.data['msg'];
+                    if (!msg)
+                        msg = '出错了';
+                    alert(msg);
+                } else {
+                    console.log(JSON.stringify(error));
+                    alert('未知错误');
+                }
+            },
+        },
+    });
+
+</script>
+</body>
+
+</html>
