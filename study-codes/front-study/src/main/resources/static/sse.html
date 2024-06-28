@@ -53,10 +53,6 @@
                 return axios.get(url).then(response => {
                     console.log('调用结果：' + response.data);
                 }).catch(error => {
-                    if (error.response.status === 304) {
-                        // 304表示继续下一次长轮询
-                        return this.longLoop();
-                    }
                     this.ajaxError(error);
                 });
             },

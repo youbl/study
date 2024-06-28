@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>canvas指纹生成</title>
+    <script type="text/javascript" src="/res/unpkg/vue.min.js"></script>
+    <script type="text/javascript" src="/res/unpkg/axios.min.js"></script>
+    <script type="text/javascript" src="/res/md5-min.js"></script>
+</head>
+
+<body>
+<div id="divApp">
+    <div>
+        <button @click="drawCanvasRect">画方框</button>
+        <button @click="drawCanvasText">画文字</button>
+        <button @click="drawCanvasArc">画圆</button>
+        <button @click="drawCanvasAll">画3种图</button>
+    </div>
+    <div v-for="item in imgList">
+        <img :src="item.fingerprint" style="border: solid 1px gray; margin-right: 5px;"/>
+        <span>{{item.md5}}</span>
+    </div>
+</div>
+<script>
+    var vueApp = new Vue({
+        el: '#divApp',
+        data: function () {
+            return {
+                imgList: [],
+            }
+        },
+        created: function () {
+        },
+        computed: {},
+        methods: {
+            drawCanvasRect: function () {
+                let ctx = this.initCanvas('#000');
+                // 绘制矩形
+                ctx.fillRect(10, 10, 200, 120);// 左上角x,y,宽度,高度
+                this.addFingerprint(ctx);
+            },
+            drawCanvasText: function () {
+                let ctx = this.initCanvas('#fff000');
+                // 绘制文本
+                ctx.fillText('Hello, World!', 20, 40);
+                this.addFingerprint(ctx);
+            },
+            drawCanvasArc: function () {
+                let ctx = this.initCanvas('#000');
+                let circleCenterX = ctx.canvas.width / 2; // 圆心x坐标
+                let circleCenterY = ctx.canvas.height / 2; // 圆心y坐标
+                let circleRadius = ctx.canvas.height / 3;// 圆的半径
+                ctx.arc(circleCenterX, circleCenterY, circleRadius, 0, 2 * Math.PI, false);
+                //ctx.stroke();  // 只画线
+                ctx.fill();// 填充整个圆
+                this.addFingerprint(ctx);
+            },
+            drawCanvasAll: function () {
+                let ctx = this.initCanvas('#f960f0');
+                ctx.fillRect(10, 10, 200, 120);// 左上角x,y,宽度,高度
+
+                ctx.fillStyle = '#fff';
+                ctx.arc(50, 50, 50, 0, 2 * Math.PI, false);
+                ctx.fill();// 填充整个圆
+
+                ctx.fillStyle = '#fff000';
+                ctx.font = '24px Arial';
+                ctx.fillText('Hello, World!', 20, 40);
+
+                this.addFingerprint(ctx);
+            },
+            addFingerprint: function (ctx) {
+                let fingerprint = ctx.canvas.toDataURL();
+                let item = {
+                    fingerprint: fingerprint,
+                    md5: hex_md5(fingerprint),
+                };
+                this.imgList.push(item);
+            },
+            initCanvas: function (fillStyle) {
+                const canvas = document.createElement('canvas');
+                // 获取2D绘图上下文
+                let ctx = canvas.getContext('2d'); // canvas.getContext('2d') 会返回同一对象
+                // 设置画笔颜色
+                ctx.fillStyle = fillStyle;
+                // 设置字体样式
+                ctx.font = '24px Arial';
+                return ctx;
+            },
+            ajaxError: function (error) {
+                if (error.response && error.response.data) {
+                    console.log(JSON.stringify(error.response.data));
+                    let msg = error.response.data['msg'];
+                    if (!msg)
+                        msg = '出错了';
+                    alert(msg);
+                } else {
+                    console.log(JSON.stringify(error));
+                    alert('未知错误');
+                }
+            },
+        },
+    });
+
+</script>
+</body>
+
+</html>
