@@ -3,7 +3,8 @@ server:
 spring:
   application:
     name: spring-bean-study
-
+  profiles:
+    active: abcdef
 myapp:
   demo-config: abc
   str1: 'aaa,bbb,ccc'
