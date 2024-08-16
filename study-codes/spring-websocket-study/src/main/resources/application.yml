@@ -1,0 +1,5 @@
+server.port: 8111
+
+spring:
+  application:
+    name: spring-websocket-study
