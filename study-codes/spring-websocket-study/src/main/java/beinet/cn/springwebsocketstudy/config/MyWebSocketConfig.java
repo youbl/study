@@ -17,12 +17,16 @@ public class MyWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // 给客户端使用的 websocket broker 地址
-        registry.addEndpoint("/my-websocket-endpoint");
+        registry.addEndpoint("/my-websocket-endpoint")
+                // 如果浏览器不支持WebSocket 时，withSockJS会自动切换到使用轮询（polling）或长轮询（long-polling）的方式进行通信。
+                // .withSockJS()
+                // 支持跨域
+                .setAllowedOrigins("*");
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic");
-        registry.setApplicationDestinationPrefixes("/app");
+        registry.setApplicationDestinationPrefixes("/app")
+                .enableSimpleBroker("/topic");
     }
 }

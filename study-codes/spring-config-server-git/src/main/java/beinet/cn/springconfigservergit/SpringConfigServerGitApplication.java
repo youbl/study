@@ -7,6 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.config.server.EnableConfigServer;
 import org.springframework.core.env.Environment;
 
+/**
+ * 官方文档：
+ * https://cloud.spring.io/spring-cloud-config/multi/multi__spring_cloud_config_server.html
+ */
 @SpringBootApplication
 @EnableConfigServer
 public class SpringConfigServerGitApplication implements CommandLineRunner {
