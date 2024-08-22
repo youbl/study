@@ -1,0 +1,26 @@
+{
+    "manifest_version": 3,  // 2024年开始不再支持版本2
+    "name": "beinetJsonFormatExt", // 插件名
+    "description": "JSON格式化工具.", // 插件说明
+    "version": "0.5",       // 插件版本，自定义
+    "permissions": [
+        "scripting",        // 访问 chrome.scripting 的权限
+        "tabs",             // 所有tab页签权限，不加无法获取标题和url等属性
+        "clipboardRead",    // 粘贴板读取权限
+        "clipboardWrite",   // 粘贴板写入权限
+        "storage"           // 使用存储权限
+    ],    
+    "host_permissions": [  // manifest_version 3，不支持<all_urls>，同时独立使用这个 host_permissions属性
+        "http://*/*",
+        "https://*/*",
+        "file:///*"
+        // "chrome://*/*"  // 报错: Invalid scheme for 'host_permissions[chrome://*/*]'.
+    ],
+    "action": {
+        "default_icon": "clock.png", // 浏览器上工具栏的图标，没有就是默认图标
+        "default_title": "beinet-json格式化", // 鼠标悬停时的弹出文字，没有时显示name
+        "default_popup": "popup.html"
+    },
+    "content_scripts": [
+    ]
+}
