@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="res/stomp.umd.min.js"></script>
+</head>
+<body>
+<h1>
+    hello websocket
+</h1>
+<div>
+    <button id="btnConnect">发起连接</button>
+    <button id="btnDisconnect">断开连接</button>
+
+    <button id="btnSend">发消息</button>
+</div>
+<script>
+    let stompClient = null;
+
+    // 创建websocket对象
+    function createWebSocket() {
+        const stompClient = new StompJs.Client({
+            brokerURL: 'ws://localhost:8111/my-websocket-endpoint'
+        });
+        stompClient.onConnect = (frame) => {
+            console.log('Connected: ' + frame);
+            // 订阅指定的主题，并进行处理
+            stompClient.subscribe('/topic/mymsg', (msg) => {
+                console.log('recieve msg: ' + JSON.stringify(msg, null, 4));
+                let json = JSON.parse(msg.body);
+                let str = JSON.stringify(json, null, 4);
+                alert(str);
+            });
+        };
+        stompClient.onWebSocketError = (error) => {
+            console.error('Error with websocket', error);
+        };
+        stompClient.onStompError = (frame) => {
+            console.error('Broker reported error: ' + frame.headers['message']);
+            console.error('Additional details: ' + frame.body);
+        };
+        return stompClient;
+    }
+
+    // 发起websocket连接
+    function connect() {
+        if (!stompClient) {
+            stompClient = createWebSocket();
+        }
+        if (stompClient.state !== 0) {
+            stompClient.activate();
+        }
+    }
+
+    // 断开websocket连接
+    function disconnect() {
+        if (stompClient) {
+            stompClient.deactivate();
+            console.log("Disconnected");
+        }
+    }
+
+    // 向websocket发送消息
+    function sendMsg() {
+        if (!stompClient) {
+            return alert('请先发起连接');
+        }
+
+        const sendMsg = {
+            name: 'ybl',
+            msg: 'testWebSocket sendTime:' + (new Date())
+        };
+        stompClient.publish({
+            destination: "/app/wkmsg",
+            body: JSON.stringify(sendMsg),
+        });
+    }
+
+    document.getElementById('btnConnect').addEventListener('click', () => {
+        connect();
+    });
+    document.getElementById('btnDisconnect').addEventListener('click', () => {
+        disconnect();
+    });
+    document.getElementById('btnSend').addEventListener('click', () => {
+        sendMsg();
+    });
+</script>
+</body>
+</html>
