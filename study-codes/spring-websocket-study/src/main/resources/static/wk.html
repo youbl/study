@@ -20,18 +20,22 @@
 
     // 创建websocket对象
     function createWebSocket() {
+        // 发起连接的地址后面，添加id参数，后端接收不到
         const stompClient = new StompJs.Client({
-            brokerURL: 'ws://localhost:8111/my-websocket-endpoint'
+            brokerURL: 'ws://localhost:8111/my-websocket-endpoint?id=aaaaa'
         });
         stompClient.onConnect = (frame) => {
             console.log('Connected: ' + frame);
-            // 订阅指定的主题，并进行处理
-            stompClient.subscribe('/topic/mymsg', (msg) => {
-                console.log('recieve msg: ' + JSON.stringify(msg, null, 4));
-                let json = JSON.parse(msg.body);
-                let str = JSON.stringify(json, null, 4);
-                alert(str);
-            });
+            // 故意等5秒再订阅，订单的url后面添加ak参数，在后端拦截器那边是可以接收到的，在message的destination里
+            setTimeout(() => {
+                // 订阅指定的主题，并进行处理
+                stompClient.subscribe('/topic/mymsg?ak=bbbbb', (msg) => {
+                    console.log('recieve msg: ' + JSON.stringify(msg, null, 4));
+                    let json = JSON.parse(msg.body);
+                    let str = JSON.stringify(json, null, 4);
+                    alert(str);
+                });
+            }, 5000);
         };
         stompClient.onWebSocketError = (error) => {
             console.error('Error with websocket', error);
@@ -56,7 +60,7 @@
     // 断开websocket连接
     function disconnect() {
         if (stompClient) {
-            stompClient.deactivate();
+            stompClient.deactivate();// 这句代码会触发后端输出2次DISCONNECT消息
             console.log("Disconnected");
         }
     }
