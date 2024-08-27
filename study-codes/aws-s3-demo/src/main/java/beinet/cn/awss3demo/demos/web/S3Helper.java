@@ -1,8 +1,8 @@
 package beinet.cn.awss3demo.demos.web;
 
+import beinet.cn.awss3demo.demos.configs.S3Property;
 import beinet.cn.awss3demo.demos.web.utils.SpringUtil;
 import beinet.cn.awss3demo.demos.web.utils.dto.StoreInfo;
-import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -68,7 +68,7 @@ public class S3Helper {
     private void afterPropertiesSet() {
         try {
             if (StringUtils.hasLength(property.getAccessKey())) {
-                log.info("有ak/sk初始化s3{}", this.client);
+                log.info("有ak/sk初始化s3:{}", this.client);
                 AwsCredentials credentials = AwsBasicCredentials.create(property.getAccessKey(), property.getAccessSecret());
                 AwsCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(credentials);
                 this.client = S3Client.builder().credentialsProvider(credentialsProvider).region(Region.of(property.getRegion())).build();
@@ -390,22 +390,5 @@ public class S3Helper {
         } else {
             return getOriS3Url(property.getBucket(), key);
         }
-    }
-
-    @Data
-    public static class S3Property {
-        private Boolean enabled;
-
-        private String accessKey;
-
-        private String accessSecret;
-
-        private String bucket;
-
-        private String endpoint;
-
-        private String region;
-
-        private String downUrl;
     }
 }

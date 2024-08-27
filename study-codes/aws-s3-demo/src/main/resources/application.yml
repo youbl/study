@@ -1,5 +1,21 @@
-server.port: 8111
+server:
+  port: 8111
+  servlet:
+    context-path: /aws
 
 spring:
   application:
     name: aws-s3-demo
+  profiles:
+    active: dev
+
+aws-config:
+  s3:
+    enabled: true
+    access-key: abcd
+    access-secret: 1234
+    endpoint: s3.cn-north-1.amazonaws.com.cn
+    signVersion: s3v4
+    region: cn-north-1
+    bucket: bucket-test
+    down-url: https://bucket-test.s3.cn-north-1.amazonaws.com.cn

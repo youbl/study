@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <title>存储列表</title>
+    <script src="../res/common.js?flg=3" type="text/javascript"></script>
+    <script src="../res/unpkg/vue.min.js" type="text/javascript"></script>
+    <script src="../res/unpkg/axios.min.js" type="text/javascript"></script>
+    <script src="../res/unpkg/elemeIndex.js" type="text/javascript"></script>
+    <script src="../res/qs.min.js" type="text/javascript"></script>
+
+    <link href="../res/unpkg/elemeIndex.css" rel="stylesheet">
+</head>
+<body>
+<div id="divApp" style="text-align: center;width: 98%;">
+    <el-form :inline="true" :model="searchCond" :rules="ruleSearchForm" class="demo-form-inline" ref="searchForm"
+             style="text-align: left">
+        <div style="float: left">
+            <el-form-item label="文件前缀(子目录)" prop="prefix" style="width:500px;">
+                <el-input placeholder="请输入" v-model.trim="searchCond.prefix" size="mini"
+                          style="width:340px;"></el-input>
+            </el-form-item>
+            <el-button @click="loadDatas('searchForm')" icon="el-icon-search" type="primary" size="mini">查询
+            </el-button>
+            <el-button @click="location.reload()" size="mini">刷新</el-button>
+            <span style="color:blue">{{statusTxt}}</span>
+        </div>
+        <div style="float: left; padding-left: 10px;">
+            <el-upload
+                    class="upload-demo"
+                    :action="$$BASE_URL + 's3/fileToDir?dir=' + encodeURIComponent(searchCond.prefix)"
+                    :on-preview="handleUploadPreview"
+                    :on-remove="handleUploadRemove"
+                    :before-remove="beforeUploadRemove"
+                    :on-exceed="handleUploadExceed"
+                    :on-success="handleUploadSuccess"
+                    :auto-upload="true"
+                    :multiple="false"
+                    :limit="100000"
+                    :file-list="fileList">
+                <el-button size="small" type="primary">选择文件上传</el-button>
+            </el-upload>
+        </div>
+        <div style="clear: both"></div>
+    </el-form>
+
+    <!-- 结果数据 -->
+    <el-table
+            :data="dataList"
+            border
+            stripe
+            v-loading="loading"
+            height="800"
+            style="width: 100%">
+        <el-table-column label="目录或文件名" width="500">
+            <template slot-scope="scope">
+                <div v-if="scope.row.dir">
+                    <a href="#0" @click="showSubDir(scope.row.key)" style="text-decoration: none;">
+                        {{scope.row.key===searchCond.prefix?scope.row.key:scope.row.key.replace(searchCond.prefix,
+                        '')}}</a>
+                </div>
+                <div v-if="!scope.row.dir">
+                    <a :href="scope.row.url" target="_blank" style="text-decoration: none;">
+                        {{scope.row.key===searchCond.prefix?scope.row.key:scope.row.key.replace(searchCond.prefix,
+                        '')}}
+                    </a></div>
+            </template>
+        </el-table-column>
+        <el-table-column label="大小" width="110">
+            <template slot-scope="scope">
+                <div>{{scope.row.dir?'-':scope.row.size}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="最后修改时间" width="170">
+            <template slot-scope="scope">
+                <div>{{scope.row.dir?'-':scope.row.lastModified}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="ETAG" width="300">
+            <template slot-scope="scope">
+                <div>{{scope.row.dir?'-':scope.row.etag}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="" width="150">
+            <template slot-scope="scope">
+                <div :title="scope.row.extInfo">
+                    <a v-if="scope.row.url" href="#0" @click="showJson(scope.row.url)">看Header</a>
+                    <span v-if="!scope.row.dir">|</span>
+                    <a v-if="!scope.row.dir" href="#0" @click="showDelete(scope.row)">删除</a>
+                </div>
+            </template>
+        </el-table-column>
+    </el-table>
+
+    <!-- 显示json字符串 -->
+    <el-dialog :visible.sync="openDetailDialog" width="60%">
+        <el-input id="detailJsonInput" type="textarea" :autosize="{ minRows: 6}"
+                  v-model="detailJson"></el-input>
+    </el-dialog>
+
+    <!-- 删除确认框 -->
+    <el-dialog
+            :visible.sync="deleteDialog"
+            :close-on-click-modal="false"
+            title="删除文件"
+            width="400px">
+        <div style="font-weight: bold; color: red;">注意：<br>
+            待删除的文件: {{deleteKey}}<br>
+            此操作无法恢复，请谨慎操作，确认删除吗？
+        </div>
+        <div class="dialog-footer" slot="footer">
+            <el-button size="mini" @click="confirmDel" icon="el-icon-success"
+                       type="danger">确定删除
+            </el-button>
+            <el-button size="mini" @click="deleteDialog=false">取 消</el-button>
+        </div>
+    </el-dialog>
+</div>
+<script type="text/javascript">
+    const vueApp = new Vue({
+        el: '#divApp',
+        data: function () {
+            return {
+                loading: false,
+                statusTxt: '',
+
+                searchCond: {
+                    prefix: '',
+                },
+                // 搜索form的验证条件
+                ruleSearchForm: {
+                    // teamId: [
+                    //     {required: true, message: '团队ID必填', trigger: 'blur'},
+                    //     {pattern: /^\d+$/, message: '团队ID只能数字', trigger: 'blur'},
+                    // ],
+                },
+
+                dataList: [],
+
+                openDetailDialog: false, // 显示详情对话框
+                detailJson: '',
+
+                deleteDialog: false,
+                deleteKey: '',
+
+                fileList: [],
+            }
+        },
+        mounted: function () {
+            this.loadDatasDo();
+        },
+        computed: {},
+        methods: {
+            showSubDir: function (key) {
+                if (key === '..') {
+                    let idx = this.searchCond.prefix.lastIndexOf('/', this.searchCond.prefix.length - 2);
+                    key = (idx <= 0) ? '' : this.searchCond.prefix.substring(0, idx + 1);
+                }
+                this.searchCond.prefix = key;
+                return this.loadDatasDo();
+            },
+            loadDatas: function (form) {
+                this.$refs[form].validate(valid => {
+                    if (!valid)
+                        return false;
+                    return this.loadDatasDo();
+                });
+            },
+            loadDatasDo: function () {
+                if (this.loading) {
+                    return vueAlert('加载中...');
+                }
+                this.loading = true;
+                this.dataList = [];
+                let startTime = new Date();
+                this.statusTxt = '';
+
+                let url = $$BASE_URL + 's3/listFiles?' + Qs.stringify(this.searchCond);
+                return axios.get(url).then(response => {
+                    this.loading = false;
+                    let endTime = new Date();
+                    let costTime = endTime - startTime;
+
+                    if (!response || !response.data) {
+                        return;
+                    }
+                    if (response.data.code !== 0) {
+                        return vueAlert(response.data.msg);
+                    }
+                    let pageData = response.data.data;
+                    if (this.searchCond.prefix !== '' && this.searchCond.prefix !== '/') {
+                        pageData.unshift({
+                            key: '..',
+                            dir: true,
+                        });
+                    }
+                    this.dataList = pageData;
+                    this.statusTxt = this.dataList.length + '行，耗时:' + costTime + 'ms';
+                }).catch(error => this.ajaxError(error));
+            },
+            showJson: function (path) {
+                let url = $$BASE_URL + 's3/testUrl?url=' + encodeURIComponent(path);
+                return axios.get(url).then(response => {
+                    this.detailJson = (JSON.stringify(response.data, null, 4)
+                        .replace(/\[\s+/g, '[')
+                        .replace(/\s+\]/g, ']'));
+                    this.openDetailDialog = true;
+                }).catch(error => {
+                    this.ajaxError(error);
+                });
+            },
+            showDelete: function (row) {
+                this.deleteDialog = true;
+                this.deleteKey = row.key;
+            },
+            confirmDel: function () {
+                let url = $$BASE_URL + 's3/deleteFile?key=' + encodeURIComponent(this.deleteKey);
+                return axios.post(url).then(response => {
+                    if (response.data.code !== 0) {
+                        return vueAlert(response.data.msg);
+                    }
+                    vueAlert('删除成功。');
+                    this.loadDatasDo();
+                    this.deleteDialog = false;
+                }).catch(error => this.ajaxError(error));
+            },
+
+            handleUploadRemove(file, fileList) {
+                console.log(file, fileList);
+            },
+            handleUploadPreview(file) {
+                console.log(file);
+            },
+            handleUploadExceed(files, fileList) {
+                this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+            },
+            handleUploadSuccess: function (response, file, fileList) {
+                fileList.length = 0;// 清空文件列表显示
+                if (response.data === null || typeof (response.data) !== 'string') {
+                    return alert(this.getMsg(response));
+                }
+                return this.loadDatasDo();
+            },
+            beforeUploadRemove(file, fileList) {
+                return this.$confirm(`确定移除 ${file.name}？`);
+            },
+
+            ajaxError: function (error) {
+                window.ajaxError(error);
+            },
+
+            getMsg: function (response) {
+                if (!response)
+                    return '';
+                if (response.msg)
+                    return response.msg;
+                if (!response.data)
+                    return '';
+                console.log(JSON.stringify(response.data));
+                let msg = response.data['error'];
+                if (!msg)
+                    msg = response.data['msg'];
+                return msg ? msg : '';
+            },
+        },
+    });
+</script>
+</body>
+</html>
