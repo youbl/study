@@ -13,5 +13,13 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "aws-config")
 @Data
 public class AwsConfig {
+    /**
+     * S3的ak/sk和接入点等配置
+     */
     private S3Property S3;
+
+    /**
+     * lambda的ak/sk和接入点等配置
+     */
+    private LambdaProperty lambda;
 }
