@@ -17,6 +17,20 @@
     <el-form :inline="true" :model="searchCond" :rules="ruleSearchForm" class="demo-form-inline" ref="searchForm"
              style="text-align: left">
         <div style="float: left">
+            <el-form-item label="BUCKET" prop="bucket" style="width:300px;">
+                <el-select
+                        v-model="searchCond.bucket"
+                        clearable
+                        filterable
+                        placeholder="请选择"
+                        style="width: 200px">
+                    <el-option v-for="item in allBuckets"
+                               :key="item"
+                               :value="item"
+                               :label="item">
+                    </el-option>
+                </el-select>
+            </el-form-item>
             <el-form-item label="文件前缀(子目录)" prop="prefix" style="width:500px;">
                 <el-input placeholder="请输入" v-model.trim="searchCond.prefix" size="mini"
                           style="width:340px;"></el-input>
@@ -29,7 +43,7 @@
         <div style="float: left; padding-left: 10px;">
             <el-upload
                     class="upload-demo"
-                    :action="$$BASE_URL + 's3/fileToDir?dir=' + encodeURIComponent(searchCond.prefix)"
+                    :action="$$BASE_URL + 's3/fileToDir?bucket=' + searchCond.bucket + '&dir=' + encodeURIComponent(searchCond.prefix)"
                     :on-preview="handleUploadPreview"
                     :on-remove="handleUploadRemove"
                     :before-remove="beforeUploadRemove"
@@ -41,6 +55,9 @@
                     :file-list="fileList">
                 <el-button size="small" type="primary">选择文件上传</el-button>
             </el-upload>
+        </div>
+
+        <div style="float: left; padding-left: 10px;">
         </div>
         <div style="clear: both"></div>
     </el-form>
@@ -125,15 +142,17 @@
                 loading: false,
                 statusTxt: '',
 
+                allBuckets: [],
                 searchCond: {
+                    bucket: '',
                     prefix: '',
                 },
                 // 搜索form的验证条件
                 ruleSearchForm: {
-                    // teamId: [
-                    //     {required: true, message: '团队ID必填', trigger: 'blur'},
-                    //     {pattern: /^\d+$/, message: '团队ID只能数字', trigger: 'blur'},
-                    // ],
+                    bucket: [
+                        {required: true, message: 'BUCKET必选', trigger: 'blur'},
+                        // {pattern: /^\d+$/, message: 'ID只能数字', trigger: 'blur'},
+                    ],
                 },
 
                 dataList: [],
@@ -148,7 +167,7 @@
             }
         },
         mounted: function () {
-            this.loadDatasDo();
+            this.loadBucket().then(this.loadDatasDo);
         },
         computed: {},
         methods: {
@@ -168,6 +187,9 @@
                 });
             },
             loadDatasDo: function () {
+                if (!this.searchCond.bucket && this.allBuckets.length) {
+                    this.searchCond.bucket = this.allBuckets[0];
+                }
                 if (this.loading) {
                     return vueAlert('加载中...');
                 }
@@ -199,10 +221,18 @@
                     this.statusTxt = this.dataList.length + '行，耗时:' + costTime + 'ms';
                 }).catch(error => this.ajaxError(error));
             },
+            loadBucket: function () {
+                let url = $$BASE_URL + 's3/listBuckets';
+                return axios.get(url).then(response => {
+                    this.allBuckets = response.data.data;
+                }).catch(error => {
+                    this.ajaxError(error);
+                });
+            },
             showJson: function (path) {
                 let url = $$BASE_URL + 's3/testUrl?url=' + encodeURIComponent(path);
                 return axios.get(url).then(response => {
-                    this.detailJson = (JSON.stringify(response.data, null, 4)
+                    this.detailJson = (JSON.stringify(response.data.data, null, 4)
                         .replace(/\[\s+/g, '[')
                         .replace(/\s+\]/g, ']'));
                     this.openDetailDialog = true;
@@ -215,7 +245,7 @@
                 this.deleteKey = row.key;
             },
             confirmDel: function () {
-                let url = $$BASE_URL + 's3/deleteFile?key=' + encodeURIComponent(this.deleteKey);
+                let url = $$BASE_URL + 's3/deleteFile?bucket=' + this.searchCond.bucket + '&key=' + encodeURIComponent(this.deleteKey);
                 return axios.post(url).then(response => {
                     if (response.data.code !== 0) {
                         return vueAlert(response.data.msg);

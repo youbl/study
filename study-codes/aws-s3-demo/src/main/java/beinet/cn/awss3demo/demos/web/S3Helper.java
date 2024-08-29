@@ -121,9 +121,10 @@ public class S3Helper {
      *
      * @param s3FileName 文件相对路径
      */
-    public void deleteFile(String s3FileName) {
+    public void deleteFile(String s3FileName, String bucket) {
         try {
-            DeleteObjectResponse deleteObjectResponse = client.deleteObject(DeleteObjectRequest.builder().bucket(property.getBucket()).key(s3FileName).build());
+            DeleteObjectRequest request = DeleteObjectRequest.builder().bucket(bucket).key(s3FileName).build();
+            DeleteObjectResponse deleteObjectResponse = client.deleteObject(request);
             // 检查删除是否成功
             if (deleteObjectResponse.sdkHttpResponse().isSuccessful()) {
                 log.info("文件删除成功:{}", s3FileName);
@@ -172,7 +173,7 @@ public class S3Helper {
         if (StringUtils.hasLength(fixedDirectory)) {
             s3FileName = fixedDirectory + "/" + s3FileName;
         }
-        return uploadFile(file, s3FileName, overwrite);
+        return uploadFileToBucket(file, s3FileName, overwrite, property.getBucket());
     }
 
     /**
@@ -181,10 +182,11 @@ public class S3Helper {
      * @param file       上传文件对象
      * @param s3FileName 上传到的相对路径
      * @param overwrite  存在时是否覆盖
+     * @param bucket 上传到的桶
      * @return 上传后文件的url
      */
     @SneakyThrows
-    public String uploadFile(MultipartFile file, String s3FileName, boolean overwrite) {
+    public String uploadFileToBucket(MultipartFile file, String s3FileName, boolean overwrite, String bucket) {
         if (!StringUtils.hasLength(s3FileName)) {
             s3FileName = "tmp/" + file.getOriginalFilename();
         } else if (s3FileName.startsWith("https://")) {
@@ -203,7 +205,7 @@ public class S3Helper {
 //            return contentType;
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(property.getBucket())
+                .bucket(bucket)
                 .key(s3FileName) // 设置在存储桶中的对象键（文件名）/文件路径
                 .contentType(contentType)
                 .build();
@@ -242,7 +244,7 @@ public class S3Helper {
         byte[] arrBytes = fileContent.getBytes();
         try {
             if (exitFile(s3FileName)) {
-                deleteFile(s3FileName);
+                deleteFile(s3FileName, property.getBucket());
             }
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(property.getBucket())
