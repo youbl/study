@@ -1,2 +1,25 @@
 server:
   port: 8080
+
+logging:
+  level:
+    beinet.cn.springfeignstudyjdk21.demos.feigns.FeignDemo: debug
+# 下面的配置，也可以写代码代替
+# @Bean
+# public Logger.Level level() { return Logger.Level.FULL; }
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 5000
+            loggerLevel: full
+# 参考: https://docs.spring.io/spring-cloud-openfeign/reference/spring-cloud-openfeign.html
+# OpenFeign4已经改成上面的配置，不用下面的配置了
+#feign:
+#  client:
+#    config:
+#      default:
+#        logger-level: full
