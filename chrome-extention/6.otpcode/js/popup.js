@@ -14,6 +14,7 @@ function startRun() {
     /** 因为插件开发，不让直接在html里添加onclick属性，只能在js里添加监听 */
     // 显示添加密钥的对话框
     document.getElementById('btnShowAddCode').addEventListener('click', function (){
+        clearCanvas();
         document.getElementById('dialogAdd').style.display = 'block';
     });
     // 所有对话框的关闭按钮添加事件
@@ -44,6 +45,11 @@ function startRun() {
     // 关闭页面按钮
     document.getElementById('btnClose').addEventListener('click', function (){
         window.close();
+    });
+    // 识别二维码按钮，文件选择后触发动作
+    document.getElementById('fileSelect').addEventListener('change', (evt) => {
+        const file = evt.target.files[0];
+        parseKeyFromQRCode(file);
     });
 
     refreshCode();
@@ -368,4 +374,74 @@ function hideCustomAlert() {
     __customAlertRuning = false;
     const alertElement = document.getElementById('customAlert');
     alertElement.style.display = 'none';
+}
+
+// 清理以前的canvas图像
+function clearCanvas() {
+    const canvas = document.getElementById("canvas"); // 获取canvas
+    const ctx = (canvas).getContext('2d', {willReadFrequently: true});
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// 从二维码图片文件里解析出密钥
+function parseKeyFromQRCode(file) {
+    const canvas = document.getElementById("canvas"); // 获取canvas
+    const URL = window.URL || window.webkitURL; // 兼容
+    const url = URL.createObjectURL(file);   // 获取文件的临时路径(antd upload组件上传的对象为{originFileObj:File},对象中的originFileObj才是file对象)
+    const img = new Image();  // 创建图片对象
+    img.onload = function () {
+        // 根据图片大小设置canvas大小
+        canvas.width = img.width;
+        canvas.height = img.height;
+        // 释放对象URL所占用的内存
+        URL.revokeObjectURL(img.src);
+        // 获取canvas
+        const context = (canvas).getContext('2d', {willReadFrequently: true});
+        // canvas绘制图片
+        context.drawImage(this, 0, 0, img.width, img.height);
+        // 通过canvas获取imageData
+        const imageData = context.getImageData(0, 0, img.width, img.height);
+        // jsQR识别
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+        if (!code || !code.data) {
+            return alert('The file isn\'t a otp image：' + code);
+        }
+        console.log("Found QR code", code.data);
+        let qrKey = parseSecretFromCode(code.data);
+        //if(!qrKey) {
+        //    qrKey = parseSecretFromGoogleAppExport(code.data);
+        //}
+        if(!qrKey) {
+            return alert('The file doesn\'t contain otp-key：' + code);
+        }
+        document.getElementById('txtSecret').value = qrKey;
+    };
+    img.src = url;  // 给img标签设置src属性
+}
+
+// 从标准的otp字符串中，解析secret密钥数据
+function parseSecretFromCode(code) {
+    if (!code)
+        return '';
+    // "otpauth://totp/AmazonWebServices:mfa-abc?secret=abc&issuer=AmazonWebServices"
+    let start = 'secret=';
+    let idx = code.indexOf(start);
+    if (idx < 0) 
+        return '';
+    let ret = code.substring(idx + start.length);
+    idx = ret.indexOf('&');
+    if (idx > 0)
+        ret = ret.substring(0, idx);
+    return ret;
+}
+
+function clickListen(btnId, handler) {
+    if(btnId === null || btnId === undefined || btnId === '') {
+        return alert('btnId can not be empty.');
+    }
+    const btn = document.getElementById(btnId);
+    if(!btn) {
+        return alert('btn="' + btnId + '" can not exists.');
+    }
+    btn.addEventListener('click', handler);
 }

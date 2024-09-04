@@ -25,11 +25,21 @@
             border: 1px solid #ccc; 
             padding: 20px;
         }
+        .dialog-add {
+            position: absolute;
+            top: 3px;
+            right: 25px;
+            background-color: transparent;
+            color: blue;
+            border: none;
+            cursor: pointer;
+        }
         .dialog-close {
             position: absolute;
             top: 5px;
             right: 5px;
             background-color: transparent;
+            color: blue;
             border: none;
             cursor: pointer;
         }
@@ -74,17 +84,23 @@
 
     <!-- 添加otp密钥的浮层弹窗 -->
     <div id="dialogAdd" class="dialog">
-        <div>
+        <div style="padding-top:12px;">
             <div style="padding: 5px;">
-                说明:<input type="text" id="txtName" style="width:200px">
+                说明:<input type="text" id="txtName" style="width:254px">
             </div>
             <div style="padding: 5px;">
-                密钥:<input type="text" id="txtSecret" style="width:200px">
-            </div>
-            <div style="padding: 5px;">
-                <button id="btnAddCode">添  加</button>
+                <div style="float: left;">
+                    密钥:<input type="text" id="txtSecret" style="width:167px">
+                </div>
+                <div style="float: left; cursor: pointer; color: blue; width:80px;">
+                    <label for="fileSelect" style="cursor: pointer;">识别二维码</label>
+                    <input id="fileSelect" style="visibility:hidden;" type="file" accept="image/*"/><br>
+                    <canvas id="canvas" style="visibility:hidden;"></canvas>
+                </div>
+                <div style="clear: both;"></div>
             </div>
         </div>
+        <button id="btnAddCode" class="dialog-add">确认添加</button>
         <button class="dialog-close">X</button>
     </div>
 
@@ -102,6 +118,7 @@
         </li>
     </template>
     <script src="js/otpauth.umd.min.js"></script>
+    <script src="js/jsQR.js"></script>
     <script src="js/popup.js"></script>
 </body>
 
