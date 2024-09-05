@@ -1,4 +1,5 @@
 let __codeRefreshing = false;
+const STORAGE_KEY = 'key'; // otp密钥在storage存储使用的key
 
 startRun();
 
@@ -16,14 +17,24 @@ function startRun() {
     document.getElementById('btnShowAddCode').addEventListener('click', function (){
         clearCanvas();
         document.getElementById('dialogAdd').style.display = 'block';
+        document.getElementById('txtName').focus();
     });
     // 所有对话框的关闭按钮添加事件
-    let closeBtns = document.getElementsByClassName('dialog-close');
-    for(let i=0,j=closeBtns.length;i<j;i++){
+    const closeBtns = document.getElementsByClassName('dialog-close');
+    for(let i=0,j=closeBtns.length; i<j; i++) {
         closeBtns[i].addEventListener('click', function (){
             this.parentNode.style.display = 'none';
         });
     }
+    // 按esc，关闭对话框
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            for(let i=0,j=closeBtns.length; i<j; i++) {
+                if(!isHidden(closeBtns[i]))
+                    closeBtns[i].click();
+            }
+        }
+    });
     // 添加密钥对话框里的确认添加按钮事件
     document.getElementById('btnAddCode').addEventListener('click', function (){
         let desc = document.getElementById('txtName').value.trim();
@@ -297,16 +308,18 @@ function getCodeTimeLeft() {
  * @param {Object} val 写入存储的对象
  * @returns Promise对象
  */
-function setStorage(val) {
-    val = validVal(val)?val:'';
-    let data = {key:val};
+function setStorage(val, key) {
+    val = validVal(val) ? val : '';
+    let data = { };
+    key = key ? key : STORAGE_KEY;
+    data[key] = val;
     
     return new Promise((resolve, reject) => {
         chrome.storage.sync.set(data, ()=>{
             if (chrome.runtime.lastError) {
                 reject(chrome.runtime.lastError);
               } else {
-                //console.log('Storage saved ok' + JSON.stringify(data));
+                //console.log('Storage saved ok' + JSON.stringify(data, null, 4));
                 resolve(val);
               }
         });
@@ -318,14 +331,15 @@ function setStorage(val) {
  * 读取LocalStorage
  * @returns Promise对象
  */
-function getStorage() {
+function getStorage(key) {
+    key = key ? key : STORAGE_KEY;
     return new Promise((resolve, reject) => {
-        chrome.storage.sync.get('key', function(result) {
+        chrome.storage.sync.get(key, function(result) {
           if (chrome.runtime.lastError) {
             console.error(chrome.runtime.lastError);
             reject(chrome.runtime.lastError);
           } else {
-            //console.log('Storage get到的值为 ' + JSON.stringify(result));
+            //console.log('Storage get到的值为 ' + JSON.stringify(result, null, 4));
             let ret = validVal(result.key) ? result.key : '';
             resolve(ret);
           }
@@ -444,4 +458,16 @@ function clickListen(btnId, handler) {
         return alert('btn="' + btnId + '" can not exists.');
     }
     btn.addEventListener('click', handler);
+}
+
+// 判断指定的元素是否隐藏
+function isHidden(el) {
+    return (el.offsetParent === null);
+    //let style = window.getComputedStyle(el);
+    //while(style) {
+    //    if (style.display === 'none')
+    //        return true;
+    //    style = el.parentNode ? window.getComputedStyle(el.parentNode) : null;
+    //}
+    //return false;
 }

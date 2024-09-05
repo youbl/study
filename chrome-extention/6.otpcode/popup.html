@@ -43,36 +43,45 @@
             border: none;
             cursor: pointer;
         }
+        
+        .win-close {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: transparent;
+            color: blue;
+            border: none;
+            cursor: pointer;
+            width: 30px;
+        }
 
         ul {
             padding: 0;
             list-style: none;
         }
-        /* 上下居中 */
         ul li {
             display: flex;
             align-items: center;
         }
         ul li:nth-child(even) {
-            background-color: #f2f2f2;  /* 偶数行颜色 */
+            background-color: #f2f2f2; 
         }
 
         ul li:nth-child(odd) {
-            background-color: #ffffff;  /* 奇数行颜色 */
+            background-color: #ffffff;
         }
         ul li:hover {
-            background-color: #9e9e82; /* 鼠标hover时颜色 */
+            background-color: #9e9e82;
         }
     </style>
 </head>
 
 <body>
+    <img src="img/close.jpeg" id="btnClose" class="win-close"/>
     <div>
         <button id="btnShowAddCode">添加密钥</button>
         <button id="btnExport">导出到粘贴板</button>
         <button id="btnImport">从粘贴板导入</button>
-        <button id="btnClose">关  闭</button>
-        <span>点击code复制</span>
     </div>
     <div id="divCode" style="padding-bottom: 10px;"></div>
 
