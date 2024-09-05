@@ -1,41 +1,45 @@
 let __codeRefreshing = false;
-const STORAGE_KEY = 'key'; // otp密钥在storage存储使用的key
+const STORAGE_OTP_KEY = 'key';          // otp's key used in storage
+const STORAGE_CONFIG_KEY = 'configs';   // global config's key used in storage
+let __currentLang = 'en-US';            // start language
+var __languageMap = null;             // all multi-language map
 
 startRun();
 
 function startRun() {
-    // 阻止esc关闭窗口
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-          event.preventDefault(); // 阻止默认的 Esc 按钮行为
-          // 这里可以添加你的自定义操作
-        }
-    });
+    loadAndSwitchLanguage();
 
-    /** 因为插件开发，不让直接在html里添加onclick属性，只能在js里添加监听 */
-    // 显示添加密钥的对话框
-    document.getElementById('btnShowAddCode').addEventListener('click', function (){
-        clearCanvas();
-        document.getElementById('dialogAdd').style.display = 'block';
-        document.getElementById('txtName').focus();
-    });
-    // 所有对话框的关闭按钮添加事件
+    // get all dialog's close-button
     const closeBtns = document.getElementsByClassName('dialog-close');
-    for(let i=0,j=closeBtns.length; i<j; i++) {
-        closeBtns[i].addEventListener('click', function (){
-            this.parentNode.style.display = 'none';
-        });
-    }
-    // 按esc，关闭对话框
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
+            // stop esc to close window
+            event.preventDefault();
+
+            // enable esc to close all dialog
             for(let i=0,j=closeBtns.length; i<j; i++) {
                 if(!isHidden(closeBtns[i]))
                     closeBtns[i].click();
             }
         }
     });
-    // 添加密钥对话框里的确认添加按钮事件
+
+    /** extensions can't add onclick for dom, so I can only add listener in js */
+
+    // add event for: all dialog's close-button 
+    for(let i=0,j=closeBtns.length; i<j; i++) {
+        closeBtns[i].addEventListener('click', function (){
+            this.parentNode.style.display = 'none';
+        });
+    }
+
+    // show add-key dialog
+    document.getElementById('btnShowAddCode').addEventListener('click', function (){
+        clearCanvas();
+        document.getElementById('dialogAdd').style.display = 'block';
+        document.getElementById('txtName').focus();
+    });
+    // confirm event in add-key dialog
     document.getElementById('btnAddCode').addEventListener('click', function (){
         let desc = document.getElementById('txtName').value.trim();
         let secret = document.getElementById('txtSecret').value.trim();
@@ -45,19 +49,19 @@ function startRun() {
         addSecret(desc, secret);
         document.getElementById('dialogAdd').style.display = 'none';
     });
-    // 导出页面所有otp密钥到粘贴板
+    // export all otp key from storage to clipboard
     document.getElementById('btnExport').addEventListener('click', function (){
         exportSecrets();
     });
-    // 从粘贴板导入所有otp密钥
+    // import otp key from clipboard, and save to storage
     document.getElementById('btnImport').addEventListener('click', function (){
         importSecrets();
     });
-    // 关闭页面按钮
+    // close current window
     document.getElementById('btnClose').addEventListener('click', function (){
         window.close();
     });
-    // 识别二维码按钮，文件选择后触发动作
+    // read otp key from qrcode file, triggered after file select
     document.getElementById('fileSelect').addEventListener('change', (evt) => {
         const file = evt.target.files[0];
         parseKeyFromQRCode(file);
@@ -66,6 +70,103 @@ function startRun() {
     refreshCode();
     // 设置每秒重新生成
     setInterval(refreshCode, 1000);
+}
+
+// read last language, and switch to this lang on app start.
+async function loadAndSwitchLanguage() {
+    // hidden current language button, show the others
+    const langBtns = document.getElementsByClassName('multi-lang-btn');
+    for(let i=0, j=langBtns.length; i<j; i++) {
+        const btn = langBtns[i];
+        const lang = btn.attributes['lang'].value;
+        // switch language event
+        clickListen(btn, () => {
+            switchLanguage(lang);
+        });
+    }
+
+    // change language by last selected
+    let configs = await getConfigs();
+    await switchLanguage(configs.lang);
+}
+
+function hideLanguageBtns() {
+    const langBtns = document.getElementsByClassName('multi-lang-btn');
+    for(let i=0, j=langBtns.length; i<j; i++) {
+        const btn = langBtns[i];
+        const lang = btn.attributes['lang'].value;
+        if(lang === __currentLang) {
+            btn.style.display = 'none';
+        }else{
+            btn.style.display = '';
+        }
+    }
+}
+
+async function switchLanguage(targetLang) {
+    targetLang = targetLang ? targetLang : 'en-US';
+    console.log('current: ', __currentLang, ' target: ', targetLang);
+    if(targetLang === __currentLang) {
+        hideLanguageBtns();
+        return;
+    }
+    
+    const allMap = await getLanguageJson();
+    if(!allMap) return;
+    console.log(allMap);
+
+    // do language change
+    const langMapKey = __currentLang + '|' + targetLang;
+    changeDomTextByLanguage(allMap[langMapKey]);
+
+    // switch ok, save to global config
+    let configs = await getConfigs();
+    __currentLang = targetLang;
+    configs.lang = __currentLang;
+    setConfigs(configs);
+
+    hideLanguageBtns();
+}
+
+// combine multi-language json
+// example: key=en-US|zh-CN value={'a':'b'}
+async function getLanguageJson() {
+    if(__languageMap === null) {
+        const ret = {};
+
+        const jsPath = 'js/zh-CN.json';
+        // map for: en-US => zh-CN
+        const mapEnToZh = await getJsonFromUrl(jsPath);
+        ret['en-US|zh-CN'] = mapEnToZh;
+
+        // map for: zh-CN => en-US
+        const mapZhToUs = {};
+        ret['zh-CN|en-US'] = mapZhToUs;
+        for(let key in mapEnToZh) {
+            if (!mapEnToZh.hasOwnProperty(key)) 
+                continue;
+            let val = mapEnToZh[key];
+            mapZhToUs[val] = key;
+        }
+
+        // todo: can add other language map here
+        __languageMap = ret;
+    }
+    return __languageMap;
+}
+
+function changeDomTextByLanguage(json) {
+    if(!json) return;
+
+    const domArr = document.getElementsByClassName('multi-lang');
+    for(let i=0, j=domArr.length; i<j; i++) {
+        const dom = domArr[i];
+        const key = dom.innerText.trim();
+        const langTxt = json[key];
+        if(langTxt !== undefined) {
+            dom.innerText = langTxt;
+        }
+    }
 }
 
 function exportSecrets() {
@@ -303,6 +404,20 @@ function getCodeTimeLeft() {
     return '0' + ret.toString();
 }
 
+async function getConfigs() {
+    let configs = await getStorage(STORAGE_CONFIG_KEY);
+    if(!configs) {
+        configs = {
+            'lang': 'en-US',  // default language set
+        };
+    }
+    return configs;
+}
+
+function setConfigs(configs) {
+    setStorage(configs, STORAGE_CONFIG_KEY);
+}
+
 /**
  * 写入LocalStorage
  * @param {Object} val 写入存储的对象
@@ -311,7 +426,7 @@ function getCodeTimeLeft() {
 function setStorage(val, key) {
     val = validVal(val) ? val : '';
     let data = { };
-    key = key ? key : STORAGE_KEY;
+    key = key ? key : STORAGE_OTP_KEY;
     data[key] = val;
     
     return new Promise((resolve, reject) => {
@@ -319,32 +434,31 @@ function setStorage(val, key) {
             if (chrome.runtime.lastError) {
                 reject(chrome.runtime.lastError);
               } else {
-                //console.log('Storage saved ok' + JSON.stringify(data, null, 4));
+                console.log(key + ' saved to Storage: ' + JSON.stringify(data, null, 4));
                 resolve(val);
               }
         });
       });
 }
 
-
 /**
  * 读取LocalStorage
  * @returns Promise对象
  */
 function getStorage(key) {
-    key = key ? key : STORAGE_KEY;
+    key = key ? key : STORAGE_OTP_KEY;
     return new Promise((resolve, reject) => {
         chrome.storage.sync.get(key, function(result) {
           if (chrome.runtime.lastError) {
             console.error(chrome.runtime.lastError);
             reject(chrome.runtime.lastError);
           } else {
-            //console.log('Storage get到的值为 ' + JSON.stringify(result, null, 4));
-            let ret = validVal(result.key) ? result.key : '';
+            console.log(key + ' geted from Storage: ' + JSON.stringify(result, null, 4));
+            let ret = validVal(result[key]) ? result[key] : '';
             resolve(ret);
           }
         });
-      });
+    });
 }
 
 function validVal(val){
@@ -422,9 +536,9 @@ function parseKeyFromQRCode(file) {
         }
         console.log("Found QR code", code.data);
         let qrKey = parseSecretFromCode(code.data);
-        //if(!qrKey) {
-        //    qrKey = parseSecretFromGoogleAppExport(code.data);
-        //}
+        if(!qrKey) {
+            qrKey = parseSecretFromGoogleAppExport(code.data);
+        }
         if(!qrKey) {
             return alert('The file doesn\'t contain otp-key：' + code);
         }
@@ -449,18 +563,35 @@ function parseSecretFromCode(code) {
     return ret;
 }
 
+// 从Google Authenticator APP导出的otp字符串中，解析secret密钥数据
+function parseSecretFromGoogleAppExport(codeData) {
+    if (codeData.indexOf('otpauth-migration://offline?data=') !== 0) {
+        return '';
+    }
+    let url = $$BASE_URL + 'otpcode/convertGoogleCode?code=' + encodeURIComponent(codeData);
+    return axios.get(url).then(response => {
+        parseSecretFromCode(response.data);
+    }).catch(error => {
+        alert(error);
+    });
+}
+
 function clickListen(btnId, handler) {
     if(btnId === null || btnId === undefined || btnId === '') {
         return alert('btnId can not be empty.');
     }
-    const btn = document.getElementById(btnId);
+    let btn;
+    if(typeof(btnId) === 'string')
+        btn = document.getElementById(btnId);
+    else 
+        btn = btnId;
     if(!btn) {
         return alert('btn="' + btnId + '" can not exists.');
     }
     btn.addEventListener('click', handler);
 }
 
-// 判断指定的元素是否隐藏
+// check the element is unvisible or not
 function isHidden(el) {
     return (el.offsetParent === null);
     //let style = window.getComputedStyle(el);
@@ -470,4 +601,13 @@ function isHidden(el) {
     //    style = el.parentNode ? window.getComputedStyle(el.parentNode) : null;
     //}
     //return false;
+}
+
+// sync get json-data from the url
+async function getJsonFromUrl(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        return null;
+    }
+    return await response.json();
 }
