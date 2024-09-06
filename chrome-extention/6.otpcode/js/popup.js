@@ -2,7 +2,7 @@ let __codeRefreshing = false;
 const STORAGE_OTP_KEY = 'key';          // otp's key used in storage
 const STORAGE_CONFIG_KEY = 'configs';   // global config's key used in storage
 let __currentLang = 'en-US';            // start language
-var __languageMap = null;             // all multi-language map
+var __languageMap = null;               // all multi-language map
 
 startRun();
 
@@ -44,7 +44,7 @@ function startRun() {
         let desc = document.getElementById('txtName').value.trim();
         let secret = document.getElementById('txtSecret').value.trim();
         if(!desc || !secret)
-            return alert('请输入说明和密钥!');
+            return alert('title and key are required!');
         addNode(desc, secret);            
         addSecret(desc, secret);
         document.getElementById('dialogAdd').style.display = 'none';
@@ -68,7 +68,7 @@ function startRun() {
     });
 
     refreshCode();
-    // 设置每秒重新生成
+    // regenerate otp-code per second
     setInterval(refreshCode, 1000);
 }
 
@@ -180,10 +180,10 @@ function exportSecrets() {
                 });
             }
             if(!ret){
-                return showCustomAlert('无数据可以导出');
+                return showCustomAlert('no data can export');
             }
             copyStr(ret).then(()=>{
-                showCustomAlert('已成功导出到粘贴板，请维持格式，复制到目标电脑粘贴');
+                showCustomAlert('exported to clipboard, please save and import next time.');
             });            
         });    
 }
@@ -191,7 +191,7 @@ function exportSecrets() {
 function importSecrets() {
     readCopy().then(text=>{
         if(!text)
-            return showCustomAlert('粘贴板没有找到要导入的数据');
+            return showCustomAlert('no data in clipboard');
         let arr = text.split(/[\r\n]/g);
         let result = [];
         for(let i=0,j=arr.length;i<j;i++) {
@@ -207,8 +207,8 @@ function importSecrets() {
         }
         
         if(result.length <= 0)
-            return showCustomAlert('粘贴板没有要导入的数据');
-        if(!confirm('确认要导入这' + result.length + '行数据吗？注意：相同说明的密钥会被替换！'))
+            return showCustomAlert('the data in clipboard is not valid.');
+        if(!confirm('confirm to import these ' + result.length + ' line data? Note: key with same title will be replaced'))
             return;
         getStorage()
             .then((arrSecrets)=>{
@@ -216,7 +216,7 @@ function importSecrets() {
                     arrSecrets = {};
                 for(let i=0,j=result.length;i<j;i++){
                     let item = result[i];
-                    //console.log(item[0] + ' 密钥: ' + item[1]);            
+                    //console.log(item[0] + ' key: ' + item[1]);            
                     arrSecrets[item[0]] = item[1];
                 }
                 setStorage(arrSecrets)
@@ -234,7 +234,7 @@ function refreshCode(){
         let root = document.getElementById('divCode');
         let ulList = root.getElementsByTagName('UL');
         if(ulList.length <= 0){
-            // 首次要完整加载一下
+            // full load at first
             getStorage()
                 .then((arrSecrets)=>{
                     if(arrSecrets) {
@@ -247,7 +247,7 @@ function refreshCode(){
             return;
         }
     
-        // 刷新时，只刷新code和时间，别的不动，避免影响
+        // only refresh code and time, don't refresh others
         let liList = ulList[0].getElementsByTagName('LI');
         let endTime = getCodeTimeLeft();
         for(let i=0,j=liList.length;i<j;i++) {
@@ -260,15 +260,14 @@ function refreshCode(){
             let secret = copySecretNode.getAttribute('data');
             let code = getCode(secret);
     
-            endTimeNode.innerText = endTime + '秒';
+            endTimeNode.innerText = endTime + 's';
             if(code !== copyCodeNode.getAttribute('data')) {
-                // 不同时才渲染
                 copyCodeNode.innerText = code;
                 copyCodeNode.setAttribute('data', code);
             }
         }
     }catch(e){
-        alert('出错了:' + e.message);
+        alert('err:' + e.message);
     }finally{
         __codeRefreshing = false;
     }
@@ -282,10 +281,10 @@ function addCopyClick(container){
             btns[i].addEventListener('click', function () {
                 let code = this.getAttribute('data');
                 copyStr(code).then(()=>{
-                    showCustomAlert('复制成功:' + code);
+                    showCustomAlert('copyed: ' + code);
                 });
             });
-            btns[i].setAttribute('bindclick', 1); // 避免重复绑定多次事件
+            btns[i].setAttribute('bindclick', 1); // avoid repeatedly bind.
         }
     }
 }
@@ -296,17 +295,17 @@ function addDelClick(container){
         if(btns[i].getAttribute('bindclick') === null) {
             btns[i].addEventListener('click', function () {
                 let desc = this.getAttribute('data');
-                if(!confirm('确认要删除该密钥？注意：此操作无法恢复!'))
+                if(!confirm('Confirm del?Note:can\'t restore!'))
                     return;
                 removeNode(this);
                 removeSecret(desc);
             });
-            btns[i].setAttribute('bindclick', 1); // 避免重复绑定多次事件
+            btns[i].setAttribute('bindclick', 1); // avoid repeatedly bind.
         }
     }
 }
 
-// 添加一行
+// add a line to page table
 function addNode(desc, secret) {
     let codeTml = document.getElementById('codeItemTemp').innerHTML;
     
@@ -327,7 +326,7 @@ function addNode(desc, secret) {
     }else{
         root.innerHTML = '<ul>' + itemHtml + '</ul>';
     }
-    // 等一等, 防止未渲染
+    // wait a moment, to avoid render not ok
     setTimeout(()=>{
         let liList = root.getElementsByTagName('LI');
         for(let i=0,j=liList.length;i<j;i++){
@@ -338,7 +337,7 @@ function addNode(desc, secret) {
     }, 50);
 }
 
-// 往LocalStorage里，添加一个说明和密钥
+// add a record into LocalStorage
 function addSecret(desc, secret){
     getStorage()
         .then((arrSecrets)=>{
@@ -349,7 +348,7 @@ function addSecret(desc, secret){
         });
 }
 
-// 删除当前btn节点的父li节点，即删除当前行
+// remove btn's parentNode(delete the current row)
 function removeNode(btn) {
     let parent = btn.parentNode;
     while(parent) {
@@ -361,20 +360,21 @@ function removeNode(btn) {
     }
 }
 
-// 根据说明，从LocalStorage中删除该密钥
+// delete a key according desc
 function removeSecret(desc) {
     getStorage()
         .then((arrSecrets)=>{
             if(!arrSecrets)
                 return;
-            delete arrSecrets[desc]; // 删除属性
+            delete arrSecrets[desc];
             setStorage(arrSecrets);
         });
 }
 
 /**
- * 根据密钥生成otp code
- * @param {string} secret 密钥
+ * generate a otp-code
+ * 
+ * @param {string} secret otp-key
  * @returns code
  */
 function getCode(secret) {
@@ -382,20 +382,22 @@ function getCode(secret) {
         return '';
     }
     let totp = new OTPAuth.TOTP({
-        issuer: 'youbl',            // 生成的url里的发行者
-        algorithm: "SHA1",          // 使用的算法
-        digits: 6,                  // 生成的otp位数
-        period: 30,                 // 时间窗口，单位秒，每30秒生成一次
-        secret: secret,        // 生成otp使用的密钥
+        issuer: 'youbl',
+        algorithm: "SHA1",
+        digits: 6,                  // number of otp-code bits
+        period: 30,                 // generate a code per 30 seconds
+        secret: secret,
     });
-    return totp.generate();    // 生成密钥
+    return totp.generate();
 }
 
 /**
- * 计算otp code的剩余时间，每30秒生成一个
+ * generate left-time for current otp-code
+ * 
+ * @returns left-time
  */
 function getCodeTimeLeft() {
-    let ts = Math.floor(Date.now()/1000); // 当前时间戳
+    let ts = Math.floor(Date.now()/1000); // current timestamp
     let beginTime = Math.floor(ts / 30) * 30;
     let endTime = beginTime + 30;
     let ret = endTime - ts;
@@ -404,6 +406,11 @@ function getCodeTimeLeft() {
     return '0' + ret.toString();
 }
 
+/**
+ * read global config from LocalStorage
+ * 
+ * @returns configs
+ */
 async function getConfigs() {
     let configs = await getStorage(STORAGE_CONFIG_KEY);
     if(!configs) {
@@ -414,14 +421,18 @@ async function getConfigs() {
     return configs;
 }
 
+/**
+ * save global config to LocalStorage
+ */
 function setConfigs(configs) {
     setStorage(configs, STORAGE_CONFIG_KEY);
 }
 
 /**
- * 写入LocalStorage
- * @param {Object} val 写入存储的对象
- * @returns Promise对象
+ * save data to LocalStorage
+ *
+ * @param {Object} val data
+ * @returns Promise
  */
 function setStorage(val, key) {
     val = validVal(val) ? val : '';
@@ -442,8 +453,9 @@ function setStorage(val, key) {
 }
 
 /**
- * 读取LocalStorage
- * @returns Promise对象
+ * read data from LocalStorage
+ *
+ * @returns Promise
  */
 function getStorage(key) {
     key = key ? key : STORAGE_OTP_KEY;
@@ -467,17 +479,21 @@ function validVal(val){
     return val !== '';
 }
 
-// 把指定的字符串复制到剪切板
+/**
+ * set str to clipboard
+ */
 function copyStr(str) {
     return navigator.clipboard.writeText(str);
 }
 
-// 从剪切板读取文本数据
+/**
+ * read str data from clipboard
+ */
 function readCopy() {
     return navigator.clipboard.readText();
 }
 
-// 这2个变量，用于避免执行多个setTimeout，导致后面的alert被提前关闭
+// these 2 var, used to avoid multi setTimeout executed, cause alert-win closed early
 var __customAlertSecond = 3;
 var __customAlertRuning = false;
 function showCustomAlert(message) {
@@ -504,32 +520,29 @@ function hideCustomAlert() {
     alertElement.style.display = 'none';
 }
 
-// 清理以前的canvas图像
+// clear canvas's data before
 function clearCanvas() {
-    const canvas = document.getElementById("canvas"); // 获取canvas
+    const canvas = document.getElementById("canvas");
     const ctx = (canvas).getContext('2d', {willReadFrequently: true});
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-// 从二维码图片文件里解析出密钥
+// parse otp-key from qrcode image
 function parseKeyFromQRCode(file) {
-    const canvas = document.getElementById("canvas"); // 获取canvas
-    const URL = window.URL || window.webkitURL; // 兼容
-    const url = URL.createObjectURL(file);   // 获取文件的临时路径(antd upload组件上传的对象为{originFileObj:File},对象中的originFileObj才是file对象)
-    const img = new Image();  // 创建图片对象
+    const canvas = document.getElementById("canvas");
+    const URL = window.URL || window.webkitURL;
+    const url = URL.createObjectURL(file);
+    const img = new Image();
     img.onload = function () {
-        // 根据图片大小设置canvas大小
         canvas.width = img.width;
         canvas.height = img.height;
-        // 释放对象URL所占用的内存
+        // release URL memory
         URL.revokeObjectURL(img.src);
-        // 获取canvas
+        
         const context = (canvas).getContext('2d', {willReadFrequently: true});
-        // canvas绘制图片
         context.drawImage(this, 0, 0, img.width, img.height);
-        // 通过canvas获取imageData
         const imageData = context.getImageData(0, 0, img.width, img.height);
-        // jsQR识别
+        // read data by jsQR
         const code = jsQR(imageData.data, imageData.width, imageData.height);
         if (!code || !code.data) {
             return alert('The file isn\'t a otp image：' + code);
@@ -544,14 +557,14 @@ function parseKeyFromQRCode(file) {
         }
         document.getElementById('txtSecret').value = qrKey;
     };
-    img.src = url;  // 给img标签设置src属性
+    img.src = url;  // set img.src, to trigger img.onload
 }
 
-// 从标准的otp字符串中，解析secret密钥数据
+// parse otp-key from a standard OTP string
+// standard like: "otpauth://totp/AmazonWebServices:mfa-abc?secret=abc&issuer=AmazonWebServices"
 function parseSecretFromCode(code) {
     if (!code)
         return '';
-    // "otpauth://totp/AmazonWebServices:mfa-abc?secret=abc&issuer=AmazonWebServices"
     let start = 'secret=';
     let idx = code.indexOf(start);
     if (idx < 0) 
@@ -563,11 +576,12 @@ function parseSecretFromCode(code) {
     return ret;
 }
 
-// 从Google Authenticator APP导出的otp字符串中，解析secret密钥数据
+// parse otp-key from a string exported by "Google Authenticator APP"
 function parseSecretFromGoogleAppExport(codeData) {
     if (codeData.indexOf('otpauth-migration://offline?data=') !== 0) {
         return '';
     }
+    // todo: not finished
     let url = $$BASE_URL + 'otpcode/convertGoogleCode?code=' + encodeURIComponent(codeData);
     return axios.get(url).then(response => {
         parseSecretFromCode(response.data);
