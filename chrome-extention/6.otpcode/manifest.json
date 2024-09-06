@@ -1,16 +1,16 @@
 {
-    "manifest_version": 3,  // 2024年开始不再支持版本2
-    "name": "beinetOtpExt", // 插件名
-    "description": "tool about generate otp-code.", // 插件说明
-    "version": "0.5",       // 插件版本，自定义
+    "manifest_version": 3,
+    "name": "beinetOtpExt",
+    "description": "Tool about generate otp-code, and can import from qrcode.",
+    "version": "1.1",
     "permissions": [
-        "clipboardRead",    // 粘贴板读取权限
-        "clipboardWrite",   // 粘贴板写入权限
-        "storage"           // 使用存储权限
+        "clipboardRead",
+        "clipboardWrite",
+        "storage"
     ],
     "action": {
-        "default_icon": "one.png", // 浏览器上工具栏的图标，没有就是默认图标
-        "default_title": "beinet-otp生成工具", // 鼠标悬停时的弹出文字，没有时显示name
+        "default_icon": "one.png",
+        "default_title": "beinet-2fa:otp-code generate",
         "default_popup": "popup.html"
     },
     "content_scripts": [
