@@ -27,8 +27,8 @@
         }
         .dialog-add {
             position: absolute;
-            top: 3px;
-            right: 25px;
+            top: 1px;
+            right: 35px;
             background-color: transparent;
             color: blue;
             border: none;
@@ -36,12 +36,14 @@
         }
         .dialog-close {
             position: absolute;
-            top: 5px;
-            right: 5px;
+            top: 2px;
+            right: 1px;
             background-color: transparent;
             color: blue;
             border: none;
             cursor: pointer;
+            width: 25px;
+            height: 20px;
         }
         
         .win-close {
@@ -53,6 +55,7 @@
             border: none;
             cursor: pointer;
             width: 30px;
+            height: 30px;
         }
 
         ul {
@@ -77,22 +80,22 @@
 </head>
 
 <body>
-    <img src="img/close.jpeg" id="btnClose" class="win-close"/>
+    <img src="img/power.png" id="btnClose" class="win-close"/>
     <div>
-        <span style="padding-right:20px;">
-            <a class="multi-lang-btn" lang="zh-CN" href="#0">切换中文</a>
-            <a class="multi-lang-btn" lang="en-US" href="#0">English</a>
-        </span>
         <button id="btnShowAddCode" class="multi-lang">Add Key</button>
         <button id="btnExport" class="multi-lang">Export to Clipboard</button>
         <button id="btnImport" class="multi-lang">Import from Clipboard</button>
+        <span style="padding-left:20px;">
+            <a class="multi-lang-btn" lang="zh-CN" href="#0">中文</a>
+            <a class="multi-lang-btn" lang="en-US" href="#0">English</a>
+        </span>
     </div>
     <div id="divCode" style="padding-bottom: 10px;"></div>
 
     <!-- replace origin alert dialog -->
     <div id="customAlert" class="dialog" style="overflow: auto;">
         <div id="alertContent"></div>
-        <button class="dialog-close">X</button>
+        <img src="img/close.jpg" class="dialog-close"/>
     </div>
 
     <!-- dialog for Add otp-key -->
@@ -120,7 +123,7 @@
             </div>
         </div>
         <button id="btnAddCode" class="dialog-add multi-lang">Save</button>
-        <button class="dialog-close">X</button>
+        <img src="img/close.jpg" class="dialog-close"/>
     </div>
 
     <!-- template for: otp-code table row -->
