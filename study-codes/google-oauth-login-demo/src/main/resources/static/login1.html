@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>谷歌登录方式1</title>
+    <script src="https://accounts.google.com/gsi/client" async></script>
+</head>
+<body>
+<div>
+    <div>
+        参考这里生成Google的登录代码：
+        https://developers.google.com/identity/gsi/web/tools/configurator?hl=zh-cn
+        <br>
+        登录后，会回到此页面，并在此页面POST一个 credential=xxx&g_csrf_token=xxx 到配置的data-login_uri
+        <br>
+        需要在该uri的服务端代码，进行校验：https://developers.google.com/identity/gsi/web/guides/verify-google-id-token?hl=zh-cn
+    </div>
+    <div id="g_id_onload"
+         data-client_id="CLIENT_ID.apps.googleusercontent.com"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-login_uri="http://localhost:8801/ttt/"
+         data-auto_prompt="false">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="signin_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+<hr>
+    <pre>
+谷歌开通第三方平台OAuth登录步骤：
+1、要先有一个Project：
+   进入控制台：https://console.cloud.google.com/welcome
+   新建项目，项目名随意，位置：无组织，点创建即可；
+2、配置 OAuth 权限请求页面
+   选择新建的项目，点击”API和服务“，再点左边的“OAuth 权限请求页面”
+   UserType选择“外部”
+   应用名称随意，用户支持电子邮件和开发者联系信息填充你的邮箱即可
+   点击“添加或移除范围”，选择全部API，点更新，再点“保存并继续”
+   如果要先测试，添加一下测试用户邮箱，再点“保存并继续”
+3、配置客户端ID和重定向URL
+   点左边的“凭据”，再点右边的“创建凭据”，选择“OAuth客户端ID”
+   应用类型选择“Web应用”，名称随意
+   已获授权的 JavaScript 来源，输入会使用谷歌登录的所有域名，如 http://localhost http://localhost:8801 和 https://beinet.cn
+   已获授权的重定向 URI，输入谷歌支持的回调路径（要精确匹配，比如缺少斜杠）
+   注1：这个域名和回调路径，每次编辑保存，都会缓存几分钟，要等
+   注2：回调路径最好只配置1个，配置2个以上后，第2个老是报 redirect_uri_mismatch
+   注3：如果域名有端口，则域名一定要加无端口的，比如 http://localhost，参考：https://stackoverflow.com/questions/68438293/the-given-origin-is-not-allowed-for-the-given-client-id-gsi
+   保存后，会弹出客户端ID和客户端密钥，保存下来
+    </pre>
+</div>
+<script>
+</script>
+</body>
+</html>

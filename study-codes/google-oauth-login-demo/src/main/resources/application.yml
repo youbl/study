@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: google-oauth-login-demo
+server:
+  port: 8801
+  servlet:
+    context-path: /ttt
