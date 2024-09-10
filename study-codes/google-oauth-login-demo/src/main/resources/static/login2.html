@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>谷歌登录方式1</title>
+    <script src="https://accounts.google.com/gsi/client" async></script>
+    <script src="base64.min.js"></script>
+</head>
+<body>
+<div>
+    <pre>
+参考这里生成Google的登录代码：
+https://developers.google.com/identity/gsi/web/tools/configurator?hl=zh-cn
+
+login1.html，在登录成功后，会回到此页面进行POST到配置的服务端data-login_uri，由这个
+本页面使用javascript接收登录成功的数据，然后对收到的凭据 credential <b>扔到服务端进行校验</b>
+注：这个credential是标准的JWT数据，用.连接3段，可以进行base64解码提取数据
+    </pre>
+    <div id="g_id_onload"
+         data-client_id="CLIENT_ID.apps.googleusercontent.com"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-callback="login_callback"
+         data-auto_prompt="false">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="pill"
+         data-theme="outline"
+         data-text="signin_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+    <button onclick="validCredential()">收到的token扔到服务器校验</button>
+    <hr>
+    <textarea id="txtUserInfo" style="width:95%;height: 500px;"></textarea>
+</div>
+<script>
+    var lastCredential;
+
+    function login_callback(token) {
+        if (!token || !token.credential) {
+            return alert('未收到合法的登录token');
+        }
+        let credential = token.credential;
+        let decodeStr = jwtDecodeToStr(credential);
+        console.log(decodeStr);
+
+        let userInfo = JSON.stringify(jwtDecodeToObj(credential), null, 4);
+        document.getElementById('txtUserInfo').value = userInfo;
+
+        lastCredential = credential;
+    }
+
+    function validCredential() {
+        if (!lastCredential) {
+            return alert('请先登录');
+        }
+        let opn = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({credential: lastCredential}),
+        };
+        fetch('/ttt/valid', opn)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json(); // 假设我们正在处理 JSON
+            })
+            .then(data => {
+                document.getElementById('txtUserInfo').value += '\r\n\r\n服务端认证结果:\r\n' +
+                    JSON.stringify(data, null, 4);
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+    }
+
+    function jwtDecodeToStr(str) {
+        let ret = '';
+        let arr = str.split('.');
+        for (let i = 0; i < arr.length; i++) {
+            try {
+                if (ret.length > 0)
+                    ret += '.';
+                ret += base64Decode(arr[i]);
+            } catch (exp) {
+                ret += '错误: ' + exp.toString();
+            }
+        }
+        return ret;
+    }
+
+    function jwtDecodeToObj(str) {
+        let ret = [];
+        let arr = str.split('.');
+        if (arr.length <= 1) {
+            return alert('无效的jwt');
+        }
+        return JSON.parse(base64Decode(arr[1]));
+    }
+
+    function base64Decode(str) {
+        return Base64.decode(str);
+    }
+</script>
+</body>
+</html>

@@ -4,12 +4,14 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
@@ -34,10 +36,10 @@ public class HomeController {
     /**
      * 对应前端login1.html的回调地址
      * @param request 请求上下文
-     * @return
+     * @return 完整用户信息
      */
     @PostMapping(value = "/", produces = "text/plain")
-    public String indexPost(HttpServletRequest request) {
+    public GoogleIdToken.Payload indexPost(HttpServletRequest request) {
         // 读取谷歌响应的数据并打印，响应数据参考：
         /*
 POST http://localhost:8801/ttt/
@@ -64,6 +66,16 @@ credential=aa.bb.cc-dd-ee-ff&g_csrf_token=22c220a0407a7696
 //        log.warn(ret);
         csrfTokenValid(request);
         return getMailFromCredential(request);
+    }
+
+    /**
+     * 对应前端login2.html的校验接口
+     * @param dto google返回的token数据
+     * @return 完整用户信息
+     */
+    @PostMapping(value = "/valid")
+    public GoogleIdToken.Payload validToken(@RequestBody ValidDto dto) {
+        return getMailFromCredential(dto.getCredential());
     }
 
     private String getRequestData(HttpServletRequest request) {
@@ -105,7 +117,7 @@ credential=aa.bb.cc-dd-ee-ff&g_csrf_token=22c220a0407a7696
                 requestBody.append(line);
             }
         }
-        // credential=eyJhbGciOiJSUzI1NiIsImtpZCI6ImQ3YjkzOTc3MWE3ODAwYzQxM2Y5MDA1MTAxMmQ5NzU5ODE5MTZkNzEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI5ODI4MDMzMDkwMDMtNWkzOG42ZTZyb3JmYjdybDRyc3YxaDM1cTA2M2RqYWguYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI5ODI4MDMzMDkwMDMtNWkzOG42ZTZyb3JmYjdybDRyc3YxaDM1cTA2M2RqYWguYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDkxNDQxNzE4ODM5MDMzMjA5MzAiLCJlbWFpbCI6ImJsLnlvdTExMkBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwibmJmIjoxNzI1OTYxMDc0LCJuYW1lIjoi5rC06L65QmwiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jSmhpMVhkY1cxUGxzQW0wRWZKS1JidDk0ZzBJcHdXcTJJWk42Nk9qVDR0S0VycGZ4WT1zOTYtYyIsImdpdmVuX25hbWUiOiJCbCIsImZhbWlseV9uYW1lIjoi5rC06L65IiwiaWF0IjoxNzI1OTYxMzc0LCJleHAiOjE3MjU5NjQ5NzQsImp0aSI6IjAyNmQ0MWNmYzA1Nzc3ZGFjMzQ2M2Y4ZTE4YTMyNWY5YTNmYzliN2QifQ.No7i5HRaOGUiWGg_krmCjsA8L2HJxm1w2sN8wXE5goFVNgq59Ui8dTWIJN2KOqH8ahNYSXGPAdufHgxJT4hl6pdFJLH4T7f4_oMg3F8TKFm8MdCjhDtvL05rC5ydatuasyF3YF_k6qxibeBGnxaQBK7dQcizs0NCtw5CrN-PZtfo5F_eRicsc4G1VEKusd1FYO32WgzD0Pkau_0zB-yf37_b_aUG4_iGAt8epyrFC3ScennA2rCzs9k6InmHGInCOMU4oukF_wRN3PxGnbo5GZmWT8DK-GuTex2OuNYkV85w8MCNPX6B_DqD_CE3k3U3nl60ubs6UUTfLVXWTZEGPg&g_csrf_token=22c220a0407a7696
+        // credential=xxx.xxx.xxx-xxx-xxx-xxx&g_csrf_token=22c220a0407a7696
         return requestBody.toString();
     }
 
@@ -127,12 +139,26 @@ credential=aa.bb.cc-dd-ee-ff&g_csrf_token=22c220a0407a7696
         }
     }
 
+    /**
+     * 从请求body里获取google的jwt，并进行校验，再返回完整用户信息
+     * @param request 请求上下文
+     * @return 用户信息
+     */
     @SneakyThrows
-    private String getMailFromCredential(HttpServletRequest request) {
+    private GoogleIdToken.Payload getMailFromCredential(HttpServletRequest request) {
         String name = "credential";
         String credential = getBody(request, name);
         Assert.isTrue(StringUtils.hasLength(credential), "Google credential is empty");
+        return getMailFromCredential(credential);
+    }
 
+    /**
+     * 从请求body里获取google的jwt，并进行校验，再返回完整用户信息
+     * @param credential 请求上下文
+     * @return 用户信息
+     */
+    @SneakyThrows
+    private GoogleIdToken.Payload getMailFromCredential(String credential) {
         // 官方文档没写Builder的2个参数怎么来的，参考这里写的：https://stackoverflow.com/questions/37172082/android-what-is-transport-and-jsonfactory-in-googleidtokenverifier-builder
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier
                 .Builder(new NetHttpTransport(), new GsonFactory())
@@ -148,7 +174,7 @@ credential=aa.bb.cc-dd-ee-ff&g_csrf_token=22c220a0407a7696
         log.info("family_name：{}", payload.get("family_name"));
         log.info("given_name：{}", payload.get("given_name"));
         log.info("picture：{}", payload.get("picture"));
-        return payload.getEmail();
+        return payload;
     }
 
     private String getCookie(HttpServletRequest request, String name) {
@@ -169,5 +195,10 @@ credential=aa.bb.cc-dd-ee-ff&g_csrf_token=22c220a0407a7696
         Assert.isTrue(StringUtils.hasLength(name), "name不能为空");
         String ret = request.getParameter(name);
         return ret == null ? "" : ret;
+    }
+
+    @Data
+    public static class ValidDto {
+        private String credential;
     }
 }
