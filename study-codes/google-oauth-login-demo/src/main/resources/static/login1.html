@@ -13,7 +13,8 @@ https://developers.google.com/identity/gsi/web/tools/configurator?hl=zh-cn
 
 登录后，会回到此页面，并在此页面POST一个JWT，即： credential=xxx&g_csrf_token=xxx 到配置的data-login_uri
 需要在该uri的服务端代码，进行校验：https://developers.google.com/identity/gsi/web/guides/verify-google-id-token?hl=zh-cn
-注：这个credential是标准的JWT数据，用.连接3段，可以进行base64解码提取数据
+注1：这个credential是标准的JWT数据，用.连接3段，可以进行base64解码提取数据
+注2：这个data-login_uri需要在google后台配置，而这个配置真的可能要等几小时才生效
     </pre>
     <div id="g_id_onload"
          data-client_id="CLIENT_ID.apps.googleusercontent.com"
