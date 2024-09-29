@@ -683,7 +683,8 @@ function parseMigrationPayload(data) {
         const length = readVarint(data, offset);
         offset += varintLength(length) + length;
       } else {
-        throw new Error('unsupported wire type: ' + wireType);
+        console.warn('unknown wire type:', wireType, 'at offset:', offset - 1);
+        break; // break while loop
       }
     }
   }
@@ -720,11 +721,17 @@ function parseOtpParameter(data) {
       const wireType = data[offset - 1] & 0x7;
       if (wireType === 0) {
         offset += varintLength(readVarint(data, offset));
+      } else if (wireType === 1) {
+        offset += 8;
       } else if (wireType === 2) {
         const length = readVarint(data, offset);
         offset += varintLength(length) + length;
+      } else if (wireType === 5) {
+        offset += 4;
       } else {
-        throw new Error('unsupported wire type: ' + wireType);
+        console.warn('unknown wire type:', wireType, 'at offset:', offset - 1);
+        // try to skip this field
+        offset++;
       }
     }
   }
