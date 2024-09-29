@@ -551,6 +551,10 @@ function parseKeyFromQRCode(file) {
         let qrKey = parseSecretFromCode(code.data);
         if(!qrKey) {
             qrKey = parseSecretFromGoogleAppExport(code.data);
+            // only get the first key
+            if(qrKey && qrKey.length > 0) {
+                qrKey = qrKey[0].secret;
+            }
         }
         if(!qrKey) {
             return alert('The file doesn\'t contain otp-key：' + code);
@@ -574,20 +578,6 @@ function parseSecretFromCode(code) {
     if (idx > 0)
         ret = ret.substring(0, idx);
     return ret;
-}
-
-// parse otp-key from a string exported by "Google Authenticator APP"
-function parseSecretFromGoogleAppExport(codeData) {
-    if (codeData.indexOf('otpauth-migration://offline?data=') !== 0) {
-        return '';
-    }
-    // todo: not finished
-    let url = $$BASE_URL + 'otpcode/convertGoogleCode?code=' + encodeURIComponent(codeData);
-    return axios.get(url).then(response => {
-        parseSecretFromCode(response.data);
-    }).catch(error => {
-        alert(error);
-    });
 }
 
 function clickListen(btnId, handler) {
@@ -624,4 +614,158 @@ async function getJsonFromUrl(url) {
         return null;
     }
     return await response.json();
+}
+
+
+
+/**
+ * parse otp-key from a string exported by "Google Authenticator APP"
+ * @param {string} otpauthString - a string start with "otpauth-migration://offline"
+ * @returns {Array} array contains all otp-key info, demo: [{name: 'name-1', secret: 'secret-1'},{name: 'name-2', secret: 'secret-2'}]
+ */
+function parseSecretFromGoogleAppExport(otpauthString) {
+  if (!otpauthString.startsWith('otpauth-migration://offline')) {
+    throw new Error('invalid otpauth string');
+  }
+
+  try {
+    // remove url scheme
+    const decodedString = decodeURIComponent(otpauthString.replace('otpauth-migration://offline?data=', ''));    
+    // Base64 decode
+    const decodedData = atob(decodedString);
+    
+    // convert to Uint8Array
+    const uint8Array = new Uint8Array(decodedData.length);
+    for (let i = 0; i < decodedData.length; i++) {
+      uint8Array[i] = decodedData.charCodeAt(i);
+    }
+    
+    // parse data by pre-defined struct
+    const mfaKeys = parseMigrationPayload(uint8Array);
+
+    return mfaKeys;
+  } catch (error) {
+    console.error('parse otpauth string error:', error);
+    throw new Error('parse otpauth string error');
+  }
+}
+
+/**
+ * parse MigrationPayload struct
+ * @param {Uint8Array} data - binary data to parse
+ * @returns {Array} array contains all otp-key info
+ */
+function parseMigrationPayload(data) {
+  let offset = 0;
+  const mfaKeys = [];
+
+  while (offset < data.length) {
+    const tag = data[offset] >> 3;
+    offset++;
+
+    if (tag === 1) { // otpParameters
+      const length = readVarint(data, offset);
+      offset += varintLength(length);
+      
+      const endOffset = offset + length;
+      const otpParameter = parseOtpParameter(data.slice(offset, endOffset));
+      if (otpParameter) {
+        mfaKeys.push(otpParameter);
+      }
+      
+      offset = endOffset;
+    } else {
+      // skip unknown field
+      const wireType = data[offset - 1] & 0x7;
+      if (wireType === 0) {
+        offset += varintLength(readVarint(data, offset));
+      } else if (wireType === 2) {
+        const length = readVarint(data, offset);
+        offset += varintLength(length) + length;
+      } else {
+        throw new Error('unsupported wire type: ' + wireType);
+      }
+    }
+  }
+
+  return mfaKeys;
+}
+
+/**
+ * parse OtpParameter struct
+ * @param {Uint8Array} data - binary data to parse
+ * @returns {Object|null} object contains name and secret, or null
+ */
+function parseOtpParameter(data) {
+  let offset = 0;
+  let name, secret;
+
+  while (offset < data.length) {
+    const tag = data[offset] >> 3;
+    offset++;
+
+    if (tag === 1) { // secret
+      const length = readVarint(data, offset);
+      offset += varintLength(length);
+      let secretArr = data.slice(offset, offset + length);
+      secret = base32Encode(secretArr);
+      offset += length;
+    } else if (tag === 2) { // name
+      const length = readVarint(data, offset);
+      offset += varintLength(length);
+      name = new TextDecoder().decode(data.slice(offset, offset + length));
+      offset += length;
+    } else {
+      // skip unknown field
+      const wireType = data[offset - 1] & 0x7;
+      if (wireType === 0) {
+        offset += varintLength(readVarint(data, offset));
+      } else if (wireType === 2) {
+        const length = readVarint(data, offset);
+        offset += varintLength(length) + length;
+      } else {
+        throw new Error('unsupported wire type: ' + wireType);
+      }
+    }
+  }
+
+  return name && secret ? { name, secret } : null;
+}
+
+/**
+ * read varint encoded integer
+ * @param {Uint8Array} data - data contains varint
+ * @param {number} offset - start position
+ * @returns {number} decoded integer
+ */
+function readVarint(data, offset) {
+  let result = 0;
+  let shift = 0;
+  let byte;
+
+  do {
+    byte = data[offset++];
+    result |= (byte & 0x7f) << shift;
+    shift += 7;
+  } while (byte & 0x80);
+
+  return result;
+}
+
+/**
+ * calculate varint encoded length
+ * @param {number} value - integer to calculate length
+ * @returns {number} varint encoded length
+ */
+function varintLength(value) {
+  let length = 0;
+  while (value > 0) {
+    value >>= 7;
+    length++;
+  }
+  return length || 1;
+}
+
+function base32Encode(data) {
+    return new Encoder().write(data).finalize();
 }
