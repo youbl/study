@@ -774,5 +774,5 @@ function varintLength(value) {
 }
 
 function base32Encode(data) {
-    return new Encoder().write(data).finalize();
+    return base32.encode(data);
 }
