@@ -1,6 +1,7 @@
 package beinet.cn.algorithmdemo.controller;
 
 import beinet.cn.algorithmdemo.controller.dto.CompareResult;
+import beinet.cn.algorithmdemo.controller.dto.DivisorResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -8,8 +9,8 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 欧几里得算法
@@ -114,20 +115,35 @@ public class EuclidController {
 
     @GetMapping("primeDivisors")
     @ApiOperation(value = "输入1个数字，返回它的所有是质数的约数")
-    public List<Integer> getPrimeDivisors(int num) {
+    public DivisorResult getPrimeDivisors(int num) {
         Assert.isTrue(num > 1, "num必须大于1");
 
-        List<Integer> primeFactors = new ArrayList<>();
-        if (num % 2 == 0) {
+        StringBuilder mulStr = new StringBuilder();
+        mulStr.append(num).append(" = 1");
+        Set<Integer> primeFactors = new HashSet<>();
+        // 把2的因数消除
+        while (num % 2 == 0) {
             primeFactors.add(2);
+            num /= 2;
+            mulStr.append(" * ").append(2);
         }
-        // 步跳为2，提升效率
-        for (int i = 3; i <= num; i += 2) {
-            if (num % i == 0 && isPrime(i)) {
+        // 步跳为3，提升效率
+        int sqrt = (int) Math.sqrt(num);
+        for (int i = 3; i <= sqrt; i += 2) {
+            while (num % i == 0) {
                 primeFactors.add(i);
+                num /= i;
+                mulStr.append(" * ").append(i);
             }
         }
-        return primeFactors;
+        // 如果num本身是一个质数
+        if (num > 2) {
+            primeFactors.add(num);
+            mulStr.append(" * ").append(num);
+        }
+        return new DivisorResult()
+                .setMul(mulStr.toString())
+                .setPrime(primeFactors);
     }
 
 }
