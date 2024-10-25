@@ -2,6 +2,7 @@ package beinet.cn.algorithmdemo.controller;
 
 import beinet.cn.algorithmdemo.controller.dto.CompareResult;
 import beinet.cn.algorithmdemo.controller.dto.DivisorResult;
+import beinet.cn.algorithmdemo.controller.dto.EuclidExtResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -178,5 +179,38 @@ public class EuclidController {
             b = r;
         }
         return a;
+    }
+
+    @GetMapping("euclidExtend")
+    @ApiOperation(value = "扩展欧几里得算法，求解2个正整数的最大公约数z，并得出另2个整数x和y，使得ax+by=z。注：x和y可为负数")
+    public EuclidExtResult euclidExtend(int a, int b) {
+        // 让a存储较大的数字
+        if (a < b) {
+            int temp = a;
+            a = b;
+            b = temp;
+        }
+        int originA = a;
+        int originB = b;
+
+        int x1 = 0, x2 = 1, y1 = 1, y2 = 0;
+        while (b > 0) {
+            int div = a / b;    // 除法结果
+            int remain = a % b; // 余数
+            a = b;
+            b = remain;
+            // 更新系数
+            int x = x2 - div * x1;
+            int y = y2 - div * y1;
+            x2 = x1;
+            y2 = y1;
+            x1 = x;
+            y1 = y;
+        }
+        return new EuclidExtResult()
+                .setBigDivisor(a)
+                .setBigFactor(x2)
+                .setSmallFactor(y2)
+                .setFormula(x2 + " * " + originA + " + " + y2 + " * " + originB + " = " + a);
     }
 }
