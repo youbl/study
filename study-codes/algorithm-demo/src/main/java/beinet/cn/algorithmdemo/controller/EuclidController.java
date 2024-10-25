@@ -163,4 +163,20 @@ public class EuclidController {
         return ret;
     }
 
+    @GetMapping("euclid")
+    @ApiOperation(value = "欧几里得算法，求解2个正整数的最大公约数")
+    public int euclid(int a, int b) {
+        // 让a存储较大的数字
+        if (a < b) {
+            int temp = a;
+            a = b;
+            b = temp;
+        }
+        while (b > 0) {
+            int r = a % b;
+            a = b;
+            b = r;
+        }
+        return a;
+    }
 }
