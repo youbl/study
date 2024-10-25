@@ -9,15 +9,11 @@ import lombok.Data;
  */
 @Data
 public class S3Property {
-    private Boolean enabled;
-
     private String accessKey;
 
     private String accessSecret;
 
     private String bucket;
-
-    private String endpoint;
 
     private String region;
 

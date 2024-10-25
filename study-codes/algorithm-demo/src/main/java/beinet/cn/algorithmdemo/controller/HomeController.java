@@ -3,15 +3,29 @@ package beinet.cn.algorithmdemo.controller;
 import beinet.cn.algorithmdemo.sort.DirectInsert;
 import beinet.cn.algorithmdemo.sort.Sort;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiOperation;
 import lombok.Data;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @RestController
+@Api(tags = "swagger里显示的接口类说明")
 public class HomeController {
     private final List<Sort> sortMethodList;
 
@@ -20,6 +34,7 @@ public class HomeController {
     }
 
     @GetMapping(value = "/", produces = "text/plain")
+    @ApiOperation(value = "swagger里显示的接口方法说明", notes = "默认的GET方法，显示一些请求信息")
     public String index(HttpServletRequest request) {
         StringBuilder sb = new StringBuilder();
         sb.append(request.getMethod())
@@ -39,29 +54,25 @@ public class HomeController {
         return sb.toString();
     }
 
+    @ApiOperation(value = "默认的POST方法，显示一些请求信息")
     @PostMapping(value = "/", produces = "text/plain")
     public String indexPost(HttpServletRequest request) {
         return index(request);
     }
 
+    @ApiOperation(value = "默认的DELETE方法，显示一些请求信息")
     @DeleteMapping(value = "/", produces = "text/plain")
     public String indexDelete(HttpServletRequest request) {
         return index(request);
     }
 
+    @ApiOperation(value = "默认的PUT方法，显示一些请求信息")
     @PutMapping(value = "/", produces = "text/plain")
     public String indexPut(HttpServletRequest request) {
         return index(request);
     }
 
-    /**
-     * 对数据排序后返回。
-     * 第一行为源数组及长度
-     * 后续行为排序后数据，及循环次数
-     *
-     * @param ids
-     * @return
-     */
+    @ApiOperation(value = "对数据排序后返回，第一行为源数组及长度，后续行为排序后数据，及循环次数")
     @GetMapping("/sort")
     public List<Result> indexSort(@RequestParam(required = false) String ids) {
         SortItem[] arr = toArr(ids);
@@ -156,8 +167,11 @@ public class HomeController {
     }
 
     @Data
+    @ApiModel(description = "swagger里显示的这个类的说明")
     public static class Result {
+        @ApiModelProperty(value = "swagger里显示的这个字段的说明，排序结果数据")
         private List<String> arr;
+        @ApiModelProperty(value = "循环次数")
         private String loop;
 
         @JsonIgnore

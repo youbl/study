@@ -37,6 +37,7 @@ https://www.googleapis.com/oauth2/v1/userinfo?access_token=xxx
         alert(url);
 
         let accessToken = getFromHash('access_token');
+        if (!accessToken) return alert('未找到access_token' + url);
         getUserInfoFromGoogle(accessToken);
     }
 
