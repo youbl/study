@@ -146,4 +146,21 @@ public class EuclidController {
                 .setPrime(primeFactors);
     }
 
+    @GetMapping("euler")
+    @ApiOperation(value = "欧拉函数：输入1个数字，返回结果：小于等于它的正整数里，有多少个与它互质", notes = "互质定义：2个数除1之外，没有第2个公约数")
+    public int euler(int num) {
+        Assert.isTrue(num > 1, "num必须大于1");
+        DivisorResult divisorResult = getPrimeDivisors(num);
+
+        // 欧拉函数公式：假设num有n个是质数的约数，分别为 p1 p2 ... pn
+        // 则小于等于它的正数数中，与num互质的数字个数为： num * (1-1/p1) * (1-1/p2) * ... * (1-1/pn)
+        int ret = num;
+        for (int prime : divisorResult.getPrime()) {
+            // ret = ret * (1 - 1D / prime); // 会产生小数，把它拆开成下面的算式
+            ret = ret * (prime - 1) / prime;
+        }
+
+        return ret;
+    }
+
 }
