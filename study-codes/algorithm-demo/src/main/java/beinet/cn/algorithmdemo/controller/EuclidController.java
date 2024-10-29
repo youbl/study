@@ -210,14 +210,17 @@ public class EuclidController {
             y1 = y;
         }
         return new EuclidExtResult()
-                .setBigDivisor(a)
+                .setGreatCommonDivisor(a)
                 .setBigFactor(x2)
                 .setSmallFactor(y2)
+                .setBigNum(originA)
+                .setSmallNum(originB)
                 .setFormula(x2 + " * " + originA + " + " + y2 + " * " + originB + " = " + a);
     }
 
     @GetMapping("congruence")
-    @ApiOperation(value = "找到让指定的2个数字a b同余的m列表")
+    @ApiOperation(value = "找到让指定的2个数字a b同余的m列表",
+            notes = "同余指给定3个数字:a,b,m，如果(a-b)/m能整除，则称整数a与b对模m同余，记作a≡b (mod m)；也可以用a%m=b%m来判定")
     public List<String> findCongruence(int a, int b) {
         List<String> mods = new ArrayList<>();
         int diff = Math.abs(a - b);
@@ -237,4 +240,33 @@ public class EuclidController {
         return mods;
     }
 
+    @GetMapping("congruenceFunc")
+    @ApiOperation(value = "给定3个整数，求对应线性同余方程的解",
+            notes = "线性同余方程指：ax≡b (mod m)，在给定a,b,m时，求解x的值")
+    public String findCongruenceResult(int a, int b, int m) {
+        // 计算a 和 m的最大公约数 gcd，就是greatest common divisor
+        EuclidExtResult euclidResult = euclidExtend(a, m);
+        int gcd = euclidResult.getGreatCommonDivisor();
+
+        // 如果b不能被gcd整除，则方程无解
+        if ((b % gcd) != 0) {
+            return (a + "x≡" + b + " (mod " + m + ") 此线性方程无解");
+        }
+        // 使用扩展欧几里算法得到的系数x和y，使得 ax+my=gcd，然后通过调整x来找到满足αx≡b(mod m)的解
+        int x, y;
+        if (euclidResult.getSmallNum().equals(a)) {
+            // 扩展欧几里算法里a和m发生了交换，因此x和y的附属关系要调整
+            x = euclidResult.getSmallFactor();
+            y = euclidResult.getBigFactor();
+        } else {
+            x = euclidResult.getBigFactor();
+            y = euclidResult.getSmallFactor();
+        }
+        int x0 = (b / gcd) * x % m;
+        // 确保 x0 是正数
+        if (x0 < 0) {
+            x0 += m;
+        }
+        return String.valueOf(x0);
+    }
 }
