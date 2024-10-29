@@ -10,7 +10,9 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -213,4 +215,26 @@ public class EuclidController {
                 .setSmallFactor(y2)
                 .setFormula(x2 + " * " + originA + " + " + y2 + " * " + originB + " = " + a);
     }
+
+    @GetMapping("congruence")
+    @ApiOperation(value = "找到让指定的2个数字a b同余的m列表")
+    public List<String> findCongruence(int a, int b) {
+        List<String> mods = new ArrayList<>();
+        int diff = Math.abs(a - b);
+
+        // 找出 2 到 diff 的所有因数，不考虑1，因为mod 1的余数都是0
+        for (int i = 2; i <= diff; i++) {
+            if (diff % i == 0) {
+                String equal = a + " % " + i + " = " + b + " % " + i;
+                mods.add(equal + " = " + (a % i));
+//                String valA = a + " / " + i + " = " + (a / i);
+//                String valB = b + " / " + i + " = " + (b / i);
+//                mods.add(valA);
+//                mods.add(valB);
+            }
+        }
+
+        return mods;
+    }
+
 }
