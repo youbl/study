@@ -19,5 +19,5 @@ public class DivisorResult {
     @ApiModelProperty(value = "原数=约数的乘积算式")
     private String mul;
     @ApiModelProperty(value = "属于质数的约数列表")
-    private Set<Integer> prime;
+    private Set<Long> prime;
 }

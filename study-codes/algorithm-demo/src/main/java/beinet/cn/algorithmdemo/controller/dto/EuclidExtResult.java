@@ -19,17 +19,17 @@ public class EuclidExtResult {
     private String formula;
 
     @ApiModelProperty(value = "最大公约数")
-    private Integer greatCommonDivisor;
+    private Long greatCommonDivisor;
 
     @ApiModelProperty(value = "较大数字的系数，即x")
-    private Integer bigFactor;
+    private Long bigFactor;
 
     @ApiModelProperty(value = "较小数字的系数，即y")
-    private Integer smallFactor;
+    private Long smallFactor;
 
     @ApiModelProperty(value = "输入的数字中较大的一个")
-    private Integer bigNum;
+    private Long bigNum;
 
     @ApiModelProperty(value = "输入的数字中较小的一个")
-    private Integer smallNum;
+    private Long smallNum;
 }
