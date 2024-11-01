@@ -1,15 +1,20 @@
 package beinet.cn.algorithmdemo.controller;
 
 import beinet.cn.algorithmdemo.controller.dto.CompareResult;
+import beinet.cn.algorithmdemo.controller.dto.CongruenceResult;
 import beinet.cn.algorithmdemo.controller.dto.DivisorResult;
 import beinet.cn.algorithmdemo.controller.dto.EuclidExtResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +29,7 @@ import java.util.Set;
 @Api(tags = "写一些欧几里得算法的代码")
 @Slf4j
 public class EuclidController {
+    private int RSA_BLOCK_SIZE = 2; // 示例块大小，实际使用时应根据模数大小调整
 
     /**
      * 1千万的测试结果：
@@ -243,14 +249,14 @@ public class EuclidController {
     @GetMapping("congruenceFunc")
     @ApiOperation(value = "给定3个整数，求对应线性同余方程的解",
             notes = "线性同余方程指：ax≡b (mod m)，在给定a,b,m时，求解x的值")
-    public String findCongruenceResult(long a, long b, long m) {
+    public CongruenceResult findCongruenceResult(long a, long b, long m) {
         // 计算a 和 m的最大公约数 gcd，就是greatest common divisor
         EuclidExtResult euclidResult = euclidExtend(a, m);
         long gcd = euclidResult.getGreatCommonDivisor();
 
         // 如果b不能被gcd整除，则方程无解
         if ((b % gcd) != 0) {
-            return (a + "x≡" + b + " (mod " + m + ") 此线性方程无解");
+            return CongruenceResult.fail(a + "x≡" + b + " (mod " + m + ") 此线性方程无解");
         }
         // 使用扩展欧几里算法得到的系数x和y，使得 ax+my=gcd，然后通过调整x来找到满足αx≡b(mod m)的解
         long x, y;
@@ -267,6 +273,135 @@ public class EuclidController {
         if (x0 < 0) {
             x0 += m;
         }
-        return String.valueOf(x0);
+        return CongruenceResult.ok(x0);
+    }
+
+    /**
+     * 使用输入的2个质数，生成该2个质数对应的rsa公钥和私钥。
+     * 输入可以为0，表示随机找2个质数
+     * @param p 质数1
+     * @param q 质数2
+     * @return rsa公 私钥
+     */
+    @GetMapping("countRsaKey")
+    @ApiOperation(value = "给定2个质数，计算对应的RSA公钥和私钥")
+    public String rsaKeyCount(@RequestParam(required = false) Long p,
+                              @RequestParam(required = false) Long q) {
+        if (p == null) {
+            p = 61L;
+        }
+        if (q == null) {
+            q = 53L;
+        }
+        if (!isPrime(p)) {
+            return p + " 不是质数";
+        }
+        if (!isPrime(q)) {
+            return q + " 不是质数";
+        }
+
+        // rsa非对称加密算法原理：
+        // 1、选择2个特别大的不同的质数，就是上面的 p 和 q 。
+        //    比如linux上的ssh-keygen -t rsa 默认是随机选择2个1024位(二进制位数)的素数。
+        // 2、计算乘积 n = p * q
+        long n = p * q;
+        // 3、计算欧拉函数值，小于n的且与n互质的数字个数，可以用上面的 euler 方法计算
+        //    一般用下面的公式计算，2个质数的积，对应的欧拉结果是 (p-1)(q-1)
+        long euler = (p - 1) * (q - 1);
+        // 4、选择一个公钥指数e，这具数字的取值区间： 1 < e <euler，且跟 euler 互质，
+        //    e太小不安全，太大又性能差，一般固定使用 65537
+        long e = 65537 > euler ? 17 : 65537;
+        // 5、计算私钥指数d, 使得 d * e ≡ 1 (mod euler)
+        //    可以通过上面的线性同余方程求出
+        CongruenceResult result = findCongruenceResult(e, 1, euler);
+        if (!result.isOk()) {
+            return result.getErrMsg();
+        }
+        long d = result.getCongruence();
+
+        // 6、ok，公钥就是 (n, e) 私钥就是 (n, d)
+        String publicKey = "PublicKey=(" + n + "," + e + ")";
+        String privateKey = "PrivateKey=(" + n + "," + d + ")";
+        return publicKey + " " + privateKey;
+    }
+
+    /**
+     * 使用rsaKeyCount生成的的rsa公钥，对数据进行加密。
+     * @param n 公钥对里的数字n，参考 rsaKeyCount 方法里的注释
+     * @param e 公钥对里的数字e，参考 rsaKeyCount 方法里的注释
+     * @param str 要加密的数据
+     * @return 加密后的结果
+     */
+    @GetMapping("countRsaKey")
+    @ApiOperation(value = "给定2个质数，计算对应的RSA公钥和私钥")
+    public String rsaEncByPublicKey(@RequestParam long n,
+                                    @RequestParam long e,
+                                    @RequestParam String str) {
+        // 加密过程
+        // 1、把str转换为一个或多个整数，这些整数的大小要小于n
+        byte[] strBytes = str.getBytes(StandardCharsets.UTF_8);
+        List<Long> strNums = convertToIntegers(strBytes, RSA_BLOCK_SIZE);
+
+        // 2、加密运算，对于每个整数m，使用公式进行加密计算得到c：
+        // c = m^e mod n
+        List<Long> encedNums = new ArrayList<>();
+        for (Long m : strNums) {
+            long c = (m ^ e) % n;
+            encedNums.add(c);
+        }
+
+        // 3、转换成byte[]数组，再转换为字符串返回
+        byte[] encedBytes = combineEncryptedLongs(encedNums, RSA_BLOCK_SIZE);
+        return new String(encedBytes, StandardCharsets.UTF_8);
+    }
+
+    // 一般要用BigInteger，这里简单处理，用long
+    private static List<Long> convertToIntegers(byte[] data, int blockSize) {
+        List<Long> integers = new ArrayList<>();
+        for (int i = 0; i < data.length; i += blockSize) {
+            // 计算当前块的实际大小
+            int size = Math.min(blockSize, data.length - i);
+
+            // 将字节块转换为整数
+            long value = 0;
+            for (int j = 0; j < size; j++) {
+                value = (value << 8) | (data[i + j] & 0xFF);
+            }
+            //byte[] block = new byte[size];
+            //System.arraycopy(data, i, block, 0, size);
+            // BigInteger value = new BigInteger(1, block);
+
+            integers.add(value);
+        }
+        return integers;
+    }
+
+    private static byte[] convertToBytes(List<Long> longs, int blockSize) {
+        List<Byte> byteList = new ArrayList<>();
+
+        for (Long value : longs) {
+            for (int i = blockSize - 1; i >= 0; i--) {
+                byteList.add((byte) ((value >> (8 * i)) & 0xFF));
+            }
+        }
+
+        // 将 List<Byte> 转换为 byte[]
+        byte[] byteArray = new byte[byteList.size()];
+        for (int i = 0; i < byteList.size(); i++) {
+            byteArray[i] = byteList.get(i);
+        }
+
+        return byteArray;
+    }
+
+    @SneakyThrows
+    private static byte[] combineEncryptedLongs(List<Long> encryptedLongs, int blockSize) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        for (Long encryptedValue : encryptedLongs) {
+            for (int i = blockSize - 1; i >= 0; i--) {
+                outputStream.write((byte) ((encryptedValue >> (8 * i)) & 0xFF));
+            }
+        }
+        return outputStream.toByteArray();
     }
 }
