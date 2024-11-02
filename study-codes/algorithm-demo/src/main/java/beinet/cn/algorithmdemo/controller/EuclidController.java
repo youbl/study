@@ -1,9 +1,6 @@
 package beinet.cn.algorithmdemo.controller;
 
-import beinet.cn.algorithmdemo.controller.dto.CompareResult;
-import beinet.cn.algorithmdemo.controller.dto.CongruenceResult;
-import beinet.cn.algorithmdemo.controller.dto.DivisorResult;
-import beinet.cn.algorithmdemo.controller.dto.EuclidExtResult;
+import beinet.cn.algorithmdemo.controller.dto.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.SneakyThrows;
@@ -14,14 +11,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 欧几里得算法
+ *
  * @author youbl
  * @since 2024/10/25 14:27
  */
@@ -29,19 +26,19 @@ import java.util.Set;
 @Api(tags = "写一些欧几里得算法的代码")
 @Slf4j
 public class EuclidController {
-    private int RSA_BLOCK_SIZE = 2; // 示例块大小，实际使用时应根据模数大小调整
+    private final int RSA_BLOCK_SIZE = 2; // 示例块大小，实际使用时应根据模数大小调整
 
     /**
      * 1千万的测试结果：
      * {
-     *   "result": true,
-     *   "costMillis1": 1401,
-     *   "costMillis2": 1040
+     * "result": true,
+     * "costMillis1": 1401,
+     * "costMillis2": 1040
      * 1亿的测试结果：
      * {
-     *   "result": true,
-     *   "costMillis1": 37471,
-     *   "costMillis2": 26095
+     * "result": true,
+     * "costMillis1": 37471,
+     * "costMillis2": 26095
      */
     @GetMapping("primeCompare")
     @ApiOperation(value = "验证新旧2个质数方法的正确性和时长")
@@ -279,14 +276,15 @@ public class EuclidController {
     /**
      * 使用输入的2个质数，生成该2个质数对应的rsa公钥和私钥。
      * 输入可以为0，表示随机找2个质数
+     *
      * @param p 质数1
      * @param q 质数2
      * @return rsa公 私钥
      */
     @GetMapping("countRsaKey")
-    @ApiOperation(value = "给定2个质数，计算对应的RSA公钥和私钥")
-    public String rsaKeyCount(@RequestParam(required = false) Long p,
-                              @RequestParam(required = false) Long q) {
+    @ApiOperation(value = "给定2个质数，计算对应的RSA公钥和私钥", notes = "随机2个很大的质数，其积n加一人固定的e就是公钥；n加线性同余方程解d就是私钥")
+    public RsaKeyResult rsaKeyCount(@RequestParam(required = false) Long p,
+                                    @RequestParam(required = false) Long q) {
         if (p == null) {
             p = 61L;
         }
@@ -294,10 +292,10 @@ public class EuclidController {
             q = 53L;
         }
         if (!isPrime(p)) {
-            return p + " 不是质数";
+            throw new RuntimeException(p + " 不是质数");
         }
         if (!isPrime(q)) {
-            return q + " 不是质数";
+            throw new RuntimeException(q + " 不是质数");
         }
 
         // rsa非对称加密算法原理：
@@ -312,28 +310,35 @@ public class EuclidController {
         //    e太小不安全，太大又性能差，一般固定使用 65537
         long e = 65537 > euler ? 17 : 65537;
         // 5、计算私钥指数d, 使得 d * e ≡ 1 (mod euler)
-        //    可以通过上面的线性同余方程求出
+        //    可以通过上面的线性同余方程求出d
         CongruenceResult result = findCongruenceResult(e, 1, euler);
         if (!result.isOk()) {
-            return result.getErrMsg();
+            throw new RuntimeException(result.getErrMsg());
         }
         long d = result.getCongruence();
 
         // 6、ok，公钥就是 (n, e) 私钥就是 (n, d)
         String publicKey = "PublicKey=(" + n + "," + e + ")";
         String privateKey = "PrivateKey=(" + n + "," + d + ")";
-        return publicKey + " " + privateKey;
+        return new RsaKeyResult()
+                .setP(p)
+                .setQ(q)
+                .setEuler(euler)
+                .setN(n)
+                .setE(e)
+                .setD(d);
     }
 
     /**
      * 使用rsaKeyCount生成的的rsa公钥，对数据进行加密。
-     * @param n 公钥对里的数字n，参考 rsaKeyCount 方法里的注释
-     * @param e 公钥对里的数字e，参考 rsaKeyCount 方法里的注释
+     *
+     * @param n   公钥对里的数字n，参考 rsaKeyCount 方法里的注释
+     * @param e   公钥对里的数字e，参考 rsaKeyCount 方法里的注释
      * @param str 要加密的数据
      * @return 加密后的结果
      */
-    @GetMapping("countRsaKey")
-    @ApiOperation(value = "给定2个质数，计算对应的RSA公钥和私钥")
+    @GetMapping("rsaEncrypt")
+    @ApiOperation(value = "使用rsaKeyCount生成的的rsa公钥，对数据进行加密。")
     public String rsaEncByPublicKey(@RequestParam long n,
                                     @RequestParam long e,
                                     @RequestParam String str) {
@@ -341,18 +346,54 @@ public class EuclidController {
         // 1、把str转换为一个或多个整数，这些整数的大小要小于n
         byte[] strBytes = str.getBytes(StandardCharsets.UTF_8);
         List<Long> strNums = convertToIntegers(strBytes, RSA_BLOCK_SIZE);
+        log.info("加密前的整数：{}", strNums);
 
         // 2、加密运算，对于每个整数m，使用公式进行加密计算得到c：
         // c = m^e mod n
         List<Long> encedNums = new ArrayList<>();
         for (Long m : strNums) {
-            long c = (m ^ e) % n;
+            long c = countPowAndMod(m, e, n);//((long) Math.pow(m, e)) % n;
             encedNums.add(c);
         }
+        log.info("加密后的整数：{}", encedNums);
 
         // 3、转换成byte[]数组，再转换为字符串返回
         byte[] encedBytes = combineEncryptedLongs(encedNums, RSA_BLOCK_SIZE);
-        return new String(encedBytes, StandardCharsets.UTF_8);
+        log.info("加密后的字符数组：{}", encedBytes);
+        return Base64.getEncoder().encodeToString(encedBytes);
+    }
+
+    /**
+     * 使用rsaKeyCount生成的的rsa私钥，对数据进行解密。
+     *
+     * @param n   私钥对里的数字n，参考 rsaKeyCount 方法里的注释
+     * @param d   私钥对里的数字d，参考 rsaKeyCount 方法里的注释
+     * @param str 要解密的数据
+     * @return 解密后的结果
+     */
+    @GetMapping("rsaDescrypt")
+    @ApiOperation(value = "使用rsaKeyCount生成的的rsa私钥，对数据进行解密。")
+    public String rsaDesByPrivateKey(@RequestParam long n,
+                                     @RequestParam long d,
+                                     @RequestParam String str) {
+        // 解密过程，rsaEncByPublicKey的逆运算
+        byte[] strBytes = Base64.getDecoder().decode(str);
+        log.info("待解密的字符数组：{}", strBytes);
+        List<Long> strNums = extractEncryptedLongs(strBytes, RSA_BLOCK_SIZE);
+        log.info("解密前的整数：{}", strNums);
+
+        // 2、解密运算，对于每个加密的整数c，使用公式进行解密计算得到m：
+        // m = c^d mod n
+        List<Long> desNums = new ArrayList<>();
+        for (Long c : strNums) {
+            long m = countPowAndMod(c, d, n);
+            desNums.add(m);
+        }
+        log.info("解密后的整数：{}", desNums);
+
+        // 3、转换成byte[]数组，再转换为字符串返回
+        byte[] desBytes = convertToBytes(desNums, RSA_BLOCK_SIZE);
+        return new String(desBytes, StandardCharsets.UTF_8);
     }
 
     // 一般要用BigInteger，这里简单处理，用long
@@ -403,5 +444,36 @@ public class EuclidController {
             }
         }
         return outputStream.toByteArray();
+    }
+
+    // combineEncryptedLongs的逆向函数
+    @SneakyThrows
+    private static List<Long> extractEncryptedLongs(byte[] data, int blockSize) {
+        List<Long> encryptedLongs = new ArrayList<>();
+        ByteBuffer buffer = ByteBuffer.wrap(data);
+
+        // Ensure that the data length is a multiple of the blockSize
+        if (data.length % blockSize != 0) {
+            throw new IllegalArgumentException("Data length must be a multiple of the block size.");
+        }
+
+        while (buffer.hasRemaining()) {
+            long encryptedValue = 0;
+            for (int i = blockSize - 1; i >= 0; i--) {
+                encryptedValue |= ((long) buffer.get() & 0xFF) << (8 * i);
+            }
+            encryptedLongs.add(encryptedValue);
+        }
+        return encryptedLongs;
+    }
+
+    public static long countPowAndMod(long base, long power, long mod) {
+        // Math.pow会溢出，BigInteger
+        BigInteger baseBig = BigInteger.valueOf(base);
+        BigInteger powerBig = BigInteger.valueOf(power);
+        BigInteger result = baseBig.pow(powerBig.intValue());
+        BigInteger moduloValue = BigInteger.valueOf(mod);
+        BigInteger remainder = result.mod(moduloValue);
+        return remainder.longValue();
     }
 }
