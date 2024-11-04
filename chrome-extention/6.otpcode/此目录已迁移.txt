@@ -1,0 +1,2 @@
+这个子目录后续不再维护，迁移至这个项目：
+https://github.com/youbl/2fa-otp-extension
