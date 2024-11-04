@@ -1,6 +1,10 @@
 package beinet.cn.algorithmdemo.controller;
 
-import beinet.cn.algorithmdemo.controller.dto.*;
+import beinet.cn.algorithmdemo.controller.dto.CompareResult;
+import beinet.cn.algorithmdemo.controller.dto.CongruenceResult;
+import beinet.cn.algorithmdemo.controller.dto.DivisorResult;
+import beinet.cn.algorithmdemo.controller.dto.EuclidExtResult;
+import beinet.cn.algorithmdemo.controller.dto.RsaKeyResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.SneakyThrows;
@@ -14,7 +18,11 @@ import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 欧几里得算法
@@ -26,7 +34,7 @@ import java.util.*;
 @Api(tags = "写一些欧几里得算法的代码")
 @Slf4j
 public class EuclidController {
-    private final int RSA_BLOCK_SIZE = 2; // 示例块大小，实际使用时应根据模数大小调整
+    private final int RSA_BLOCK_SIZE = 1; // 示例块大小，实际使用时应根据模数大小调整
 
     /**
      * 1千万的测试结果：
@@ -281,7 +289,7 @@ public class EuclidController {
      * @param q 质数2
      * @return rsa公 私钥
      */
-    @GetMapping("countRsaKey")
+    @GetMapping("rsaKeyCount")
     @ApiOperation(value = "给定2个质数，计算对应的RSA公钥和私钥", notes = "随机2个很大的质数，其积n加一人固定的e就是公钥；n加线性同余方程解d就是私钥")
     public RsaKeyResult rsaKeyCount(@RequestParam(required = false) Long p,
                                     @RequestParam(required = false) Long q) {
@@ -309,7 +317,7 @@ public class EuclidController {
         // 4、选择一个公钥指数e，这具数字的取值区间： 1 < e <euler，且跟 euler 互质，
         //    e太小不安全，太大又性能差，一般固定使用 65537
         long e = 65537 > euler ? 17 : 65537;
-        // 5、计算私钥指数d, 使得 d * e ≡ 1 (mod euler)
+        // 5、计算私钥指数d, 使得 d * e ≡ 1 (mod euler[n])
         //    可以通过上面的线性同余方程求出d
         CongruenceResult result = findCongruenceResult(e, 1, euler);
         if (!result.isOk()) {
@@ -320,6 +328,10 @@ public class EuclidController {
         // 6、ok，公钥就是 (n, e) 私钥就是 (n, d)
         String publicKey = "PublicKey=(" + n + "," + e + ")";
         String privateKey = "PrivateKey=(" + n + "," + d + ")";
+        // 7、根据欧拉定理，如果 d * e ≡ 1 (mod euler[n])
+        // 则 对于任意数字m， 有 m ^ e % n = 加密值c,  而 c ^ d % n = 原值m
+        // 因此实现了加解密过程
+        // ===注意：任意数字m，必须小于n，否则会解密失败，可以调整块大小来实现===
         return new RsaKeyResult()
                 .setP(p)
                 .setQ(q)
@@ -358,7 +370,7 @@ public class EuclidController {
         log.info("加密后的整数：{}", encedNums);
 
         // 3、转换成byte[]数组，再转换为字符串返回
-        byte[] encedBytes = combineEncryptedLongs(encedNums, RSA_BLOCK_SIZE);
+        byte[] encedBytes = combineEncryptedLongs(encedNums);
         log.info("加密后的字符数组：{}", encedBytes);
         return Base64.getEncoder().encodeToString(encedBytes);
     }
@@ -379,7 +391,7 @@ public class EuclidController {
         // 解密过程，rsaEncByPublicKey的逆运算
         byte[] strBytes = Base64.getDecoder().decode(str);
         log.info("待解密的字符数组：{}", strBytes);
-        List<Long> strNums = extractEncryptedLongs(strBytes, RSA_BLOCK_SIZE);
+        List<Long> strNums = extractEncryptedLongs(strBytes);
         log.info("解密前的整数：{}", strNums);
 
         // 2、解密运算，对于每个加密的整数c，使用公式进行解密计算得到m：
@@ -436,10 +448,10 @@ public class EuclidController {
     }
 
     @SneakyThrows
-    private static byte[] combineEncryptedLongs(List<Long> encryptedLongs, int blockSize) {
+    private static byte[] combineEncryptedLongs(List<Long> encryptedLongs) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         for (Long encryptedValue : encryptedLongs) {
-            for (int i = blockSize - 1; i >= 0; i--) {
+            for (int i = 8 - 1; i >= 0; i--) {
                 outputStream.write((byte) ((encryptedValue >> (8 * i)) & 0xFF));
             }
         }
@@ -448,18 +460,18 @@ public class EuclidController {
 
     // combineEncryptedLongs的逆向函数
     @SneakyThrows
-    private static List<Long> extractEncryptedLongs(byte[] data, int blockSize) {
+    private static List<Long> extractEncryptedLongs(byte[] data) {
         List<Long> encryptedLongs = new ArrayList<>();
         ByteBuffer buffer = ByteBuffer.wrap(data);
 
         // Ensure that the data length is a multiple of the blockSize
-        if (data.length % blockSize != 0) {
+        if (data.length % 8 != 0) {
             throw new IllegalArgumentException("Data length must be a multiple of the block size.");
         }
 
         while (buffer.hasRemaining()) {
             long encryptedValue = 0;
-            for (int i = blockSize - 1; i >= 0; i--) {
+            for (int i = 8 - 1; i >= 0; i--) {
                 encryptedValue |= ((long) buffer.get() & 0xFF) << (8 * i);
             }
             encryptedLongs.add(encryptedValue);
@@ -471,9 +483,11 @@ public class EuclidController {
         // Math.pow会溢出，BigInteger
         BigInteger baseBig = BigInteger.valueOf(base);
         BigInteger powerBig = BigInteger.valueOf(power);
-        BigInteger result = baseBig.pow(powerBig.intValue());
+        // pow的参数也是int，可能溢出，改用baseBig.modPow专用方法
+        //BigInteger result = baseBig.pow(powerBig.intValue());
         BigInteger moduloValue = BigInteger.valueOf(mod);
-        BigInteger remainder = result.mod(moduloValue);
+        //BigInteger remainder = result.mod(moduloValue);
+        BigInteger remainder = baseBig.modPow(powerBig, moduloValue);
         return remainder.longValue();
     }
 }
