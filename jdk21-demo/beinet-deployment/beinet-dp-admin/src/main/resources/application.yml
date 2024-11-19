@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: beinet-admin
+  profiles:
+    active: local
+  cloud:
+    config:
+      profile: ${spring.profiles.active}
+      label: test
+
+sdk:
+  app-key: sdk
+  secure-key: cnbeinet.secure
+  # todo: ak/sk可以访问的api列表
+  api:
+    - /version
