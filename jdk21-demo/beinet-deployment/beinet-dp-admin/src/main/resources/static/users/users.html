@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <title>users列表</title>
+    <script src="../res/common.js?flg=1" type="text/javascript"></script>
+    <script src="../res/vue.min.js" type="text/javascript"></script>
+    <script src="../res/axios.min.js" type="text/javascript"></script>
+    <script src="../res/elemeIndex.js" type="text/javascript"></script>
+    <link href="../res/elemeIndex.css" rel="stylesheet">
+</head>
+<body style="overflow: hidden;margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f7f9fc;"><!-- 禁用浏览器的纵向滚动条 -->
+<h1>
+1、请修改页面上面的script和link的src，确保引用正确；<br>
+2、请确认common.js文件里定义的$$BASE_URL 根路径是正确的。
+</h1>
+<div id="divApp" style="text-align: center;width: 98%; height: 100vh; overflow: hidden; padding: 10px; box-sizing: border-box;"> <!-- 设置容器高度 -->
+    <el-form :inline="true" class="demo-form-inline" style="text-align: left;margin-bottom: 5px;padding-left: 5px;width: 100%; background-color: #ffffff;border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+        <el-form-item label="id">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['id']"></el-input>
+        </el-form-item>
+        <el-form-item label="name">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['name']"></el-input>
+        </el-form-item>
+        <el-form-item label="userPassword">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['userPassword']"></el-input>
+        </el-form-item>
+        <el-form-item label="userEmail">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['userEmail']"></el-input>
+        </el-form-item>
+        <el-form-item label="lastLoginDate">
+            <el-date-picker size="mini"
+                :picker-options="globalPickOptions"
+                v-model="searchDateslastLoginDate"
+                format="yyyy-MM-dd HH:mm:ss"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                type="datetimerange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期">
+            </el-date-picker>
+        </el-form-item>
+        <el-form-item label="status">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['status']"></el-input>
+        </el-form-item>
+        <el-form-item label="isBoss">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['isBoss']"></el-input>
+        </el-form-item>
+        <el-form-item label="isAdmin">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['isAdmin']"></el-input>
+        </el-form-item>
+        <el-form-item label="tenantId">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['tenantId']"></el-input>
+        </el-form-item>
+        <el-form-item label="createTime">
+            <el-date-picker size="mini"
+                :picker-options="globalPickOptions"
+                v-model="searchDatescreateTime"
+                format="yyyy-MM-dd HH:mm:ss"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                type="datetimerange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期">
+            </el-date-picker>
+        </el-form-item>
+        <el-form-item label="delflag">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['delflag']"></el-input>
+        </el-form-item>
+        <el-form-item label="inviteUserId">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['inviteUserId']"></el-input>
+        </el-form-item>
+        <el-form-item label="inviteToken">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['inviteToken']"></el-input>
+        </el-form-item>
+        <el-form-item label="mfaKey">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['mfaKey']"></el-input>
+        </el-form-item>
+        <el-form-item label="picture">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['picture']"></el-input>
+        </el-form-item>
+        <el-form-item label="isTest">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['isTest']"></el-input>
+        </el-form-item>
+        <el-form-item label="memo">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['memo']"></el-input>
+        </el-form-item>
+        <el-form-item label="userIp">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['userIp']"></el-input>
+        </el-form-item>
+        <el-form-item label="userLoc">
+            <el-input placeholder="请输入" v-model.trim="searchCondition['userLoc']"></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button @click="loadDatas()" type="primary" size="mini">查询</el-button>
+            <el-button :disabled="!dataList.length" icon="el-icon-download" @click="exportToCsv" size="mini">导出CSV
+            </el-button>
+            
+            <el-button @click="openEditDialog()" type="primary" size="mini">新建</el-button>
+            
+            <el-button @click="location.reload()" type="primary" size="mini">刷新</el-button>
+            <span style="color:blue">{{statusTxt}}</span>
+        </el-form-item>
+    </el-form>
+
+    <el-table
+            v-loading="loading"
+            element-loading-text="拼命加载中"
+            element-loading-spinner="el-icon-loading"
+            element-loading-background="rgba(0, 0, 0, 0.8)"
+            :data="dataList"
+            height="calc(100vh - 200px)"
+            border
+            stripe
+            @selection-change="handleSelectionChange"
+            style="width: 100%">
+        <el-table-column type="selection" width="55"></el-table-column>
+        <el-table-column label="id" :width="flexColumnWidth('id', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['id']">{{scope.row['id']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="name" :width="flexColumnWidth('name', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['name']">{{scope.row['name']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="userEmail" :width="flexColumnWidth('userEmail', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['userEmail']">{{scope.row['userEmail']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="lastLoginDate" :width="flexColumnWidth('lastLoginDate', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['lastLoginDate']">{{scope.row['lastLoginDate']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="status" :width="flexColumnWidth('status', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['status']">{{scope.row['status']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="isBoss" :width="flexColumnWidth('isBoss', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['isBoss']">{{scope.row['isBoss']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="isAdmin" :width="flexColumnWidth('isAdmin', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['isAdmin']">{{scope.row['isAdmin']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="tenantId" :width="flexColumnWidth('tenantId', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['tenantId']">{{scope.row['tenantId']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="createTime" :width="flexColumnWidth('createTime', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['createTime']">{{scope.row['createTime']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="updateTime" :width="flexColumnWidth('updateTime', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['updateTime']">{{scope.row['updateTime']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="delflag" :width="flexColumnWidth('delflag', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['delflag']">{{scope.row['delflag']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="inviteUserId" :width="flexColumnWidth('inviteUserId', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['inviteUserId']">{{scope.row['inviteUserId']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="inviteToken" :width="flexColumnWidth('inviteToken', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['inviteToken']">{{scope.row['inviteToken']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="mfaKey" :width="flexColumnWidth('mfaKey', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['mfaKey']">{{scope.row['mfaKey']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="picture" :width="flexColumnWidth('picture', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['picture']">{{scope.row['picture']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="isTest" :width="flexColumnWidth('isTest', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['isTest']">{{scope.row['isTest']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="memo" :width="flexColumnWidth('memo', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['memo']">{{scope.row['memo']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="userIp" :width="flexColumnWidth('userIp', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['userIp']">{{scope.row['userIp']}}</div>
+            </template>
+        </el-table-column>
+        <el-table-column label="userLoc" :width="flexColumnWidth('userLoc', dataList)">
+            <template slot-scope="scope">
+                <div :title="scope.row['userLoc']">{{scope.row['userLoc']}}</div>
+            </template>
+        </el-table-column>
+        
+        <el-table-column label="操作" width="200">
+            <template slot-scope="scope">
+                <a href="javascript:void(0)" @click="openEditDialog(scope.row, false)">修改</a>
+                |
+                <a href="javascript:void(0)" @click="openEditDialog(scope.row, true)">复制</a>
+                |
+                <a href="javascript:void(0)" @click="confirmDel(scope.row)">删除</a>
+            </template>
+        </el-table-column>
+        
+    </el-table>
+
+    <!-- 编辑窗口 -->
+    <el-dialog :visible.sync="statusEditDialog" :title="(editRow.id?'编辑界面':'新增界面')">
+        <el-form size="mini" :model="editRow" ref="editRowForm" style="width:700px">
+            <el-form-item label="id" label-width="150px" v-if="editRow['id']">
+                <el-input placeholder="请输入" v-model.trim="editRow['id']" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="name" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['name']"></el-input>
+            </el-form-item>
+            <el-form-item label="userPassword" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['userPassword']"></el-input>
+            </el-form-item>
+            <el-form-item label="userEmail" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['userEmail']"></el-input>
+            </el-form-item>
+            <el-form-item label="lastLoginDate" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['lastLoginDate']"></el-input>
+            </el-form-item>
+            <el-form-item label="status" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['status']"></el-input>
+            </el-form-item>
+            <el-form-item label="isBoss" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['isBoss']"></el-input>
+            </el-form-item>
+            <el-form-item label="isAdmin" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['isAdmin']"></el-input>
+            </el-form-item>
+            <el-form-item label="tenantId" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['tenantId']"></el-input>
+            </el-form-item>
+            <el-form-item label="createTime" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['createTime']" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="updateTime" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['updateTime']" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="delflag" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['delflag']"></el-input>
+            </el-form-item>
+            <el-form-item label="inviteUserId" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['inviteUserId']"></el-input>
+            </el-form-item>
+            <el-form-item label="inviteToken" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['inviteToken']"></el-input>
+            </el-form-item>
+            <el-form-item label="mfaKey" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['mfaKey']"></el-input>
+            </el-form-item>
+            <el-form-item label="picture" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['picture']"></el-input>
+            </el-form-item>
+            <el-form-item label="isTest" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['isTest']"></el-input>
+            </el-form-item>
+            <el-form-item label="memo" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['memo']"></el-input>
+            </el-form-item>
+            <el-form-item label="userIp" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['userIp']"></el-input>
+            </el-form-item>
+            <el-form-item label="userLoc" label-width="150px">
+                <el-input placeholder="请输入" v-model.trim="editRow['userLoc']"></el-input>
+            </el-form-item>
+        </el-form>
+        <div class="dialog-footer" slot="footer">
+            <span v-if="editRow.id" style="font-size: 12px;color: blue;">更新主键:{{editRow.id}}</span>
+            <el-button @click="saveData('editRowForm')" icon="el-icon-success" type="primary">
+                {{(editRow.id?'更新数据':'新增数据')}}
+            </el-button>
+            <el-button @click="hideEditDialog">取 消</el-button>
+        </div>
+    </el-dialog>
+
+    <hr>
+    <div>build by @author youbl.blog.csdn.net @since 2024-11-19 12:28:00</div>
+</div>
+<script type="text/javascript">
+    const vueApp = new Vue({
+        el: '#divApp',
+        data: function () {
+            return {
+                tableFields: ['id','name','userPassword','userEmail','lastLoginDate','status','isBoss','isAdmin','tenantId','createTime','updateTime','delflag','inviteUserId','inviteToken','mfaKey','picture','isTest','memo','userIp','userLoc'],
+                statusTxt: '',
+                loading: false,
+                searchDateslastLoginDate: [],
+                searchDatescreateTime: [],
+
+                searchCondition: {},
+                dataList: [],
+
+                statusEditDialog: false,
+                editRow: {},
+
+                multipleSelection: [],
+            }
+        },
+        mounted: function () {
+            this.searchCondition['id'] = getQueryString('id');
+            this.loadDatas();
+        },
+        computed: {},
+        methods: {
+            handleSelectionChange: function (val) {
+                this.multipleSelection = val;
+            },
+            getAllSelectedId: function () {
+                if (this.multipleSelection.length <= 0) {
+                    alert('请选择要处理的数据');
+                    return [];
+                }
+                if (!confirm('确认要继续吗？')) {
+                    return [];
+                }
+                let ret = [];
+                for (let i = 0, j = this.multipleSelection.length; i < j; i++) {
+                    ret.push(this.multipleSelection[i].id);
+                }
+                return ret;
+            },
+            loadDatas: function () {
+                if (this.loading)
+                    return alert('加载中...');
+                this.loading = true;
+                let startTime = new Date();
+
+                for (let att in this.searchCondition) {
+                    if (this.searchCondition[att] === '') {
+                        delete (this.searchCondition[att]);
+                    }
+                }
+                this.searchCondition['lastLoginDateBegin'] = this.searchDateslastLoginDate[0];
+                this.searchCondition['lastLoginDateEnd'] = this.searchDateslastLoginDate[1];
+                this.searchCondition['createTimeBegin'] = this.searchDatescreateTime[0];
+                this.searchCondition['createTimeEnd'] = this.searchDatescreateTime[1];
+
+                this.dataList = [];
+                let url = $$BASE_URL + 'users/all';
+                return axios.post(url, this.searchCondition).then(response => {
+                    this.loading = false;
+                    if (!response.data || response.data.code !== 0) {
+                        return alert('获取数据列表失败:' + getErrorMsg(response));
+                    }
+                    let data = response.data.data;
+                    if (!data || data.length === undefined) {
+                        return alert('获取数据失败:' + getErrorMsg(response));
+                    }
+                    if (data.length === 0) {
+                        return alert('未找到数据');
+                    }
+                    this.dataList = data;
+                    this.statusTxt = this.dataList.length + '行，耗时:' + ((new Date()) - startTime) + 'ms';
+                }).catch(error => this.ajaxError(error));
+            },
+
+            confirmDel: function (row) {
+                if (!confirm('确认要删除吗?')) {
+                    return;
+                }
+                let url = $$BASE_URL + 'users?id=' + row.id;
+                // post和put的第二个参数直接为data，第三个参数为config，而delete的第二个参数是config，所以要把data放在config里
+                return axios.delete(url, {data: row}).then(response => {
+                    if (!response.data || response.data.code !== 0) {
+                        return alert('删除失败:' + getErrorMsg(response));
+                    }
+                    alert('删除成功');
+                    location.reload();
+                }).catch(error => this.ajaxError(error));
+            },
+            openEditDialog: function (row, isClone) {
+                if (row) {
+                    if (isClone) {
+                        this.editRow = {...row};
+                        Vue.set(this.editRow, 'id', '');
+                    } else {
+                        this.editRow = row;
+                    }
+                } else {
+                    this.editRow = {};
+                    for (let i = 0, j = this.tableFields.length; i < j; i++) {
+                        Vue.set(this.editRow, this.tableFields[i], '');
+                    }
+                }
+                this.statusEditDialog = true;
+            },
+            hideEditDialog: function () {
+                this.statusEditDialog = false;
+            },
+            saveData: function (form) {
+                this.$refs[form].validate(valid => {
+                    if (!valid)
+                        return false;
+
+                    let url = $$BASE_URL + 'users';
+                    let httpMethod = this.editRow.id ? axios.put : axios.post;
+                    return httpMethod(url, this.editRow).then(response => {
+                        if (!response.data || response.data.code !== 0) {
+                            return alert('保存失败:' + getErrorMsg(response));
+                        }
+                        let data = response.data.data;
+                        // data是主键
+                        if (!data || parseInt(data, 10) <= 0) {
+                            return alert('保存失败:' + getErrorMsg(response));
+                        }
+                        alert('保存成功');
+                        location.reload();
+                    }).catch(error => this.ajaxError(error));
+                });
+            },
+
+            // 自适应表格列宽
+            flexColumnWidth: function (str, tableData, flag = 'max', charWidth = 12, miniWidth = 50) {
+                // str为该列的字段名(传字符串);tableData为该表格的数据源(传变量);
+                // flag为可选值，可不传该参数,传参时可选'max'或'equal',默认为'max'
+                // flag为'max'则设置列宽适配该列中最长的内容,flag为'equal'则设置列宽适配该列中第一行内容的长度。
+                str = str + '';
+                if (str.length === 0)
+                    return '0';
+
+                let columnContent = '';
+                if (flag === 'equal') {
+                    // 获取该列中第一个不为空的数据(内容)
+                    for (let i = 0, j = tableData.length; i < j; i++) {
+                        columnContent = tableData[i][str] + '';
+                        if (columnContent.length > 0) {
+                            break;
+                        }
+                    }
+                } else {
+                    // 获取该列中最长的数据(内容)
+                    for (let i = 0, j = tableData.length; i < j; i++) {
+                        let tmp = tableData[i][str] + '';
+                        if (tmp.length > columnContent.length) {
+                            columnContent = tmp;
+                        }
+                    }
+                }
+                // 跟标题比对
+                if (columnContent.length < str.length)
+                    columnContent = str;
+                //console.log('该列数据:' + str + ':' + columnContent)
+
+                // 以下分配的单位长度可根据实际需求进行调整
+                let flexWidth = 0;
+                for (const char of columnContent) {
+                    let useChWidth = charWidth;
+                    if (char >= '\u4e00' && char <= '\u9fa5') {
+                        // 中文字符分配宽度
+                        useChWidth = useChWidth * 2 - 1;
+                    }
+                    flexWidth += useChWidth;
+                }
+                if (flexWidth < miniWidth) {
+                    // 设置最小宽度
+                    flexWidth = miniWidth;
+                }
+                //console.log('该列宽度:' + str + ':' + flexWidth)
+                return flexWidth + 'px';
+            },
+            exportToCsv: function () {
+                window.exportDataToCsv(this.dataList);
+            },
+
+            goLogin: function () {
+                top.location.href = $$BASE_URL + 'login.html?url=' + encodeURIComponent(location.href);
+            },
+            ajaxError: function (error) {
+                window.ajaxError(error, vueApp);
+            },
+        },
+    });
+</script>
+</body>
+</html>

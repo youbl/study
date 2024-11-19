@@ -12,28 +12,28 @@
     <artifactId>beinet-dp-admin</artifactId>
 
     <dependencies>
+        <!--
+        第一个必须是lombok，否则报错：
+        No property named "lastLoginDate" exists in source parameter(s). Type "UsersDto" has no properties.
+         -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!--
-              model和dto转换支持库，官网文档
-              https://mapstruct.org/documentation/stable/reference/html/
-              -->
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-processor</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>cn.beinet</groupId>
             <artifactId>beinet-base</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.beinet</groupId>
+            <artifactId>beinet-dao</artifactId>
         </dependency>
         <dependency>
             <groupId>cn.beinet</groupId>
