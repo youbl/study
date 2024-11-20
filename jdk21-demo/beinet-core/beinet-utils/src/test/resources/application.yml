@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: beinet-utils
+  profiles:
+    active: local
