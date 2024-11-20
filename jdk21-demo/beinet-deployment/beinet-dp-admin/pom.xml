@@ -37,6 +37,10 @@
         </dependency>
         <dependency>
             <groupId>cn.beinet</groupId>
+            <artifactId>beinet-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.beinet</groupId>
             <artifactId>beinet-web</artifactId>
         </dependency>
     </dependencies>

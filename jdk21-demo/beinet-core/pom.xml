@@ -14,6 +14,7 @@
     <modules>
         <module>beinet-base</module>
         <module>beinet-dao</module>
+        <module>beinet-redis</module>
         <module>beinet-utils</module>
         <module>beinet-web</module>
     </modules>

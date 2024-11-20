@@ -62,6 +62,11 @@
             </dependency>
             <dependency>
                 <groupId>cn.beinet</groupId>
+                <artifactId>beinet-redis</artifactId>
+                <version>${beinet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.beinet</groupId>
                 <artifactId>beinet-utils</artifactId>
                 <version>${beinet.version}</version>
             </dependency>

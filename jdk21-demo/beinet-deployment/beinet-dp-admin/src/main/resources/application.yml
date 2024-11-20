@@ -15,6 +15,12 @@ spring:
     url: jdbc:mysql://10.100.72.155:3306/dev?allowMultiQueries=true&useUnicode=true&characterEncoding=utf8&socketTimeout=600000&connectTimeout=15000&rewriteBatchedStatements=true&useSSL=false&zeroDateTimeBehavior=round&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
+  data:
+    redis:
+      host: 10.100.72.155
+      port: 3379
+      password: 123456
+      database: 15            # 数据库索引，注意 0到15
 
 sdk:
   app-key: sdk
