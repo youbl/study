@@ -75,6 +75,11 @@
                 <artifactId>beinet-web</artifactId>
                 <version>${beinet.version}</version>
             </dependency>
+            <dependency>
+                <groupId>cn.beinet</groupId>
+                <artifactId>beinet-event-sdk</artifactId>
+                <version>${beinet.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.springdoc</groupId>

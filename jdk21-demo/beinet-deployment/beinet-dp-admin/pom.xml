@@ -43,6 +43,10 @@
             <groupId>cn.beinet</groupId>
             <artifactId>beinet-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>cn.beinet</groupId>
+            <artifactId>beinet-event-sdk</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

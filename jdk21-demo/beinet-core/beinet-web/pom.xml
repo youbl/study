@@ -36,8 +36,16 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
+        <dependency>
             <groupId>cn.beinet</groupId>
             <artifactId>beinet-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.beinet</groupId>
+            <artifactId>beinet-base</artifactId>
         </dependency>
     </dependencies>
 </project>

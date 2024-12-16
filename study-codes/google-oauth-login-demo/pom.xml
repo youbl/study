@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>beinet.cn</groupId>
-    <artifactId>algorithm-demo</artifactId>
+    <artifactId>google-oauth-login-demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>google-oauth-login-demo</name>
     <description>Demo project for Spring Boot</description>
