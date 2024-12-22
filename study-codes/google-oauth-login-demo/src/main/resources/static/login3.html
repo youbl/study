@@ -13,97 +13,29 @@ https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow
 这个页面类似于login1.html，但是本页面会把token通过#拼接到回调地址的url后面，因此必须使用html来接收回调数据，不能用服务端接收（服务端拉不到#后面的数据)
 注1：这个YOUR_REDIRECT_URI需要在google后台配置，而这个配置真的可能要等几小时才生效
     </pre>
-    <button onclick="trySampleRequest();">Try sample request</button>
+    <button onclick="oauthSignIn();">Try sample request</button>
 </div>
 
 <script>
     var YOUR_CLIENT_ID = 'CLIENT_ID.apps.googleusercontent.com';
     // 登录成功后要重定向的地址，只能用html去接，因为参数放在 # 锚后，服务端收不到
     var YOUR_REDIRECT_URI = 'http://localhost:8801/ttt/red.html';
-
-    // Parse query string to see if page request is coming from OAuth 2.0 server.
-    var fragmentString = location.hash.substring(1);
-    var params = {};
-    var regex = /([^&=]+)=([^&]*)/g, m;
-    while (m = regex.exec(fragmentString)) {
-        params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
-    }
-    if (Object.keys(params).length > 0 && params['state']) {
-        if (params['state'] == localStorage.getItem('state')) {
-            localStorage.setItem('oauth2-test-params', JSON.stringify(params));
-
-            trySampleRequest();
-        } else {
-            console.log('State mismatch. Possible CSRF attack');
-        }
-    }
-
-    // Function to generate a random state value
-    function generateCryptoRandomState() {
-        const randomValues = new Uint32Array(2);
-        window.crypto.getRandomValues(randomValues);
-
-        // Encode as UTF-8
-        const utf8Encoder = new TextEncoder();
-        const utf8Array = utf8Encoder.encode(
-            String.fromCharCode.apply(null, randomValues)
-        );
-
-        // Base64 encode the UTF-8 data
-        return btoa(String.fromCharCode.apply(null, utf8Array))
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=+$/, '');
-    }
-
-    // If there's an access token, try an API request.
-    // Otherwise, start OAuth 2.0 flow.
-    function trySampleRequest() {
-        var params = JSON.parse(localStorage.getItem('oauth2-test-params'));
-        if (params && params['access_token']) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET',
-                'https://www.googleapis.com/drive/v3/about?fields=user&' +
-                'access_token=' + params['access_token']);
-            xhr.onreadystatechange = function (e) {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    console.log(xhr.response);
-                } else if (xhr.readyState === 4 && xhr.status === 401) {
-                    // Token invalid, so prompt for user permission.
-                    oauth2SignIn();
-                }
-            };
-            xhr.send(null);
-        } else {
-            oauth2SignIn();
-        }
-    }
-
-    /*
-     * Create form to request access token from Google's OAuth 2.0 server.
-     */
-    function oauth2SignIn() {
-        // create random state value and store in local storage
-        var state = generateCryptoRandomState();
-        localStorage.setItem('state', state);
-
+    function oauthSignIn() {
         // Google's OAuth 2.0 endpoint for requesting an access token
         var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
 
-        // Create element to open OAuth 2.0 endpoint in new window.
+        // Create <form> element to submit parameters to OAuth 2.0 endpoint.
         var form = document.createElement('form');
         form.setAttribute('method', 'GET'); // Send as a GET request.
         form.setAttribute('action', oauth2Endpoint);
 
         // Parameters to pass to OAuth 2.0 endpoint.
-        var params = {
-            'client_id': YOUR_CLIENT_ID,
+        var params = {'client_id': YOUR_CLIENT_ID,
             'redirect_uri': YOUR_REDIRECT_URI,
-            'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly',
-            'state': state,
+            'response_type': 'token',
+            'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/calendar.readonly',
             'include_granted_scopes': 'true',
-            'response_type': 'token'
-        };
+            'state': 'pass-through value'};
 
         // Add form parameters as hidden input values.
         for (var p in params) {

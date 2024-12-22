@@ -64,7 +64,8 @@ https://www.googleapis.com/oauth2/v1/userinfo?access_token=xxx
     }
 
     function getUserInfoFromGoogle(accessToken) {
-        let userInfoUrl = 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=' + accessToken;
+        let userInfoUrl = 'google/token?token=' + encodeURIComponent(accessToken);
+        //let userInfoUrl = 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=' + accessToken;
         fetch(userInfoUrl)
             .then(response => {
                 if (!response.ok) {
