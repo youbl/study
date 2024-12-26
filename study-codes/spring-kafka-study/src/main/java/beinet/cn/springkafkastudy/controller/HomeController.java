@@ -104,7 +104,7 @@ public class HomeController {
         kafkaTemplate.setProducerListener(new MyProducerListener());
 
         for (int i = 0; i < cnt; i++) {
-            kafkaTemplate.send(topic, map.get("time"), map);
+            kafkaTemplate.send(topic, map.get("time"), map).addCallback();
         }
         return String.format("异步2发送成功");
     }

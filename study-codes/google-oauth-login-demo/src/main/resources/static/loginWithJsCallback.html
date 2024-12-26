@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>谷歌代码生成-登录方式-js回调</title>
+    <script src="https://accounts.google.com/gsi/client" async></script>
+</head>
+<body>
+<div>
+    <pre>
+参考这里生成Google的登录代码，生成时要选择使用javascript回调函数：googleCallback
+https://developers.google.com/identity/gsi/web/tools/configurator?hl=zh-cn
+
+登录后，会回调此页面的googleCallback函数，参数是一个对象，如：
+{
+    "credential": "xxx.yyy.zzz",
+    "select_by": "fedcm"
+}
+需要在该uri的服务端代码，进行校验：https://developers.google.com/identity/gsi/web/guides/verify-google-id-token?hl=zh-cn
+注：这个credential是标准的JWT数据，用.连接了3段字符串，可以进行base64解码提取数据
+    </pre>
+    <div id="g_id_onload"
+         data-client_id="1077926509083-kdvvehdtgtolkn5andh50hrg1psbr5pi.apps.googleusercontent.com"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-callback="googleCallback"
+         data-auto_select="true"
+         data-itp_support="true">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="signin_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+    <hr>
+    <div>服务端解析出的用户信息:</div>
+    <textarea id="txtUserInfo" style="width:95%;height: 500px;"></textarea>
+</div>
+<script>
+    function googleCallback(arg) {
+        let jwt = arg.credential;
+        let userInfoUrl = 'google/credential?credential=' + encodeURIComponent(jwt);
+        fetch(userInfoUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json(); // 假设我们正在处理 JSON
+            })
+            .then(data => {
+                document.getElementById('txtUserInfo').value = 'google用户信息:\r\n' +
+                    JSON.stringify(data, null, 4);
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+    }
+</script>
+</body>
+</html>
