@@ -20,7 +20,7 @@ https://developers.google.com/identity/gsi/web/tools/configurator?hl=zh-cn
 注：这个credential是标准的JWT数据，用.连接了3段字符串，可以进行base64解码提取数据
     </pre>
     <div id="g_id_onload"
-         data-client_id="1077926509083-kdvvehdtgtolkn5andh50hrg1psbr5pi.apps.googleusercontent.com"
+         data-client_id="1093585410643-qi1pdejjt5urqevtd3o4k0joilg02711.apps.googleusercontent.com"
          data-context="signin"
          data-ux_mode="popup"
          data-callback="googleCallback"
@@ -43,6 +43,7 @@ https://developers.google.com/identity/gsi/web/tools/configurator?hl=zh-cn
 <script>
     function googleCallback(arg) {
         let jwt = arg.credential;
+        prompt('', jwt);
         let userInfoUrl = 'google/credential?credential=' + encodeURIComponent(jwt);
         fetch(userInfoUrl)
             .then(response => {

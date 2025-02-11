@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>谷歌登录方式1</title>
+    <title>谷歌登录方式2</title>
     <script src="https://accounts.google.com/gsi/client" async></script>
 </head>
 <body>
@@ -16,12 +16,12 @@ https://developers.google.com/identity/gsi/web/tools/configurator?hl=zh-cn
 注1：这个credential是标准的JWT数据，用.连接3段，可以进行base64解码提取数据
 注2：这个data-login_uri需要在google后台配置，而这个配置真的可能要等几小时才生效
 
-<h1>当前页面弹出小窗的方式登录：</h1>
+<h1>整个页面跳转到google去登录的方式，这种方式不支持js回调：</h1>
     </pre>
     <div id="g_id_onload"
          data-client_id="1093585410643-qi1pdejjt5urqevtd3o4k0joilg02711.apps.googleusercontent.com"
          data-context="signin"
-         data-ux_mode="popup"
+         data-ux_mode="redirect"
          data-login_uri="http://localhost:8801/ttt/"
          data-auto_prompt="false">
     </div>

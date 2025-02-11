@@ -18,7 +18,7 @@ import java.util.Collections;
  * @since 2024/12/26 16:02
  */
 public class GoogleJwtUtils {
-    private final static String CLIENT_ID = "1077926509083-kdvvehdtgtolkn5andh50hrg1psbr5pi.apps.googleusercontent.com";
+    private final static String CLIENT_ID = "1093585410643-qi1pdejjt5urqevtd3o4k0joilg02711.apps.googleusercontent.com";
 
     @SneakyThrows
     public static GoogleUser getMailFromCredential(String credential) {

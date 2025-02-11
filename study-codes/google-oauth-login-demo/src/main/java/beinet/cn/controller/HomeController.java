@@ -35,7 +35,7 @@ public class HomeController {
      * @param request 请求上下文
      * @return 完整用户信息
      */
-    @PostMapping(value = "/", produces = "text/plain")
+    @PostMapping(value = "/")
     public GoogleUser indexPost(HttpServletRequest request) {
         // 读取谷歌响应的数据并打印，响应数据参考：
         /*
