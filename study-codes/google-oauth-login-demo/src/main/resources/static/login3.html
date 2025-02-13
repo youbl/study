@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>谷歌登录方式3-自定义交互</title>
+</head>
+<body>
+<div>
+    <pre>
+参考这里生成Google的登录代码：
+https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow?hl=zh-cn#userconsentprompt
+
+login1.html、login2.html 是使用google的库生成登录按钮，完成登录，这种方式会创建一个iframe，无法通过js进行自定义交互，样式也要去适配。
+
+本页面这种登录方式：
+1、自行拼接google的登录链接，自己跳转的方法，去google登录；
+2、然后通过js接收google回调的access_token；
+3、使用access_token调用google的api获取用户信息；
+4、完成。
+
+<h1>js接收回调access_token：</h1>
+    </pre>
+    <button onclick="oauthSignIn();">自定义Google登录按钮</button>
+    <hr>
+</div>
+<script> var YOUR_CLIENT_ID = '1093585410643-qi1pdejjt5urqevtd3o4k0joilg02711.apps.googleusercontent.com';
+// 登录成功后要重定向的地址，只能用html去接，因为参数放在 # 锚后，服务端收不到
+// 注意：要在google后台“已获授权的重定向 URI”去配置这个url
+var YOUR_REDIRECT_URI = 'http://localhost:8801/ttt/redirect.html';
+
+function oauthSignIn() {
+    // Google's OAuth 2.0 endpoint for requesting an access token
+    var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
+
+    // Create <form> element to submit parameters to OAuth 2.0 endpoint.
+    var form = document.createElement('form');
+    form.setAttribute('method', 'GET'); // Send as a GET request.
+    form.setAttribute('action', oauth2Endpoint);
+
+    // Parameters to pass to OAuth 2.0 endpoint.
+    var params = {
+        'client_id': YOUR_CLIENT_ID,
+        'redirect_uri': YOUR_REDIRECT_URI,
+        'response_type': 'token',
+        'scope': 'https://www.googleapis.com/auth/userinfo.email',
+        'include_granted_scopes': 'true',
+        'state': 'xxx'
+    };
+
+    // Add form parameters as hidden input values.
+    for (var p in params) {
+        var input = document.createElement('input');
+        input.setAttribute('type', 'hidden');
+        input.setAttribute('name', p);
+        input.setAttribute('value', params[p]);
+        form.appendChild(input);
+    }
+
+    // Add form to page and submit it to open the OAuth 2.0 endpoint.
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+</body>
+</html>

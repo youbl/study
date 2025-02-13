@@ -8,14 +8,14 @@
 <body>
 <div>
     <pre>
-本页面是login3.html登录后的回调页面，接收url里的参数，进行解析和展示
+本页面是login3.html登录后的回调页面，接收url里#后面的参数，进行解析和展示
 这个页面接收到的是access_token,这个token可以直接用于访问google的api，
 如：
-state=77aT37k
-access_token=xxx
+state=xxx
+access_token=ya29.abc
 token_type=Bearer
 expires_in=3599
-scope=email%20profile%20https://www.googleapis.com/auth/drive.metadata.readonly%20https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email%20openid
+scope=email%20profile%20https://www.googleapis.com/auth/userinfo.email%20openid%20https://www.googleapis.com/auth/drive.metadata.readonly%20https://www.googleapis.com/auth/userinfo.profile
 authuser=0
 prompt=none
 
@@ -34,7 +34,7 @@ https://www.googleapis.com/oauth2/v1/userinfo?access_token=xxx
         // url参考：
         // http://localhost:8801/ttt/red.html#state=77aT37k&access_token=ya29.xxx-xxx-xxx-xxx-xxx-xxx-xxx&token_type=Bearer&expires_in=3599&scope=email%20profile%20https://www.googleapis.com/auth/drive.metadata.readonly%20https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email%20openid&authuser=0&prompt=none
         let url = location.href;
-        alert(url);
+        prompt('', url);
 
         let accessToken = getFromHash('access_token');
         if (!accessToken) return alert('未找到access_token' + url);
@@ -66,8 +66,16 @@ https://www.googleapis.com/oauth2/v1/userinfo?access_token=xxx
     function getUserInfoFromGoogle(accessToken) {
         let userInfoUrl = 'google/token?token=' + encodeURIComponent(accessToken);
         userInfoUrl = 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=' + accessToken;
-        window.open(userInfoUrl);
-        return;
+
+        // var xhr = new XMLHttpRequest();
+        // xhr.open('GET', userInfoUrl);
+        // xhr.onreadystatechange = function (e) {
+        //     console.log(xhr.response);
+        // };
+        // xhr.send(null);
+        // return;
+        
+        // 调用google api，获取用户信息
         fetch(userInfoUrl)
             .then(response => {
                 if (!response.ok) {
