@@ -24,7 +24,15 @@ https://www.googleapis.com/oauth2/v1/userinfo?access_token=xxx
 注：获取用户信息建议放在服务端，这样信任度比较高，避免从客户端获取后提交给服务端。
     </pre>
     <hr>
-    <textarea id="txtUserInfo" style="width:95%;height: 500px;"></textarea>
+    <div>
+        <div style="float: left">
+            <textarea id="txtUserInfoJs" style="width:600px;height: 500px;"></textarea>
+        </div>
+        <div style="float: left">
+            <textarea id="txtUserInfoServer" style="width:600px;height: 500px;"></textarea>
+        </div>
+        <div style="clear: both"></div>
+    </div>
 </div>
 
 <script>
@@ -34,11 +42,16 @@ https://www.googleapis.com/oauth2/v1/userinfo?access_token=xxx
         // url参考：
         // http://localhost:8801/ttt/red.html#state=77aT37k&access_token=ya29.xxx-xxx-xxx-xxx-xxx-xxx-xxx&token_type=Bearer&expires_in=3599&scope=email%20profile%20https://www.googleapis.com/auth/drive.metadata.readonly%20https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email%20openid&authuser=0&prompt=none
         let url = location.href;
-        prompt('', url);
+        //prompt('', url);
 
         let accessToken = getFromHash('access_token');
-        if (!accessToken) return alert('未找到access_token' + url);
-        getUserInfoFromGoogle(accessToken);
+        if (!accessToken) {
+            return alert('未找到access_token' + url);
+        }
+        // 前端用js获取google用户信息
+        getUserInfoFromGoogleByJs(accessToken);
+        // 后端获取google用户信息
+        getUserInfoFromGoogleByServer(accessToken);
     }
 
     /**
@@ -63,9 +76,8 @@ https://www.googleapis.com/oauth2/v1/userinfo?access_token=xxx
 
     }
 
-    function getUserInfoFromGoogle(accessToken) {
-        let userInfoUrl = 'google/token?token=' + encodeURIComponent(accessToken);
-        userInfoUrl = 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=' + accessToken;
+    function getUserInfoFromGoogleByJs(accessToken) {
+        let userInfoUrl = 'https://www.googleapis.com/oauth2/v1/userinfo?access_token=' + accessToken;
 
         // var xhr = new XMLHttpRequest();
         // xhr.open('GET', userInfoUrl);
@@ -74,7 +86,7 @@ https://www.googleapis.com/oauth2/v1/userinfo?access_token=xxx
         // };
         // xhr.send(null);
         // return;
-        
+
         // 调用google api，获取用户信息
         fetch(userInfoUrl)
             .then(response => {
@@ -84,13 +96,28 @@ https://www.googleapis.com/oauth2/v1/userinfo?access_token=xxx
                 return response.json(); // 假设我们正在处理 JSON
             })
             .then(data => {
-                document.getElementById('txtUserInfo').value = 'google用户信息:\r\n' +
+                document.getElementById('txtUserInfoJs').value = '前端得到的google用户信息:\r\n' +
                     JSON.stringify(data, null, 4);
             })
             .catch(error => {
                 console.error('There has been a problem with your fetch operation:', error);
             });
     }
+
+    function getUserInfoFromGoogleByServer(accessToken) {
+        let userInfoUrl = 'google/token?accessToken=' + encodeURIComponent(accessToken);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', userInfoUrl);
+        xhr.onreadystatechange = function (e) {
+            const data = JSON.parse(xhr.response);
+            document.getElementById('txtUserInfoServer').value = '后端得到的google用户信息:\r\n' +
+                JSON.stringify(data, null, 4);
+        };
+        xhr.send(null);
+    }
+
+
 </script>
 </body>
 </html>

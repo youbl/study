@@ -2,17 +2,11 @@ package beinet.cn.controller;
 
 import beinet.cn.utils.GoogleJwtUtils;
 import beinet.cn.utils.dto.GoogleUser;
-import lombok.Data;
 import lombok.SneakyThrows;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
-
-import java.net.URLEncoder;
 
 @RestController
 @Slf4j
@@ -24,4 +18,9 @@ public class TokenController {
         return GoogleJwtUtils.getMailFromCredential(credential);
     }
 
+    @GetMapping("google/token")
+    @SneakyThrows
+    public GoogleUser token(@RequestParam String accessToken) {
+        return GoogleJwtUtils.getUserInfoByToken(accessToken);
+    }
 }
