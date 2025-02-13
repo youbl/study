@@ -2,23 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>谷歌登录方式3-自定义交互</title>
+    <title>谷歌登录方式4-自定义交互+后端读数据</title>
 </head>
 <body>
 <div>
     <pre>
 参考这里生成Google的登录代码：
-https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow?hl=zh-cn#userconsentprompt
+https://developers.google.com/identity/protocols/oauth2/web-server?hl=zh-cn
 
-login1.html、login2.html 是使用google的库生成登录按钮，完成登录，这种方式会创建一个iframe，无法通过js进行自定义交互，样式也要去适配。
+login3.html是直接在前端获取access_token，前端就可以拿google用户信息，
+但是这样拿到的信息给后端可能不安全，被篡改的可能性高，因此google提供了另一个返回code的模式。
 
 本页面这种登录方式：
 1、自行拼接google的登录链接，自己跳转的方法，去google登录；
-2、然后在google的回调页面，通过js接收google回调url，#后面的access_token；
-3、使用access_token调用google的api获取用户信息；
-4、完成。
+2、然后在google的回调页面，通过js接收google回调url, ?后面的code；
+注：这一步也可以回调到服务端接口，但是交互麻烦一些，需要服务端再跳转一次到前端页面，不建议；
+3、使用google回调的code + 步骤1使用的redirect_uri，在后端调用google的api获取access_token；
+4、后端接着用access_token获取用户信息；
+5、完成。
 
-<h1>js接收回调access_token：</h1>
+<h1>js接收回调code：</h1>
     </pre>
     <button onclick="oauthSignIn();">自定义Google登录按钮</button>
     <hr>
@@ -26,7 +29,7 @@ login1.html、login2.html 是使用google的库生成登录按钮，完成登录
 <script> var YOUR_CLIENT_ID = '1093585410643-qi1pdejjt5urqevtd3o4k0joilg02711.apps.googleusercontent.com';
 // 登录成功后要重定向的地址，只能用html去接，因为参数放在 # 锚后，服务端收不到
 // 注意：要在google后台“已获授权的重定向 URI”去配置这个url
-var YOUR_REDIRECT_URI = 'http://localhost:8801/ttt/redirect.html';
+var YOUR_REDIRECT_URI = 'http://localhost:8801/ttt/redirectCode.html';
 
 function oauthSignIn() {
     // Google's OAuth 2.0 endpoint for requesting an access token
@@ -41,10 +44,11 @@ function oauthSignIn() {
     var params = {
         'client_id': YOUR_CLIENT_ID,
         'redirect_uri': YOUR_REDIRECT_URI,
-        'response_type': 'token',
         'scope': 'https://www.googleapis.com/auth/userinfo.email',
         'include_granted_scopes': 'true',
-        'state': 'xxx'
+        'state': 'xxx',
+        'response_type': 'code',
+        'access_type': 'offline'
     };
 
     // Add form parameters as hidden input values.

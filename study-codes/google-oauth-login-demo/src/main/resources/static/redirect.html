@@ -21,7 +21,7 @@ prompt=none
 
 再使用这个access_token，去调用google的用户信息界面，获取到基本的用户信息即可：
 https://www.googleapis.com/oauth2/v1/userinfo?access_token=xxx
-注：获取用户信息建议放在服务端，这样信任度比较高，避免从客户端获取后提交给服务端。
+注意：获取用户信息建议放在服务端，这样信任度比较高，避免从客户端获取后提交给服务端。
     </pre>
     <hr>
     <div>
@@ -110,9 +110,11 @@ https://www.googleapis.com/oauth2/v1/userinfo?access_token=xxx
         var xhr = new XMLHttpRequest();
         xhr.open('GET', userInfoUrl);
         xhr.onreadystatechange = function (e) {
-            const data = JSON.parse(xhr.response);
-            document.getElementById('txtUserInfoServer').value = '后端得到的google用户信息:\r\n' +
-                JSON.stringify(data, null, 4);
+            if (xhr.response) {
+                const data = JSON.parse(xhr.response);
+                document.getElementById('txtUserInfoServer').value = '后端得到的google用户信息:\r\n' +
+                    JSON.stringify(data, null, 4);
+            }
         };
         xhr.send(null);
     }

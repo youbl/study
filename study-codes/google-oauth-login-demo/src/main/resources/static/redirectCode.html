@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>谷歌登录方式4</title>
+    <script src="base64.min.js"></script>
+</head>
+<body>
+<div>
+    <pre>
+本页面是login3.html登录后的回调页面，接收url里#后面的参数，进行解析和展示
+这个页面接收到的是access_token,这个token可以直接用于访问google的api，
+如：
+state=xxx
+access_token=ya29.abc
+token_type=Bearer
+expires_in=3599
+scope=email%20profile%20https://www.googleapis.com/auth/userinfo.email%20openid%20https://www.googleapis.com/auth/drive.metadata.readonly%20https://www.googleapis.com/auth/userinfo.profile
+authuser=0
+prompt=none
+
+再使用这个access_token，去调用google的用户信息界面，获取到基本的用户信息即可：
+https://www.googleapis.com/oauth2/v1/userinfo?access_token=xxx
+注意：code只能用1次，第2次再用，google会返回：
+{
+  "error": "invalid_grant",
+  "error_description": "Bad Request"
+}
+    </pre>
+    <hr>
+    <div>
+        <div style="float: left">
+            <textarea id="txtUserInfoServer" style="width:800px;height: 500px;"></textarea>
+        </div>
+        <div style="clear: both"></div>
+    </div>
+</div>
+
+<script>
+    start();
+
+    function start() {
+        // url参考：
+        // http://localhost:8801/ttt/redirectCode.html?state=xxx&code=abc-def&scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive.metadata.readonly+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile&authuser=0&prompt=none
+        let url = location.href;
+        prompt('', url);
+
+        let code = getQueryString('code');
+        if (!code) {
+            return alert('未找到code' + url);
+        }
+        // 必须跟login4.html里配置的YOUR_REDIRECT_URI完全一致，包括斜杠，否则会报错
+        let callbackUrl = 'http://localhost:8801/ttt/redirectCode.html';
+        // 后端获取google用户信息
+        getUserInfoFromGoogleByServer(code, callbackUrl);
+    }
+
+    function getUserInfoFromGoogleByServer(code, callbackUrl) {
+        let userInfoUrl = 'google/code?code=' + encodeURIComponent(code) +
+            '&callbackUrl=' + encodeURIComponent(callbackUrl);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', userInfoUrl);
+        xhr.onreadystatechange = function (e) {
+            if (xhr.response) {
+                const data = JSON.parse(xhr.response);
+                document.getElementById('txtUserInfoServer').value = '后端得到的google用户信息:\r\n' +
+                    JSON.stringify(data, null, 4);
+            }
+        };
+        xhr.send(null);
+    }
+
+
+    /**
+     * 获取url里的变量值
+     * @param {string} name 变量名
+     * @return {string} 变量值
+     */
+    function getQueryString(name) {
+        if (typeof (name) !== 'string') {
+            return '';
+        }
+        name = name.trim();
+        if (name.length === 0) {
+            return '';
+        }
+        let localSearch = location.search.toLocaleLowerCase();
+        name = name.toLowerCase() + '=';
+        let tmpName = '?' + name;
+        let idx = localSearch.indexOf(tmpName);
+        if (idx < 0) {
+            tmpName = '&' + name;
+            idx = localSearch.indexOf(tmpName);
+            if (idx < 0) {
+                return '';
+            }
+        }
+        name = tmpName;
+        let tmp = location.search.substring(idx + name.length);
+        idx = tmp.indexOf('&');
+        if (idx === 0)
+            return '';
+        let ret;
+        if (idx < 0) {
+            ret = tmp;
+        } else {
+            ret = tmp.substring(0, idx);
+        }
+        return decodeURIComponent(ret.trim());
+    }
+</script>
+</body>
+</html>
