@@ -5,6 +5,11 @@ spring:
     name: spring-scheduled-study
   profiles:
     active: dev
+  task:
+    scheduling:
+      pool:
+        size: 5
+      thread-name-prefix: beinet-task-
 
 ---  # 2个三横杠之间表示一个环境配置
 spring:
