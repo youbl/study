@@ -1,5 +1,6 @@
 package beinet.cn.springscheduledstudy.dynamicTrigger;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
@@ -40,7 +41,8 @@ public class DynamicTask implements SchedulingConfigurer {
         scheduler.initialize();
         taskRegistrar.setScheduler(scheduler);
 
-        // 根据 timerMillis 指定的时间间隔启动 dynamicTask1 任务
+        // 根据 timerMillis 指定的时间间隔启动 dynamicTask1 任务.
+        // 注意是按上次任务结束时间开始计时，等同于：fixedDelay
         taskRegistrar.addTriggerTask(
                 this::dynamicTask1,
                 triggerContext -> {
@@ -49,9 +51,11 @@ public class DynamicTask implements SchedulingConfigurer {
                 });
     }
 
+    @SneakyThrows
     private void dynamicTask1() {
         long nowTime = System.currentTimeMillis();
         log.info("上次执行:{}，等待时长:{}", lastTime, nowTime - lastTime);
         lastTime = nowTime;
+        Thread.sleep(5000L);
     }
 }
