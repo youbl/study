@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 @Setter
 @Getter
 public class DynamicTask implements SchedulingConfigurer {
-    private Long timerMillis = 10000L;
 
     private long lastTime = System.currentTimeMillis();
 
@@ -36,7 +35,7 @@ public class DynamicTask implements SchedulingConfigurer {
         taskRegistrar.addTriggerTask(
                 this::dynamicTask1,
                 triggerContext -> {
-                    PeriodicTrigger periodicTrigger = new PeriodicTrigger(timerMillis);
+                    PeriodicTrigger periodicTrigger = new PeriodicTrigger(DynamicVars.getTimerMillis());
                     return periodicTrigger.nextExecutionTime(triggerContext);
                 });
     }
