@@ -1,24 +1,26 @@
 package beinet.cn.springscheduledstudy.dynamicTrigger;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
 
 /**
  * 自定义运行时长的计划任务类。
- * 注意：因为继承了SchedulingConfigurer，会导致配置spring.task.scheduling 失效，不推荐
+ * 注意：因为继承了SchedulingConfigurer，会导致配置spring.task.scheduling 失效
  * @author youbl
  * @since 2025/4/9 14:29
  */
 @Component
 @Slf4j
-@Setter
-@Getter
 public class DynamicTask implements SchedulingConfigurer {
+    @Value("${spring.task.scheduling.pool.size:5}")
+    private int poolSize;
+    @Value("${spring.task.scheduling.thread-name-prefix:beinet-}")
+    private String threadNamePrefix;
 
     private long lastTime = System.currentTimeMillis();
 
@@ -31,6 +33,13 @@ public class DynamicTask implements SchedulingConfigurer {
      */
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+        // 初始化线程池（复用 yml 配置）
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(poolSize);
+        scheduler.setThreadNamePrefix(threadNamePrefix);
+        scheduler.initialize();
+        taskRegistrar.setScheduler(scheduler);
+
         // 根据 timerMillis 指定的时间间隔启动 dynamicTask1 任务
         taskRegistrar.addTriggerTask(
                 this::dynamicTask1,
