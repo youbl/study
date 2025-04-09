@@ -22,4 +22,13 @@ public class DynamicChangeController {
         log.info(ret);
         return ret;
     }
+
+    @GetMapping("updateCron")
+    public String updateCron(@RequestParam String cron) {
+        String old = DynamicVars.getCron();
+        DynamicVars.setCron(cron);
+        String ret = "定时器间隔修改：" + old + " => " + cron;
+        log.info(ret);
+        return ret;
+    }
 }

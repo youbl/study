@@ -11,5 +11,9 @@ import lombok.Setter;
 public class DynamicVars {
     @Getter
     @Setter
-    private static Long TimerMillis = 10000L;
+    private static Long timerMillis = 10000L;
+
+    @Getter
+    @Setter
+    private static String cron = "0/5 * * * * ?"; // 默认5秒一次
 }
