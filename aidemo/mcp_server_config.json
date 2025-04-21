@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "spring-ai-mcp-weather": {
+      "command": "java",
+      "args": [
+        "-Dspring.ai.mcp.server.transport=STDIO",
+        "-jar",
+        "D:\\mine\\study\\aidemo\\ai-mcp-server\\target\\ai-mcp-server-1.0-SNAPSHOT.jar"
+      ]
+    }
+  }
+}

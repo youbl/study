@@ -1,0 +1,24 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: ai-mcp-client
+  main:
+    banner-mode: off # 关闭启动时的spring 控制台输出的banner图标
+    #web-application-type: none
+
+  ai:
+    openai:
+      api-key: aaa
+    mcp:
+      client:
+        name: beinet-ai-mcp-client
+        request-timeout: 600s
+        # stdio模式的MCP Server配置
+        stdio:
+          servers-configuration: file:D:/mine/study/aidemo/mcp_server_config.json
+        # sse模式的MCP Server配置
+#        sse:
+#          connections:
+#            weather-mcp-server:
+#              url: http://a.b.com
