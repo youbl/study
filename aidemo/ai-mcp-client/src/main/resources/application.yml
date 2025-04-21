@@ -10,6 +10,14 @@ spring:
   ai:
     openai:
       api-key: aaa
+      # spring-ai-autoconfigure-model-openai-1.0.0-M7-sources.jar!\org\springframework\ai\model\openai\autoconfigure\OpenAiConnectionProperties.java
+      # 里会设置默认值：https://api.openai.com
+      # 但是openai限制国内访问，改用兼容openai的deepseek，注意要配置下面的model，否则会抛异常：Model not exist.
+      # 注：deepseek也使用 spring-ai-starter-model-openai
+      base-url: https://api.deepseek.com
+      chat:
+        options:
+          model: deepseek-chat
     mcp:
       client:
         name: beinet-ai-mcp-client
