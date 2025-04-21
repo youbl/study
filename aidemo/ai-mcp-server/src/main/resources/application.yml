@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: ai-mcp-server
+  main:
+    banner-mode: off # 关闭启动时的spring 控制台输出的banner图标
+
+# 置空，表示不输出控制台日志
+logging:
+  pattern:
+    console:
