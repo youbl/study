@@ -22,6 +22,10 @@ public class ChatController {
     // spring内置的client
     private final ChatClient chatClient;
 
+    // 调用: http://localhost:8888/chat?msg=how%20is%20the%20weather%20in%20new%20york
+    // 响应: {"response":"The weather in New York is currently sunny."}
+    // 调用: http://localhost:8888/chat?msg=did%20any%20weather%20alerts%20in%20new%20york
+    // 响应: {"response":"There are currently no weather alerts in New York. The report also mentions no significant wind conditions."}
     @GetMapping("chat")
     public Map<String, String> chat(@RequestParam String msg) {
         if (!StringUtils.hasText(msg)) {
