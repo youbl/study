@@ -23,3 +23,9 @@ node_modules
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+.idea
+/aidemo/ai-mcp-server/target
+/aidemo/ai-mcp-client/target
+/aidemo/ai-mcp-server/ai-mcp-server.iml
+/aidemo/ai-mcp-client/ai-mcp-client.iml
