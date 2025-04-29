@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <link href="./res/icon/favicon.ico" rel="icon" type="image/x-icon"/>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+    <title>通用工具</title>
+    <script src="./res/vue.min.js"></script>
+    <script src="./res/axios.min.js"></script>
+    <script src="./res/elemeIndex.js"></script>
+    <script src="./res/qs.min.js" type="text/javascript"></script>
+    <script src="./res/common.js"></script>
+    <link href="./res/elemeIndex.css" rel="stylesheet">
+</head>
+<body>
+<div id="divApp" style="text-align: center;">
+    <pre>
+        官方登录说明：https://docs.github.com/zh/apps/creating-github-apps/writing-code-for-a-github-app/building-a-login-with-github-button-with-a-github-app
+    </pre>
+    <el-button @click="doLogin()" icon="el-icon-success" type="primary">Github登录</el-button>
+    <el-button @click="location.reload()" icon="el-icon-refresh">刷 新</el-button>
+
+    <!-- github只能跳转页面，不支持通过iframe来访问 -->
+    <!--    <el-dialog title="Github登录" :visible.sync="dialogVisible"-->
+    <!--               width="30%" :before-close="handleClose">-->
+    <!--        <iframe :src="loginUrl" frameborder="0" style="width:100%;height:600px"-->
+    <!--                allow="clipboard-read; clipboard-write"></iframe>-->
+    <!--    </el-dialog>-->
+</div>
+<script type="text/javascript">
+    // '/ops/';
+    const vueApp = new Vue({
+        el: '#divApp',
+        data: function () {
+            return {
+                githubUrl: 'https://github.com/login/oauth/authorize?scope=user:email&client_id=',
+                githubClientId: 'Iv23liwz6AxRv7VXcHvf',
+                redirectUri: 'http://localhost:8080/callback'
+            }
+        },
+        mounted: function () {
+        },
+        created: function () {
+        },
+        computed: {},
+        methods: {
+            doLogin: function () {
+                location.href = this.githubUrl + encodeURIComponent(this.githubClientId)
+                    + '&redirect_uri=' + encodeURIComponent(this.redirectUri);
+            },
+            // handleClose(done) {
+            //     this.$confirm('确认关闭？').then(_ => {
+            //         done();
+            //     }).catch(_ => {
+            //     });
+            // }
+        },
+    });
+</script>
+</body>
+</html>
