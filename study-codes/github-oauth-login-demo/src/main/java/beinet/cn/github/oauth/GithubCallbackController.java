@@ -26,7 +26,7 @@ public class GithubCallbackController {
 
     // 会带code回调，如 http://localhost:8080/callback?code=abc
     @GetMapping("callback")
-    public String callback(@RequestParam String code) {
+    public GithubUserDto callback(@RequestParam String code) {
         GithubTokenInputDto dto = new GithubTokenInputDto()
                 .setClient_id(githubClientId)
                 .setClient_secret(githubClientSecret)
@@ -34,12 +34,11 @@ public class GithubCallbackController {
         // 根据授权码，获取access_token
         GithubTokenOutputDto ret = githubTokenFeign.getAccessToken(dto);
         if (!ret.success()) {
-            return "failed: " + ret.getError_description() + " " + ret.getError_uri();
+            throw new RuntimeException("failed: " + ret.getError_description() + " " + ret.getError_uri());
         }
 
         String auth = ret.getToken_type() + " " + ret.getAccess_token();
         // 根据access_token, 获取用户信息
-        GithubUserDto userInfo = githubApiFeign.getUserInfo(auth);
-        return userInfo.toString();
+        return githubApiFeign.getUserInfo(auth);
     }
 }

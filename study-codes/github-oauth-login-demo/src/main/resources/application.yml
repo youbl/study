@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8999
 spring:
   application:
     name: github-oauth-login-demo

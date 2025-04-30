@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Github登录回调</title>
+</head>
+<body>
+<div>
+    <pre>
+本页面是github.html登录后的回调页面，接收url里会有一个code参数，要转发给服务端，去获取access_token，并进一步获取用户信息
+    </pre>
+    <hr>
+    <div>
+        <textarea id="txtUserInfoServer" style="width:600px;height: 500px;"></textarea>
+    </div>
+</div>
+
+<script>
+    start();
+    function start() {
+        let code = getFromSearch('code');
+        if (!code) {
+            return alert('未找到code授权码:' + url);
+        }
+        // 后端获取github用户信息
+        getUserInfoByServer(code);
+    }
+    /**
+     * 从url的参数里获取变量值
+     * @param name 变量名
+     * @returns {string} 变量值
+     */
+    function getFromSearch(name) {
+        if (!name || !location.search || location.search.length <= 1) {
+            return ''; // 没有search
+        }
+        let array = location.search.substring(1).split('&'); // 去除第一个 ?
+        for (let i = 0, j = array.length; i < j; i++) {
+            let item = array[i];
+            let idx = item.indexOf('=');
+            if (idx <= 0) continue;
+
+            if (name === item.substring(0, idx))
+                return item.substring(idx + 1);
+        }
+        return '';
+
+    }
+    function getUserInfoByServer(code) {
+        let userInfoUrl = '../callback?code=' + encodeURIComponent(code);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', userInfoUrl);
+        xhr.onreadystatechange = function (e) {
+            if (xhr.response) {
+                const data = JSON.parse(xhr.response);
+                document.getElementById('txtUserInfoServer').value = '后端返回得到的github用户信息:\r\n' +
+                    JSON.stringify(data, null, 4);
+            }
+        };
+        xhr.send(null);
+    }
+</script>
+</body>
+</html>
