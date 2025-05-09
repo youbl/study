@@ -3,7 +3,6 @@ package beinet.cn.springkafkaconsumerstudy;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -13,14 +12,14 @@ import java.util.List;
  * @author : youbl
  * @create: 2021/12/9 12:47
  */
-@Component
+//@Component
 public class KafkaConsumer {
 
     // KafkaListener如果设置了属性id，则id将作为groupId使用（会覆盖yml里的group-id），给kafka保存offset；可以设置属性idIsGroup=false
     @KafkaListener(id = "handler1", idIsGroup = false,
             //topics = {"${spring.kafka.template.default-topic}"},  // topics写入一个个的topic
             topicPattern = "task_execute_result.*",                 // topicPattern使用正则匹配topic名称
-            containerFactory = "myKafkaFactory")
+            containerFactory = "myBatchKafkaFactory")
     // 注意，必须设置factory的AckMode为AckMode.MANUAL_IMMEDIATE 才能会出现这个Acknowledgment参数
     public void msgHandler(List<ConsumerRecord> message, Acknowledgment ack) {
         int errIndex = 0;
