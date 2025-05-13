@@ -17,7 +17,7 @@ public class GoogleReCAPTCHAUtil {
     private final static String PROJECT_ID = "reCAPTCHA的项目ID";
     // The reCAPTCHA key associated with the site/app
     private final static String RECAPTCHA_KEY = "reCAPTCHA的key";
-    // 前端填写的 data-action="LOGIN_BEINET"
+    // 前端填写的 data-action="LOGIN_BEINET" 
     private final static String RECAPTCHA_ACTION = "LOGIN_BEINET";
 
     /**
