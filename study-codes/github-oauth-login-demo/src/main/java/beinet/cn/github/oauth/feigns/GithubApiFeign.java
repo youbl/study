@@ -1,9 +1,12 @@
 package beinet.cn.github.oauth.feigns;
 
+import beinet.cn.github.oauth.feigns.dto.GithubEmailDto;
 import beinet.cn.github.oauth.feigns.dto.GithubUserDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
+
+import java.util.List;
 
 /**
  * 获取github的用户等信息的接口服务
@@ -20,7 +23,10 @@ public interface GithubApiFeign {
     @GetMapping(value = "user", headers = {"Accept=application/json", "Content-Type=application/json"})
     GithubUserDto getUserInfo(@RequestHeader String authorization);
 
-    /*
+    @GetMapping(value = "user/emails", headers = {"Accept=application/json", "Content-Type=application/json"})
+    List<GithubEmailDto> getUserEmails(@RequestHeader String authorization);
+
+   /*
     成功响应参考：
 cost time(ms): 916 status:200 from GET https://api.github.com/user
 Headers:
