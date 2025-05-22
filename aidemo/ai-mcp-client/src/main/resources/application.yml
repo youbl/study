@@ -8,6 +8,9 @@ spring:
     #web-application-type: none
 
   ai:
+    chat:
+      client:
+        enabled: true
     openai:
       api-key: aaa
       # spring-ai-autoconfigure-model-openai-1.0.0-M7-sources.jar!\org\springframework\ai\model\openai\autoconfigure\OpenAiConnectionProperties.java
@@ -23,10 +26,14 @@ spring:
         name: beinet-ai-mcp-client
         request-timeout: 600s
         # stdio模式的MCP Server配置
-        stdio:
-          servers-configuration: file:D:/mine/study/aidemo/mcp_server_config.json
+#        stdio:
+#          servers-configuration: file:D:/mine/study/aidemo/mcp_server_config.json
         # sse模式的MCP Server配置
-#        sse:
-#          connections:
-#            weather-mcp-server:
-#              url: http://a.b.com
+        sse:
+          connections:
+            weather-mcp-server:
+              url: http://127.0.0.1:8080
+
+logging:
+  level:
+    io.modelcontextprotocol.client.McpAsyncClient: debug

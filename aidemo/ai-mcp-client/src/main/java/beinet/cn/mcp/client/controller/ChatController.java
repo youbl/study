@@ -31,7 +31,8 @@ public class ChatController {
         if (!StringUtils.hasText(msg)) {
             return new HashMap<>();
         }
-        String response = chatClient.prompt().user(msg).call().content();
+        ChatClient.CallResponseSpec spec = chatClient.prompt().user(msg).call();
+        String response = spec.content();
         assert response != null;
         return Map.of("response", response);
     }
