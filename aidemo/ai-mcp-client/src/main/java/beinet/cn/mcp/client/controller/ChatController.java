@@ -2,6 +2,7 @@ package beinet.cn.mcp.client.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,7 +32,11 @@ public class ChatController {
         if (!StringUtils.hasText(msg)) {
             return new HashMap<>();
         }
-        ChatClient.CallResponseSpec spec = chatClient.prompt().user(msg).call();
+        ChatClient.CallResponseSpec spec = chatClient.prompt()
+                .user(msg)
+                .system("The background of the conversation is in a high school.")
+                .advisors(new SimpleLoggerAdvisor())
+                .call();
         String response = spec.content();
         assert response != null;
         return Map.of("response", response);

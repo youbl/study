@@ -36,4 +36,5 @@ spring:
 
 logging:
   level:
-    io.modelcontextprotocol.client.McpAsyncClient: debug
+    # io.modelcontextprotocol.client.McpAsyncClient: debug
+    org.springframework.ai.chat.client.advisor: DEBUG

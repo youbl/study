@@ -23,6 +23,7 @@ public class BeinetMcpClientConfiguration {
     ChatClient chatClient(ChatClient.Builder chatClientBuilder,
                           ToolCallbackProvider tools) {
         return chatClientBuilder
+                .defaultSystem("You are my secretary")
                 .defaultToolCallbacks(tools)
                 .build();
     }
